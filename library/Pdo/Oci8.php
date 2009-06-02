@@ -6,8 +6,8 @@
  * @package Pdo
  * @subpackage Oci8
  * @author Ben Ramsey <ramsey@php.net>
- * @copyright Copyright (c) 2009 Ben Ramsey
- * @license http://opensource.org/licenses/mit-license.php  MIT License
+ * @copyright Copyright (c) 2009 Ben Ramsey (http://benramsey.com/)
+ * @license http://open.benramsey.com/license/mit  MIT License
  */
 
 /**
@@ -18,7 +18,7 @@ require_once 'Pdo/Util.php';
 /**
  * @see Pdo_Oci8_Statement
  */
-//require_once 'Pdo/Oci8/Statement.php';
+require_once 'Pdo/Oci8/Statement.php';
 
 /**
  * Oci8 class to mimic the interface of the PDO class
@@ -35,27 +35,6 @@ class Pdo_Oci8 extends PDO
      * @var resource
      */
     protected $_dbh;
-
-    /**
-     * DSN string
-     *
-     * @var string
-     */
-    protected $_dsn;
-
-    /**
-     * Username
-     *
-     * @var string
-     */
-    protected $_username;
-
-    /**
-     * Password
-     *
-     * @var string
-     */
-    protected $_password;
 
     /**
      * Driver options
@@ -111,9 +90,6 @@ class Pdo_Oci8 extends PDO
             throw new PDOException($e['message']);
         }
 
-        $this->_dsn = $dsn;
-        $this->_username = $username;
-        $this->_password = $password;
         $this->_options = $options;
     }
 
@@ -133,7 +109,7 @@ class Pdo_Oci8 extends PDO
             throw new PDOException($e['message']);
         }
 
-        return new Pdo_Oci8_Statement($sth, $options);
+        return new Pdo_Oci8_Statement($sth, $this, $options);
     }
 
     /**
@@ -303,7 +279,6 @@ class Pdo_Oci8 extends PDO
     /**
      * Retrieve a database connection attribute
      *
-     * @param int $attribute One of the PDO::ATTR_* constants
      * @return mixed
      */
     public function getAttribute($attribute)

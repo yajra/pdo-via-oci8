@@ -6,8 +6,8 @@
  * @package Pdo
  * @subpackage Oci8
  * @author Ben Ramsey <ramsey@php.net>
- * @copyright Copyright (c) 2009 Ben Ramsey
- * @license http://opensource.org/licenses/mit-license.php  MIT License
+ * @copyright Copyright (c) 2009 Ben Ramsey (http://benramsey.com/)
+ * @license http://open.benramsey.com/license/mit  MIT License
  */
 
 /**
