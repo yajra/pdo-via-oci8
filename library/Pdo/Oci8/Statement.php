@@ -52,10 +52,10 @@ class Pdo_Oci8_Statement extends PDOStatement
                                 Pdo_Oci8 $pdoOci8,
                                 array $options = array())
     {
-        if (strtolower(get_resource_type()) != 'oci8 statement') {
+        if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new PDOException(
                 'Resource expected of type oci8 statement; '
-                . (string) get_resource_type() . ' received instead');
+                . (string) get_resource_type($sth) . ' received instead');
         }
 
         $this->_sth = $sth;
@@ -69,7 +69,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @param array $inputParams
      * @return bool
      */
-    public function execute(array $inputParams = array())
+    public function execute($inputParams = null)
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
         if ($this->_pdoOci8->isTransaction()) {
@@ -77,8 +77,10 @@ class Pdo_Oci8_Statement extends PDOStatement
         }
 
         // Set up bound parameters, if passed in
-        foreach ($inputParams as $key => $value) {
-            $this->bindParam($key, $value);
+        if (is_array($inputParams)) {
+            foreach ($inputParams as $key => $value) {
+                $this->bindParam($key, $value);
+            }
         }
 
         return oci_execute($this->_sth, $mode);
@@ -113,7 +115,7 @@ class Pdo_Oci8_Statement extends PDOStatement
                               &$variable,
                               $dataType = PDO::PARAM_STR,
                               $maxLength = -1,
-                              array $options = array())
+                              $options = null)
     {
         if (is_array($variable)) {
             return oci_bind_array_by_name(
@@ -145,7 +147,7 @@ class Pdo_Oci8_Statement extends PDOStatement
                                &$variable,
                                $dataType = null,
                                $maxLength = -1,
-                               array $options = array())
+                               $options = null)
     {
     }
 
@@ -180,7 +182,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @param int $colNumber
      * @return string
      */
-    public function fetchColumn($colNumber)
+    public function fetchColumn($colNumber = 0)
     {
     }
 
@@ -194,7 +196,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      */
     public function fetchAll($fetchType = PDO::FETCH_BOTH,
                              $idxOrClass = null,
-                             array $ctorArgs = array())
+                             $ctorArgs = null)
     {
     }
 
@@ -205,7 +207,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @param array $ctorArgs
      * @return mixed
      */
-    public function fetchObject($className, array $ctorArgs = array())
+    public function fetchObject($className = null, $ctorArgs = null)
     {
     }
 

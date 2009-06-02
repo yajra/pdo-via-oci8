@@ -2,6 +2,7 @@
 require_once 'PHPUnit/Framework.php';
 
 require_once 'Pdo/Oci8.php';
+require_once 'Pdo/Oci8/Statement.php';
 
 /**
  * Test class for Pdo_Oci8.
@@ -50,7 +51,8 @@ class Pdo_Oci8Test extends PHPUnit_Framework_TestCase
         $this->_object = new Pdo_Oci8(
             $this->_dsn,
             $this->_username,
-            $this->_password
+            $this->_password,
+            array(PDO::ATTR_PERSISTENT => true)
         );
     }
 
@@ -112,7 +114,19 @@ class Pdo_Oci8Test extends PHPUnit_Framework_TestCase
      */
     public function testPrepare()
     {
-        $this->markTestIncomplete('Incomplete test');
+        $sql = 'SELECT * FROM EMPLOYEES WHERE EMPLOYEE_ID = :id';
+        $this->assertType('Pdo_Oci8_Statement', $this->_object->prepare($sql));
+    }
+
+    /**
+     * Tests preparing a statement with an exception thrown
+     */
+    public function testPrepareException()
+    {
+        $this->setExpectedException('PDOException');
+
+        $sql = "SELECT ' FROM DUAL";
+        $this->_object->prepare($sql);
     }
 
     /**
@@ -203,7 +217,27 @@ class Pdo_Oci8Test extends PHPUnit_Framework_TestCase
      */
     public function testExec()
     {
-        $this->markTestIncomplete('Incomplete test');
+        $sql = "
+            INSERT INTO EMPLOYEES (
+                EMPLOYEE_ID,
+                FIRST_NAME,
+                LAST_NAME,
+                EMAIL,
+                HIRE_DATE,
+                JOB_ID)
+            VALUES (
+                207,
+                'John',
+                'Doe',
+                'jdoe@mailinator.com',
+                '01-May-09',
+                'IT_PROG')";
+
+        $this->_object->beginTransaction();
+        $rowsAffected = $this->_object->exec($sql);
+        $this->_object->rollBack();
+
+        $this->assertEquals(1, $rowsAffected);
     }
 
     /**

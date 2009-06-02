@@ -46,9 +46,23 @@ class Pdo_Util
             }
         } else if (strlen(trim($dsn)) > 0) {
             // The DSN passed in must be an alias set in php.ini
-            return self::parseDsn(ini_get("pdo.dsn.{$dsn}"), $params);
+            return self::parseDsn(self::iniGet("pdo.dsn.{$dsn}"), $params);
         }
 
         return array();
+    }
+
+    /**
+     * Wraps ini_get()
+     *
+     * This is primarily done so that we can easily stub this method in a
+     * unit test.
+     *
+     * @param string $varname
+     * @return string
+     */
+    public static function iniGet($varname)
+    {
+        return ini_get($varname);
     }
 }

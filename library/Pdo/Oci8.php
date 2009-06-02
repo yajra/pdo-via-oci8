@@ -100,13 +100,17 @@ class Pdo_Oci8 extends PDO
      * @param array $options
      * @return Pdo_Oci8_Statement
      */
-    public function prepare($statement, array $options = array())
+    public function prepare($statement, $options = null)
     {
-        $sth = oci_parse($this->_dbh, $statement);
+        $sth = @oci_parse($this->_dbh, $statement);
 
         if (!$sth) {
             $e = oci_error($this->_dbh);
             throw new PDOException($e['message']);
+        }
+
+        if (!is_array($options)) {
+            $options = array();
         }
 
         return new Pdo_Oci8_Statement($sth, $this, $options);
