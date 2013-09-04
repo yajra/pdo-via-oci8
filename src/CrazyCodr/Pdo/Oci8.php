@@ -337,7 +337,7 @@ class Oci8
             //The driver is the first part of the dsn, then comes the variables
             $driver = null;
             $vars = null;
-            list($driver, $vars) = @explode(':', $dsn, 2);
+            @list($driver, $vars) = explode(':', $dsn, 2);
 
             //Based on the driver, the processing changes
             switch($driver)
@@ -364,10 +364,10 @@ class Oci8
 
                         //Extract the hostname port from the $vars
                         $hostnamePost = null;
-                        list($hostnamePort, $vars) = @explode('/', $vars, 2);
+                        @list($hostnamePort, $vars) = explode('/', $vars, 2);
 
                         //Parse the hostname port into two variables, set the default port if invalid
-                        list($hostname, $port) = @explode(':', $hostnamePort, 2);
+                        @list($hostname, $port) = explode(':', $hostnamePort, 2);
                         if(!is_numeric($port) || is_null($port))
                         {
                             $port = 1521;
@@ -380,13 +380,13 @@ class Oci8
                     }
 
                     //Extract the dbname/service name from the first part, the rest are parameters
-                    list($dbname, $vars) = @explode(';', $vars, 2);
+                    @list($dbname, $vars) = explode(';', $vars, 2);
                     $returnParams = array();
-                    foreach(@explode(';', $vars) as $var)
+                    foreach(explode(';', $vars) as $var)
                     {
 
                         //Get the key/value pair
-                        list($key, $value) = @explode('=', $var, 2);
+                        @list($key, $value) = explode('=', $var, 2);
 
                         //If the key is not a valid parameter, discard
                         if(!in_array($key, $params))
