@@ -78,7 +78,7 @@ class Oci8
             $this->_dbh = @oci_pconnect(
                 $username,
                 $password,
-                $$description,
+                $description,
                 $parsedDsn['charset']);
 
         } else {
@@ -86,7 +86,7 @@ class Oci8
             $this->_dbh = @oci_connect(
                 $username,
                 $password,
-                $$description,
+                $description,
                 $parsedDsn['charset']);
 
         }
