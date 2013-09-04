@@ -1,24 +1,14 @@
 <?php
 /**
- * PDO Userspace Driver for Oracle (oci8)
+ * PDO userspace driver proxying calls to PHP OCI8 driver
  *
  * @category Database
- * @package Pdo
- * @subpackage Oci8
- * @author Ben Ramsey <ramsey@php.net>
- * @copyright Copyright (c) 2009 Ben Ramsey (http://benramsey.com/)
- * @license http://open.benramsey.com/license/mit  MIT License
+ * @package CrazyCodr/PDO-via-OCI8
+ * @author Mathieu Dumoulin <crazyone@crazycoders.net>
+ * @copyright Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
+ * @license MIT
  */
-
-/**
- * @see Pdo_Util
- */
-require_once 'Pdo/Util.php';
-
-/**
- * @see Pdo_Oci8_Statement
- */
-require_once 'Pdo/Oci8/Statement.php';
+namespace CrazyCodr\Pdo;
 
 /**
  * Oci8 class to mimic the interface of the PDO class
@@ -27,8 +17,10 @@ require_once 'Pdo/Oci8/Statement.php';
  * that instanceof checks and type-hinting of existing code will work
  * seamlessly.
  */
-class Pdo_Oci8 extends PDO
+class Oci8 
+    extends \PDO
 {
+
     /**
      * Database handler
      *
@@ -64,15 +56,29 @@ class Pdo_Oci8 extends PDO
                                 $password = null,
                                 array $options = array())
     {
-        $parsedDsn = Pdo_Util::parseDsn($dsn, array('dbname', 'charset'));
 
+        //Parse the DSN
+        $parsedDsn = Utilities::parseDsn($dsn, array('charset'));
+
+        //Create a description to locate the database to connect to
+        $description = '(DESCRIPTION =
+            (ADDRESS_LIST =
+                (ADDRESS = (PROTOCOL = TCP)(HOST = '.$parsedDsn['hostname'].')
+                (PORT = '.$parsedDsn['port'].'))
+            )
+            (CONNECT_DATA =
+                    (SERVICE_NAME = '.$parsedDsn['dbname'].')
+            )
+        )';
+
+        //Attempt a connection
         if (isset($options[PDO::ATTR_PERSISTENT])
             && $options[PDO::ATTR_PERSISTENT]) {
 
             $this->_dbh = @oci_pconnect(
                 $username,
                 $password,
-                $parsedDsn['dbname'],
+                $$description,
                 $parsedDsn['charset']);
 
         } else {
@@ -80,17 +86,20 @@ class Pdo_Oci8 extends PDO
             $this->_dbh = @oci_connect(
                 $username,
                 $password,
-                $parsedDsn['dbname'],
+                $$description,
                 $parsedDsn['charset']);
 
         }
 
+        //Check if connection was successful
         if (!$this->_dbh) {
             $e = oci_error();
             throw new PDOException($e['message']);
         }
 
+        //Save the options
         $this->_options = $options;
+
     }
 
     /**
@@ -305,4 +314,112 @@ class Pdo_Oci8 extends PDO
     {
         return "'" . str_replace("'", "''", $string) . "'";
     }
+
+    /**
+     * Parses a DSN string according to the rules in the PHP manual
+     *
+     * @param string $dsn
+     * @todo Extract this to a DSN Parser object and inject result into PDO class
+     * @todo Change return value of array() when invalid to thrown exception
+     * @todo Change returned value to object with default values and properties
+     * @todo Refactor to use an URI content resolver instead of file_get_contents() that could support caching for example
+     * @param array $params
+     * @return array
+     * @link http://www.php.net/manual/en/pdo.construct.php
+     */
+    public static function parseDsn($dsn, array $params)
+    {
+
+        //If there is a colon, it means it's a parsable DSN
+        //Doesn't mean it's valid, but at least, it's parsable
+        if (strpos($dsn, ':') !== false) {
+
+            //The driver is the first part of the dsn, then comes the variables
+            $driver = null;
+            $vars = null;
+            list($driver, $vars) = @explode(':', $dsn, 2);
+
+            //Based on the driver, the processing changes
+            switch($driver)
+            {
+                case 'uri':
+
+                    //If the driver is a URI, we get the file content at that URI and parse it
+                    return self::parseDsn(file_get_contents($vars), $params);
+
+                case 'oci':
+
+                    //Remove the leading //
+                    if(substr($vars, 0, 2) !== '//')
+                    {
+                        return arrau();
+                    }
+                    $vars = substr($vars, 2);
+
+                    //If there is a / in the initial vars, it means we have hostname:port configuration to read
+                    $hostname = 'localhost';
+                    $port = 1521;
+                    if(strpos($vars, '/') !== false)
+                    {
+
+                        //Extract the hostname port from the $vars
+                        $hostnamePost = null;
+                        list($hostnamePort, $vars) = @explode('/', $vars, 2);
+
+                        //Parse the hostname port into two variables, set the default port if invalid
+                        list($hostname, $port) = @explode(':', $hostnamePort, 2);
+                        if(!is_numeric($port) || is_null($port))
+                        {
+                            $port = 1521;
+                        }
+                        else
+                        {
+                            $port = (int)$port;
+                        }
+
+                    }
+
+                    //Extract the dbname/service name from the first part, the rest are parameters
+                    list($dbname, $vars) = @explode(';', $vars, 2);
+                    $returnParams = array();
+                    foreach(@explode(';', $vars) as $var)
+                    {
+
+                        //Get the key/value pair
+                        list($key, $value) = @explode('=', $var, 2);
+
+                        //If the key is not a valid parameter, discard
+                        if(!in_array($key, $params))
+                        {
+                            continue;
+                        }
+
+                        //Key that key/value pair
+                        $returnParams[$key] = $value;
+
+                    }
+
+                    //Condense the parameters, hostname, port, dbname into $returnParams
+                    $returnParams['hostname'] = $hostname;
+                    $returnParams['port'] = $port;
+                    $returnParams['dbname'] = $dbname;
+
+                    //Return the resulting configuration
+                    return $returnParams;
+
+            }
+
+        //If there is no colon, it means it's a DSN name in php.ini
+        } elseif (strlen(trim($dsn)) > 0) {
+
+            // The DSN passed in must be an alias set in php.ini
+            return self::parseDsn(ini_get("pdo.dsn.".$dsn), $params);
+
+        }
+
+        //Not valid, return an empty array
+        return array();
+
+    }
+
 }

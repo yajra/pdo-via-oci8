@@ -1,0 +1,22 @@
+{
+    "name": "crazycodr/pdo-via-oci8",
+    "description": "PDO userspace driver proxying calls to PHP OCI8 driver",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CrazyCodr - Mathieu Dumoulin",
+            "email": "crazyone@crazycoders.net"
+        }
+    ],
+    "require-dev": {
+       "phpunit/phpunit": "3.7.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "CrazyCodr\\": "src/"
+        }
+    },
+    "config": {
+        "github-protocols": ["https"]
+    }
+}
