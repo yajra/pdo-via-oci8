@@ -58,7 +58,7 @@ class Oci8
     {
 
         //Parse the DSN
-        $parsedDsn = Utilities::parseDsn($dsn, array('charset'));
+        $parsedDsn = self::parseDsn($dsn, array('charset'));
 
         //Create a description to locate the database to connect to
         $description = '(DESCRIPTION =
