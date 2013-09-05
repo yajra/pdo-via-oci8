@@ -26,7 +26,7 @@ class Oci8
      *
      * @var resource
      */
-    protected $_dbh;
+    public $_dbh;
 
     /**
      * Driver options
@@ -72,8 +72,8 @@ class Oci8
         )';
 
         //Attempt a connection
-        if (isset($options[PDO::ATTR_PERSISTENT])
-            && $options[PDO::ATTR_PERSISTENT]) {
+        if (isset($options[\PDO::ATTR_PERSISTENT])
+            && $options[\PDO::ATTR_PERSISTENT]) {
 
             $this->_dbh = @oci_pconnect(
                 $username,
@@ -94,7 +94,7 @@ class Oci8
         //Check if connection was successful
         if (!$this->_dbh) {
             $e = oci_error();
-            throw new PDOException($e['message']);
+            throw new \PDOException($e['message']);
         }
 
         //Save the options
@@ -115,14 +115,14 @@ class Oci8
 
         if (!$sth) {
             $e = oci_error($this->_dbh);
-            throw new PDOException($e['message']);
+            throw new \PDOException($e['message']);
         }
 
         if (!is_array($options)) {
             $options = array();
         }
 
-        return new Pdo_Oci8_Statement($sth, $this, $options);
+        return new \CrazyCodr\Pdo\Oci8\Statement($sth, $this, $options);
     }
 
     /**
@@ -133,7 +133,7 @@ class Oci8
     public function beginTransaction()
     {
         if ($this->isTransaction()) {
-            throw new PDOException('There is already an active transaction');
+            throw new \PDOException('There is already an active transaction');
         }
 
         $this->_isTransaction = true;
@@ -158,7 +158,7 @@ class Oci8
     public function commit()
     {
         if (!$this->isTransaction()) {
-            throw new PDOException('There is no active transaction');
+            throw new \PDOException('There is no active transaction');
         }
 
         if (oci_commit($this->_dbh)) {
@@ -177,7 +177,7 @@ class Oci8
     public function rollBack()
     {
         if (!$this->isTransaction()) {
-            throw new PDOException('There is no active transaction');
+            throw new \PDOException('There is no active transaction');
         }
 
         if (oci_rollback($this->_dbh)) {
@@ -300,6 +300,33 @@ class Oci8
             return $this->_options[$attribute];
         }
         return null;
+    }
+
+    /**
+     * Special non PDO function used to start cursors in the database
+     * Remember to call oci_free_statement() on your cursor
+     * 
+     * @access public
+     *
+     * @return mixed Value.
+     */
+    public function getNewCursor()
+    {
+        return oci_new_cursor($this->_dbh);
+    }
+
+    /**
+     * Special non PDO function used to close an open cursor in the database
+     * 
+     * @param mixed $cursor Description.
+     *
+     * @access public
+     *
+     * @return mixed Value.
+     */
+    public function closeCursor($cursor)
+    {
+        return oci_free_statement($cursor);
     }
 
     /**

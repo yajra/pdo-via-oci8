@@ -1,6 +1,10 @@
-PDO Userspace Driver for Oracle (oci8)
+PDO Userspace Driver for Oracle via OCI8 functions
 
-Copyright (c) 2009 Ben Ramsey (http://benramsey.com/)
+Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
+
+Thanks to Ben Ramsey for the base work on these classes, much rework was 
+thrown into it such as namespacing, autoloading, fix to many incomplete
+functions, etc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

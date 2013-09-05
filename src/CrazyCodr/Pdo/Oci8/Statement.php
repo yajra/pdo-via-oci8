@@ -1,14 +1,14 @@
 <?php
 /**
- * PDO Userspace Driver for Oracle (oci8)
+ * PDO userspace driver proxying calls to PHP OCI8 driver
  *
  * @category Database
- * @package Pdo
- * @subpackage Oci8
- * @author Ben Ramsey <ramsey@php.net>
- * @copyright Copyright (c) 2009 Ben Ramsey (http://benramsey.com/)
- * @license http://open.benramsey.com/license/mit  MIT License
+ * @package CrazyCodr/PDO-via-OCI8
+ * @author Mathieu Dumoulin <crazyone@crazycoders.net>
+ * @copyright Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
+ * @license MIT
  */
+namespace CrazyCodr\Pdo\Oci8;
 
 /**
  * Oci8 Statement class to mimic the interface of the PDOStatement class
@@ -17,8 +17,10 @@
  * this so that instanceof check and type-hinting of existing code will work
  * seamlessly.
  */
-class Pdo_Oci8_Statement extends PDOStatement
+class Statement 
+    extends \PDOStatement
 {
+
     /**
      * Statement handler
      *
@@ -32,6 +34,20 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @var Pdo_Oci8
      */
     protected $_pdoOci8;
+
+    /**
+     * Contains the current data
+     *
+     * @var array
+     */
+    protected $_current;
+
+    /**
+     * Contains the current key
+     *
+     * @var mixed
+     */
+    protected $_key;
 
     /**
      * Statement options
@@ -49,11 +65,11 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @return void
      */
     public function __construct($sth,
-                                Pdo_Oci8 $pdoOci8,
+                                \CrazyCodr\Pdo\Oci8 $pdoOci8,
                                 array $options = array())
     {
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
-            throw new PDOException(
+            throw new \PDOException(
                 'Resource expected of type oci8 statement; '
                 . (string) get_resource_type($sth) . ' received instead');
         }
@@ -94,10 +110,24 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @param int $cursorOffset
      * @return mixed
      */
-    public function fetch($fetchStyle = PDO::FETCH_BOTH,
-                          $cursorOrientation = PDO::FETCH_ORI_NEXT,
+    public function fetch($fetchStyle = \PDO::FETCH_BOTH,
+                          $cursorOrientation = \PDO::FETCH_ORI_NEXT,
                           $offset = 0)
     {
+        switch($fetchStyle)
+        {
+            case \PDO::FETCH_BOTH:
+                return oci_fetch_array($this->_sth, OCI_RETURN_NULLS);
+
+            case \PDO::FETCH_ASSOC:
+                return oci_fetch_assoc($this->_sth, OCI_RETURN_NULLS);
+
+            case \PDO::FETCH_ROW:
+                return oci_fetch_row($this->_sth, OCI_RETURN_NULLS);
+
+            case \PDO::FETCH_CLASS:
+                return (object)oci_fetch_row($this->_sth, OCI_RETURN_NULLS);
+        }
     }
 
     /**
@@ -113,20 +143,46 @@ class Pdo_Oci8_Statement extends PDOStatement
      */
     public function bindParam($parameter,
                               &$variable,
-                              $dataType = PDO::PARAM_STR,
+                              $dataType = \PDO::PARAM_STR,
                               $maxLength = -1,
                               $options = null)
     {
-        if (is_array($variable)) {
-            return oci_bind_array_by_name(
-                $this->_sth,
-                $parameter,
-                $variable,
-                count($variable)
-            );
+
+        //Adapt the type
+        switch($dataType)
+        {
+            case \PDO::PARAM_BOOL:
+                $oci_type =  SQLT_INT;
+                break;
+
+            case \PDO::PARAM_NULL:
+                $oci_type =  SQLT_INT;
+                break;
+
+            case \PDO::PARAM_INT:
+                $oci_type =  SQLT_INT;
+                break;
+
+            case \PDO::PARAM_STR:
+                $oci_type =  SQLT_CHR;
+                break;
+
+            case \PDO::PARAM_LOB:
+                $oci_type =  SQLT_BLOB;
+                break;
+
+            case \PDO::PARAM_STMT:
+                $oci_type =  OCI_B_CURSOR;
+
+                //Result sets require a cursor
+                $variable = $this->_pdoOci8->getNewCursor();
+                break;
         }
 
-        return oci_bind_by_name($this->_sth, $parameter, $variable);
+        //Bind the parameter
+        $result = oci_bind_by_name($this->_sth, $parameter, $variable, $maxLength, $oci_type);
+        return $result;
+
     }
 
     /**
@@ -161,7 +217,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      */
     public function bindValue($parameter,
                               $variable,
-                              $dataType = PDO::PARAM_STR)
+                              $dataType = \PDO::PARAM_STR)
     {
         return $this->bindParam($parameter, $variable, $dataType);
     }
@@ -184,6 +240,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      */
     public function fetchColumn($colNumber = 0)
     {
+        return reset($this->fetch());
     }
 
     /**
@@ -194,10 +251,16 @@ class Pdo_Oci8_Statement extends PDOStatement
      * @param array $ctorArgs
      * @return mixed
      */
-    public function fetchAll($fetchType = PDO::FETCH_BOTH,
+    public function fetchAll($fetchType = \PDO::FETCH_BOTH,
                              $idxOrClass = null,
                              $ctorArgs = null)
     {
+        $results = array();
+        while($row = $this->fetch($fetchType, $idxOrClass, $ctorArgs))
+        {
+            $results[] = $row;
+        }
+        return $results;
     }
 
     /**
@@ -209,6 +272,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      */
     public function fetchObject($className = null, $ctorArgs = null)
     {
+        return (object)$this->fetch();
     }
 
     /**
@@ -287,7 +351,7 @@ class Pdo_Oci8_Statement extends PDOStatement
      * Returns metadata for a column in a result set
      *
      * The array returned by this function is patterned after that
-     * returned by PDO::getColumnMeta(). It includes the following
+     * returned by \PDO::getColumnMeta(). It includes the following
      * elements:
      *
      *     native_type
@@ -363,48 +427,4 @@ class Pdo_Oci8_Statement extends PDOStatement
     {
     }
 
-    /**
-     * Returns the current row from the rowset
-     *
-     * @return array
-     */
-    public function current()
-    {
-    }
-
-    /**
-     * Returns the key for the current row
-     *
-     * @return mixed
-     */
-    public function key()
-    {
-    }
-
-    /**
-     * Advances the cursor forward and returns the next row
-     *
-     * @return void
-     */
-    public function next()
-    {
-    }
-
-    /**
-     * Rewinds the cursor to the beginning of the rowset
-     *
-     * @return void
-     */
-    public function rewind()
-    {
-    }
-
-    /**
-     * Checks whether there is a current row
-     *
-     * @return bool
-     */
-    public function valid()
-    {
-    }
 }
