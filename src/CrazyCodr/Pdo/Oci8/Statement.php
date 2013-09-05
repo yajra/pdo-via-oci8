@@ -68,6 +68,7 @@ class Statement
                                 \CrazyCodr\Pdo\Oci8 $pdoOci8,
                                 array $options = array())
     {
+
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new \PDOException(
                 'Resource expected of type oci8 statement; '
@@ -117,16 +118,21 @@ class Statement
         switch($fetchStyle)
         {
             case \PDO::FETCH_BOTH:
-                return oci_fetch_array($this->_sth, OCI_RETURN_NULLS);
+                return oci_fetch_array($this->_sth);
 
             case \PDO::FETCH_ASSOC:
-                return oci_fetch_assoc($this->_sth, OCI_RETURN_NULLS);
+                return oci_fetch_assoc($this->_sth);
 
-            case \PDO::FETCH_ROW:
-                return oci_fetch_row($this->_sth, OCI_RETURN_NULLS);
+            case \PDO::FETCH_NUM:
+                return oci_fetch_row($this->_sth);
 
             case \PDO::FETCH_CLASS:
-                return (object)oci_fetch_row($this->_sth, OCI_RETURN_NULLS);
+                $value = oci_fetch_assoc($this->_sth);
+                if($value === false)
+                {
+                    return false;
+                }
+                return (object)$value;
         }
     }
 

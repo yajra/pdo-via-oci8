@@ -111,6 +111,7 @@ class Oci8
      */
     public function prepare($statement, $options = null)
     {
+    
         $sth = @oci_parse($this->_dbh, $statement);
 
         if (!$sth) {
