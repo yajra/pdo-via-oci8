@@ -154,6 +154,12 @@ class Statement
                               $options = null)
     {
 
+        //Replace the first @oci8param to a pseudo named parameter
+        if(is_numeric($parameter))
+        {
+            $parameter = ':autoparam'.$parameter;
+        }
+
         //Adapt the type
         switch($dataType)
         {

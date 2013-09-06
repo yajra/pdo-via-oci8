@@ -111,7 +111,22 @@ class Oci8
      */
     public function prepare($statement, $options = null)
     {
-    
+
+        //Replace ? with a pseudo named parameter
+        $newStatement = null;
+        $parameter = 0;
+        while($newStatement !== $statement)
+        {
+            if($newStatement !== null)
+            {
+                $statement = $newStatement;
+            }
+            $newStatement = preg_replace('/\?/', ':autoparam'.$parameter, $statement, 1);
+            $parameter++;
+        }
+        $statement = $newStatement;
+        
+        //Prepare the statement
         $sth = @oci_parse($this->_dbh, $statement);
 
         if (!$sth) {
