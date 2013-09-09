@@ -59,9 +59,6 @@ class Oci8
 
         //Parse the DSN
         $parsedDsn = self::parseDsn($dsn, array('charset'));
-        
-        // Get SID name
-        $sidString = (isset($parsedDsn['sid'])) ? '(SID = '.$parsedDsn['sid'].')' : '';
 
         //Create a description to locate the database to connect to
         $description = '(DESCRIPTION =
@@ -70,7 +67,6 @@ class Oci8
                 (PORT = '.$parsedDsn['port'].'))
             )
             (CONNECT_DATA =
-                     '.$sidString.'
                     (SERVICE_NAME = '.$parsedDsn['dbname'].')
             )
         )';
@@ -129,7 +125,7 @@ class Oci8
             $parameter++;
         }
         $statement = $newStatement;
-        
+
         //Prepare the statement
         $sth = @oci_parse($this->_dbh, $statement);
 
@@ -357,7 +353,7 @@ class Oci8
      * @return string
      * @todo Implement support for $paramType.
      */
-    public function quote($string, $paramType = PDO::PARAM_STR)
+    public function quote($string, $paramType = \PDO::PARAM_STR)
     {
         return "'" . str_replace("'", "''", $string) . "'";
     }
@@ -445,18 +441,11 @@ class Oci8
                         $returnParams[$key] = $value;
 
                     }
-                    
-                    // Dbname may also contain SID
-                    if(strpos($dbname,'/SID/') !== false)
-                    {
-                        list($dbname, $sidKey, $sidValue) = explode('/',$dbname);
-                    }
 
                     //Condense the parameters, hostname, port, dbname into $returnParams
                     $returnParams['hostname'] = $hostname;
                     $returnParams['port'] = $port;
                     $returnParams['dbname'] = $dbname;
-                    if(isset($sidValue)) $returnParams['sid'] = $sidValue;
 
                     //Return the resulting configuration
                     return $returnParams;
