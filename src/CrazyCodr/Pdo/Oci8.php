@@ -456,6 +456,7 @@ class Oci8
                     $returnParams['hostname'] = $hostname;
                     $returnParams['port'] = $port;
                     $returnParams['dbname'] = $dbname;
+                    if(isset($sidValue)) $returnParams['sid'] = $sidValue;
 
                     //Return the resulting configuration
                     return $returnParams;
