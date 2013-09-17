@@ -116,6 +116,8 @@ class Oci8
     public function prepare($statement, $options = null)
     {
 
+        // Get instance options
+        if($options == null) $options = $this->_options;
         //Replace ? with a pseudo named parameter
         $newStatement = null;
         $parameter = 0;
