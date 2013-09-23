@@ -100,7 +100,13 @@ class Statement
             }
         }
 
-        return oci_execute($this->_sth, $mode);
+        $result = @oci_execute($this->_sth, $mode);
+        if($result != true)
+        {
+            $oci_error = ocierror($this->_sth);
+            throw new \CrazyCodr\Pdo\Oci8\Exceptions\SqlException($oci_error['message'], $oci_error['code']);
+        }
+        return $result;
     }
 
     /**
