@@ -401,7 +401,7 @@ class Oci8
                     //Remove the leading //
                     if(substr($vars, 0, 2) !== '//')
                     {
-                        return arrau();
+                        return array();
                     }
                     $vars = substr($vars, 2);
 
