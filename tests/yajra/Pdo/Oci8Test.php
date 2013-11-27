@@ -11,21 +11,21 @@ class Oci8Test extends PHPUnit_Framework_TestCase
     {
 
         //Parse the $dsn and compare to result
-        $result = \CrazyCodr\Pdo\Oci8::parseDsn($dsn, array('charset'));
+        $result = \yajra\Pdo\Oci8::parseDsn($dsn, array('charset'));
         $this->assertEquals($expectedResult, $result);
 
     }
 
     /**
      * Returns all possible test variations for parseValidDSN
-     * 
+     *
      * @access public
      */
     public function testParseValidDSNProvider()
     {
         return array(
             array(
-                'dsn' => 'oci://db1', 
+                'dsn' => 'oci://db1',
                 'expectedResult' => array(
                     'hostname' => 'localhost',
                     'port' => 1521,
@@ -33,7 +33,7 @@ class Oci8Test extends PHPUnit_Framework_TestCase
                 ),
             ),
             array(
-                'dsn' => 'oci://localhost/db1', 
+                'dsn' => 'oci://localhost/db1',
                 'expectedResult' => array(
                     'hostname' => 'localhost',
                     'port' => 1521,
@@ -41,7 +41,7 @@ class Oci8Test extends PHPUnit_Framework_TestCase
                 ),
             ),
             array(
-                'dsn' => 'oci://localhost:1599/db2', 
+                'dsn' => 'oci://localhost:1599/db2',
                 'expectedResult' => array(
                     'hostname' => 'localhost',
                     'port' => 1599,
@@ -49,7 +49,7 @@ class Oci8Test extends PHPUnit_Framework_TestCase
                 ),
             ),
             array(
-                'dsn' => 'oci://nunc1m.server.business:1599/db3', 
+                'dsn' => 'oci://nunc1m.server.business:1599/db3',
                 'expectedResult' => array(
                     'hostname' => 'nunc1m.server.business',
                     'port' => 1599,
@@ -57,7 +57,7 @@ class Oci8Test extends PHPUnit_Framework_TestCase
                 ),
             ),
             array(
-                'dsn' => 'oci://nunc1m.server.business:1199/db6;charset=WE8ISO8859P15', 
+                'dsn' => 'oci://nunc1m.server.business:1199/db6;charset=WE8ISO8859P15',
                 'expectedResult' => array(
                     'hostname' => 'nunc1m.server.business',
                     'port' => 1199,

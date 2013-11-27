@@ -3,12 +3,12 @@
  * PDO userspace driver proxying calls to PHP OCI8 driver
  *
  * @category Database
- * @package CrazyCodr/PDO-via-OCI8
+ * @package yajra/PDO-via-OCI8
  * @author Mathieu Dumoulin <crazyone@crazycoders.net>
  * @copyright Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
  * @license MIT
  */
-namespace CrazyCodr\Pdo\Oci8;
+namespace yajra\Pdo\Oci8;
 
 /**
  * Oci8 Statement class to mimic the interface of the PDOStatement class
@@ -65,7 +65,7 @@ class Statement
      * @return void
      */
     public function __construct($sth,
-                                \CrazyCodr\Pdo\Oci8 $pdoOci8,
+                                \yajra\Pdo\Oci8 $pdoOci8,
                                 array $options = array())
     {
 
@@ -104,7 +104,7 @@ class Statement
         if($result != true)
         {
             $oci_error = ocierror($this->_sth);
-            throw new \CrazyCodr\Pdo\Oci8\Exceptions\SqlException($oci_error['message'], $oci_error['code']);
+            throw new \yajra\Pdo\Oci8\Exceptions\SqlException($oci_error['message'], $oci_error['code']);
         }
         return $result;
     }

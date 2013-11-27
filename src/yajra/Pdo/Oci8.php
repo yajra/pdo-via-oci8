@@ -3,12 +3,12 @@
  * PDO userspace driver proxying calls to PHP OCI8 driver
  *
  * @category Database
- * @package CrazyCodr/PDO-via-OCI8
+ * @package yajra/PDO-via-OCI8
  * @author Mathieu Dumoulin <crazyone@crazycoders.net>
  * @copyright Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
  * @license MIT
  */
-namespace CrazyCodr\Pdo;
+namespace yajra\Pdo;
 
 /**
  * Oci8 class to mimic the interface of the PDO class
@@ -144,7 +144,7 @@ class Oci8
             $options = array();
         }
 
-        return new \CrazyCodr\Pdo\Oci8\Statement($sth, $this, $options);
+        return new \yajra\Pdo\Oci8\Statement($sth, $this, $options);
     }
 
     /**

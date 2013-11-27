@@ -1,11 +1,11 @@
 {
-    "name": "crazycodr/pdo-via-oci8",
+    "name": "yajra/pdo-via-oci8",
     "description": "PDO userspace driver proxying calls to PHP OCI8 driver",
     "license": "MIT",
     "authors": [
         {
-            "name": "CrazyCodr - Mathieu Dumoulin",
-            "email": "crazyone@crazycoders.net"
+            "name": "yajra - Arjay Angeles",
+            "email": "aqangeles@gmail.com"
         }
     ],
     "require-dev": {
@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-0": {
-            "CrazyCodr\\": "src/"
+            "yajra\\": "src/"
         }
     },
     "config": {
