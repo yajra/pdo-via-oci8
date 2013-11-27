@@ -50,6 +50,13 @@ class Statement
     protected $_key;
 
     /**
+     * flag to convert BLOB to string or not
+     *
+     * @var boolean
+     */
+    protected $returnLobs = true;
+
+    /**
      * Statement options
      *
      * @var array
@@ -123,32 +130,55 @@ class Statement
     {
         // Convert array keys (or object properties) to lowercase
         $toLowercase = ($this->getAttribute(\PDO::ATTR_CASE) == \PDO::CASE_LOWER);
-
         switch($fetchStyle)
         {
             case \PDO::FETCH_BOTH:
+                $rs = oci_fetch_array($this->_sth); // add OCI_BOTH?
+                if($toLowercase) $rs = array_change_key_case($rs);
+                if ($this->returnLobs) {
+                    foreach ($rs as $field => $value) {
+                        if (is_object($value) ) {
+                            $rs[$field] = $value->load();
+                        }
+                    }
+                }
 
-                $value = oci_fetch_array($this->_sth); // add OCI_BOTH?
-                if($toLowercase) $value = array_change_key_case($value);
                 return $value;
 
             case \PDO::FETCH_ASSOC:
 
-                $value = oci_fetch_assoc($this->_sth);
-                if($toLowercase) $value = array_change_key_case($value);
-                return $value;
+                $rs = oci_fetch_assoc($this->_sth);
+                if($toLowercase) $rs = array_change_key_case($rs);
+                if ($this->returnLobs) {
+                    foreach ($rs as $field => $value) {
+                        if (is_object($value) ) {
+                            $rs[$field] = $value->load();
+                        }
+                    }
+                }
+
+                return $rs;
 
             case \PDO::FETCH_NUM:
                 return oci_fetch_row($this->_sth);
 
             case \PDO::FETCH_CLASS:
-                $value = oci_fetch_assoc($this->_sth);
-                if($value === false)
+                $rs = oci_fetch_assoc($this->_sth);
+                if($rs === false)
                 {
                     return false;
                 }
-                if($toLowercase) $value = array_change_key_case($value);
-                return (object)$value;
+                if($toLowercase) $rs = array_change_key_case($rs);
+
+                if ($this->returnLobs) {
+                    foreach ($rs as $field => $value) {
+                        if (is_object($value) ) {
+                            $rs[$field] = $value->load();
+                        }
+                    }
+                }
+
+                return (object) $rs;
         }
     }
 
