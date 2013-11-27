@@ -17,7 +17,7 @@ namespace CrazyCodr\Pdo;
  * that instanceof checks and type-hinting of existing code will work
  * seamlessly.
  */
-class Oci8 
+class Oci8
     extends \PDO
 {
 
@@ -59,7 +59,7 @@ class Oci8
 
         //Parse the DSN
         $parsedDsn = self::parseDsn($dsn, array('charset'));
-        
+
         //Get SID name
         $sidString = (isset($parsedDsn['sid'])) ? '(SID = '.$parsedDsn['sid'].')' : '';
 
@@ -327,7 +327,7 @@ class Oci8
     /**
      * Special non PDO function used to start cursors in the database
      * Remember to call oci_free_statement() on your cursor
-     * 
+     *
      * @access public
      *
      * @return mixed Value.
@@ -338,8 +338,21 @@ class Oci8
     }
 
     /**
+     * Special non PDO function used to start descriptor in the database
+     * Remember to call oci_free_statement() on your cursor
+     *
+     * @access public
+     *
+     * @return mixed Value.
+     */
+    public function getNewDescriptor($type = OCI_D_LOB)
+    {
+        return oci_new_descriptor($this->_dbh, $type);
+    }
+
+    /**
      * Special non PDO function used to close an open cursor in the database
-     * 
+     *
      * @param mixed $cursor Description.
      *
      * @access public
@@ -447,7 +460,7 @@ class Oci8
                         $returnParams[$key] = $value;
 
                     }
-                    
+
                     // Dbname may also contain SID
                     if(strpos($dbname,'/SID/') !== false)
                     {

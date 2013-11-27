@@ -17,7 +17,7 @@ namespace CrazyCodr\Pdo\Oci8;
  * this so that instanceof check and type-hinting of existing code will work
  * seamlessly.
  */
-class Statement 
+class Statement
     extends \PDOStatement
 {
 
@@ -196,7 +196,10 @@ class Statement
                 break;
 
             case \PDO::PARAM_LOB:
-                $oci_type =  SQLT_BLOB;
+                $oci_type =  OCI_B_BLOB;
+
+                // create a new descriptor for blob
+                $variable = $this->_pdoOci8->getNewDescriptor();
                 break;
 
             case \PDO::PARAM_STMT:
