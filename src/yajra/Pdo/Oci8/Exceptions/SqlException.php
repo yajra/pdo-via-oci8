@@ -1,6 +1,9 @@
 <?php
 namespace yajra\Pdo\Oci8\Exceptions;
 
-class SqlException extends \Exception
+use Illuminate\Database;
+
+class SqlException extends \PDOException
 {
+
 }
