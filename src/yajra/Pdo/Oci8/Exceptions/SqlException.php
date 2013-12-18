@@ -5,5 +5,10 @@ use Illuminate\Database;
 
 class SqlException extends \PDOException
 {
-
+  /**
+	 * The variable for error information.
+	 *
+	 * @var errorInfo
+	 */
+	public $errorInfo;
 }
