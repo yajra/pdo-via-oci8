@@ -63,17 +63,43 @@ class Oci8
         //Get SID name
         $sidString = (isset($parsedDsn['sid'])) ? '(SID = '.$parsedDsn['sid'].')' : '';
 
-        //Create a description to locate the database to connect to
-        $description = '(DESCRIPTION =
-            (ADDRESS_LIST =
-                (ADDRESS = (PROTOCOL = TCP)(HOST = '.$parsedDsn['hostname'].')
-                (PORT = '.$parsedDsn['port'].'))
-            )
-            (CONNECT_DATA =
-                    '.$sidString.'
-                    (SERVICE_NAME = '.$parsedDsn['dbname'].')
-            )
-        )';
+         if( strpos($parsedDsn['hostname'],",") !== FALSE ){
+
+            $hostname = explode(',',$parsedDsn['hostname']);
+            $count    = count($hostname);
+            $address  = "";
+
+            for($i = 0;$i < $count; $i++){
+               $address .= '(ADDRESS = (PROTOCOL = TCP)(HOST = '.$hostname[$i].')(PORT = '.$parsedDsn['port'].'))';
+            }   
+
+             //Create a description to locate the database to connect to
+            $description = '(DESCRIPTION =
+                '.$address.'
+                (LOAD_BALANCE = yes)
+                (FAILOVER = on)
+                (CONNECT_DATA =
+                        '.$sidString.'
+                        (SERVER = DEDICATED)
+                        (SERVICE_NAME = '.$parsedDsn['dbname'].')
+                )
+            )';
+
+        }else{
+
+             //Create a description to locate the database to connect to
+             $description = '(DESCRIPTION =
+                    (ADDRESS_LIST =
+                        (ADDRESS = (PROTOCOL = TCP)(HOST = '.$parsedDsn['hostname'].')
+                        (PORT = '.$parsedDsn['port'].'))
+                    )
+                    (CONNECT_DATA =
+                            '.$sidString.'
+                            (SERVICE_NAME = '.$parsedDsn['dbname'].')
+                    )
+                )';
+
+        }
 
         //Attempt a connection
         if (isset($options[\PDO::ATTR_PERSISTENT])
