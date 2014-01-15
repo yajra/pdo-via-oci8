@@ -71,7 +71,7 @@ class Oci8
 
             for($i = 0;$i < $count; $i++){
                $address .= '(ADDRESS = (PROTOCOL = TCP)(HOST = '.$hostname[$i].')(PORT = '.$parsedDsn['port'].'))';
-            }   
+            }
 
              //Create a description to locate the database to connect to
             $description = '(DESCRIPTION =

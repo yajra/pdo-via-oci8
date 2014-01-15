@@ -1,7 +1,4 @@
 <?php
-require_once 'PHPUnit/Framework.php';
-
-require_once 'Pdo/Oci8/Statement.php';
 
 /**
  * Test class for Pdo_Oci8_Statement.
@@ -23,7 +20,7 @@ class Pdo_Oci8_StatementTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        //$this->_object = new Pdo_Oci8_Statement;
+        // $this->_object = new \yajra\Pdo\Oci8($dsn, array('charset'));
     }
 
     /**
@@ -34,7 +31,7 @@ class Pdo_Oci8_StatementTest extends PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-        //unset($this->_object);
+        unset($this->_object);
     }
 
     /**
