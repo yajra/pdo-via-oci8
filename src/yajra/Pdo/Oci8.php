@@ -296,9 +296,11 @@ class Oci8
      */
     public function lastInsertId($name = null)
     {
-        trigger_error(
-            'SQLSTATE[IM001]: Driver does not support this function: driver does not support lastInsertId()',
-            E_USER_WARNING);
+        return 0;
+        // comment out trigger error to avoid app error
+        // trigger_error(
+            // 'SQLSTATE[IM001]: Driver does not support this function: driver does not support lastInsertId()',
+            // E_USER_WARNING);
     }
 
     /**
