@@ -43,6 +43,13 @@ class Oci8
     protected $_isTransaction = false;
 
     /**
+     * insert query statement table variable
+     *
+     * @var string
+     */
+    protected $_table;
+
+    /**
      * Constructor
      *
      * @param string $dsn
@@ -157,6 +164,13 @@ class Oci8
             $parameter++;
         }
         $statement = $newStatement;
+
+        // check if statement is insert function
+        if (strpos(strtolower($statement), 'insert into')!==false) {
+            preg_match('/insert into (.*?) /', $statement, $matches);
+            // store insert into table name
+            $this->_table = $matches[1];
+        }
 
         //Prepare the statement
         $sth = @oci_parse($this->_dbh, $statement);
@@ -296,11 +310,8 @@ class Oci8
      */
     public function lastInsertId($name = null)
     {
-        return 0;
-        // comment out trigger error to avoid app error
-        // trigger_error(
-            // 'SQLSTATE[IM001]: Driver does not support this function: driver does not support lastInsertId()',
-            // E_USER_WARNING);
+        $stmt = $this->query('select ' . $this->_table . '_' . $name . '_seq.currval from dual');
+        return $stmt->fetch();
     }
 
     /**
