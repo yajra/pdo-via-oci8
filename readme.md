@@ -26,10 +26,6 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 ```
 And then run `composer update`
 
-Finally you need to migrate the table required for lastInsertId function:
-```php
-$ php artisan migrate --package=yajra/laravel-pdo-via-oci8
-```
 ***Note:***
 lastInsertId function returns the current value of the sequence related to the table where record is inserted.
 The sequence name should follow this format ```{$table}.'_'.{$column}.'_seq'``` for it to work properly.
