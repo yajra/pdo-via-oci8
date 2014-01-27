@@ -310,8 +310,14 @@ class Oci8
      */
     public function lastInsertId($name = null)
     {
-        $stmt = $this->query('select ' . $this->_table . '_' . $name . '_seq.currval from dual');
-        return $stmt->fetch();
+        $sequence = $this->_table . "_" . $name . "_seq";
+        try {
+            $stmt = $this->query("select {$sequence}.currval from dual");
+            $id = $stmt->fetch();
+            return $id;
+        } catch (SqlException $e) {
+            return 0;
+        }
     }
 
     /**
