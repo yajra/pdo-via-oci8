@@ -311,13 +311,12 @@ class Oci8
     public function lastInsertId($name = null)
     {
         $sequence = $this->_table . "_" . $name . "_seq";
-        try {
-            $stmt = $this->query("select {$sequence}.currval from dual");
-            $id = $stmt->fetch();
-            return $id;
-        } catch (SqlException $e) {
+        if (!$this->checkSequence($sequence))
             return 0;
-        }
+
+        $stmt = $this->query("select {$sequence}.currval from dual");
+        $id = $stmt->fetch();
+        return $id;
     }
 
     /**
@@ -534,6 +533,25 @@ class Oci8
         //Not valid, return an empty array
         return array();
 
+    }
+
+    /**
+     * function to check if sequence exists
+     * @param  string $name
+     * @return boolean
+     */
+    public function checkSequence($name)
+    {
+        if (!$name)
+            return false;
+
+        $stmt = $this->query("select count(*)
+            from all_sequences
+            where
+                sequence_name=upper('{$name}')
+                and sequence_owner=upper(user)
+            ");
+        return $stmt->fetch();
     }
 
 }
