@@ -167,7 +167,7 @@ class Oci8
 
         // check if statement is insert function
         if (strpos(strtolower($statement), 'insert into')!==false) {
-            preg_match('/insert into (.*?) /', $statement, $matches);
+            preg_match('/insert into (.*?) /', strtolower($statement), $matches);
             // store insert into table name
             $this->_table = $matches[1];
         }
