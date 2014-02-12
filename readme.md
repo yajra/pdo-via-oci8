@@ -1,5 +1,8 @@
 # PDO Userspace Driver for Oracle (oci8)
 
+*******************
+###IMPORTANT: Package was merged on [yajra/laravel-oci8](https://github.com/yajra/laravel-oci8). This project will be maintained on said package.
+*******************
 ###PDO via Oci8
 
 [![Latest Stable Version](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/v/stable.png)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8) [![Total Downloads](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/downloads.png)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8) [![Build Status](https://travis-ci.org/yajra/laravel-pdo-via-oci8.png)](https://travis-ci.org/yajra/laravel-pdo-via-oci8)
