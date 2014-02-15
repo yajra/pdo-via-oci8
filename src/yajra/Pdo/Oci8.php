@@ -71,7 +71,7 @@ class Oci8
         //Check if connection was successful
         if (!$this->_dbh) {
             $e = oci_error();
-            throw new Oci8\Exception\SqlException($e['message']);
+            throw new Oci8\Exceptions\SqlException($e['message']);
         }
 
         //Save the options
@@ -116,7 +116,7 @@ class Oci8
 
         if (!$sth) {
             $e = oci_error($this->_dbh);
-            throw new \PDOException($e['message']);
+            throw new Oci8\Exceptions\SqlException($e['message']);
         }
 
         if (!is_array($options)) {
