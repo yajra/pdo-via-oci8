@@ -110,8 +110,8 @@ class Statement
         $result = @oci_execute($this->_sth, $mode);
         if($result != true)
         {
-            $oci_error = ocierror($this->_sth);
-            throw new \yajra\Pdo\Oci8\Exceptions\SqlException($oci_error['message'], $oci_error['code']);
+            $e = oci_error($this->_sth);
+            throw new \yajra\Pdo\Oci8\Exceptions\SqlException($e['message'], $e['code']);
         }
         return $result;
     }
