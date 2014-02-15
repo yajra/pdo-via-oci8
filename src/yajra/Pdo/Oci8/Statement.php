@@ -119,9 +119,10 @@ class Statement
     /**
      * Fetches the next row from a result set
      *
-     * @param int $fetchStyle
+     * @param int|null $fetchStyle
      * @param int $cursorOrientation
-     * @param int $cursorOffset
+     * @param int $offset
+     * @internal param int $cursorOffset
      * @return mixed
      */
     public function fetch($fetchStyle = \PDO::FETCH_BOTH,
@@ -392,6 +393,7 @@ class Statement
     /**
      * Retrieve a statement handle attribute
      *
+     * @param int $attribute
      * @return mixed
      */
     public function getAttribute($attribute)

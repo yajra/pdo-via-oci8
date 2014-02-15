@@ -56,7 +56,8 @@ class Oci8
      * @param string $username
      * @param string $password
      * @param array $options
-     * @return void
+     * @throws Oci8Exception
+     * @return \yajra\Pdo\Oci8
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
@@ -70,7 +71,7 @@ class Oci8
         //Check if connection was successful
         if (!$this->_dbh) {
             $e = oci_error();
-            throw new Oci8Exception($e['message']);
+            throw new Oci8\Exception\SqlException($e['message']);
         }
 
         //Save the options
@@ -122,7 +123,7 @@ class Oci8
             $options = array();
         }
 
-        return new \yajra\Pdo\Oci8\Statement($sth, $this, $options);
+        return new Oci8\Statement($sth, $this, $options);
     }
 
     /**
@@ -296,6 +297,7 @@ class Oci8
     /**
      * Retrieve a database connection attribute
      *
+     * @param int $attribute
      * @return mixed
      */
     public function getAttribute($attribute)
@@ -325,6 +327,7 @@ class Oci8
      *
      * @access public
      *
+     * @param int $type
      * @return mixed Value.
      */
     public function getNewDescriptor($type = OCI_D_LOB)
