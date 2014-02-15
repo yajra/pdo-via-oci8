@@ -238,6 +238,10 @@ class Statement
                 //Result sets require a cursor
                 $variable = $this->_pdoOci8->getNewCursor();
                 break;
+
+            default:
+                $oci_type =  SQLT_CHR;
+                break;
         }
 
         //Bind the parameter
