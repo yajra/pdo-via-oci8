@@ -144,7 +144,7 @@ class Statement
                     }
                 }
 
-                return $value;
+                return $rs;
 
             case \PDO::FETCH_ASSOC:
 
