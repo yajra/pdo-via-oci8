@@ -135,8 +135,11 @@ class Statement
         {
             case \PDO::FETCH_BOTH:
                 $rs = oci_fetch_array($this->_sth); // add OCI_BOTH?
+                if($rs === false) {
+                    return false;
+                }
                 if($toLowercase) $rs = array_change_key_case($rs);
-                if ($this->returnLobs) {
+                if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value) ) {
                             $rs[$field] = $value->load();
@@ -147,10 +150,12 @@ class Statement
                 return $rs;
 
             case \PDO::FETCH_ASSOC:
-
                 $rs = oci_fetch_assoc($this->_sth);
+                if($rs === false) {
+                    return false;
+                }
                 if($toLowercase) $rs = array_change_key_case($rs);
-                if ($this->returnLobs) {
+                if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value) ) {
                             $rs[$field] = $value->load();
@@ -165,13 +170,12 @@ class Statement
 
             case \PDO::FETCH_CLASS:
                 $rs = oci_fetch_assoc($this->_sth);
-                if($rs === false)
-                {
+                if($rs === false) {
                     return false;
                 }
                 if($toLowercase) $rs = array_change_key_case($rs);
 
-                if ($this->returnLobs) {
+                if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value) ) {
                             $rs[$field] = $value->load();
