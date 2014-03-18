@@ -111,7 +111,14 @@ class Statement
         if($result != true)
         {
             $e = oci_error($this->_sth);
-            throw new \yajra\Pdo\Oci8\Exceptions\SqlException($e['message'], $e['code']);
+            
+            $message = '';
+            $message = $message . 'Error Code    : ' . $e['code'] . PHP_EOL;
+            $message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
+            $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
+            $message = $message . 'Statement     : ' . $e['sqltext'];
+            
+            throw new \yajra\Pdo\Oci8\Exceptions\SqlException($message, $e['code']);
         }
         return $result;
     }
