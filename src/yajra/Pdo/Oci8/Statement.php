@@ -226,7 +226,7 @@ class Statement
                 break;
 
             case \PDO::PARAM_NULL:
-                $oci_type =  SQLT_INT;
+                $oci_type =  SQLT_CHR;
                 break;
 
             case \PDO::PARAM_INT:
