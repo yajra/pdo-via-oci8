@@ -10,6 +10,9 @@
  */
 namespace yajra\Pdo;
 
+use yajra\Pdo\Oci8\Exceptions\SqlException;
+use yajra\Pdo\Oci8\Statement;
+
 /**
  * Oci8 class to mimic the interface of the PDO class
  *
@@ -56,7 +59,7 @@ class Oci8
      * @param string $username
      * @param string $password
      * @param array $options
-     * @throws Oci8Exception
+     * @throws SqlException
      * @return \yajra\Pdo\Oci8
      */
     public function __construct($dsn, $username, $password, array $options = array())
@@ -71,7 +74,7 @@ class Oci8
         //Check if connection was successful
         if (!$this->_dbh) {
             $e = oci_error();
-            throw new Oci8\Exceptions\SqlException($e['message']);
+            throw new SqlException($e['message']);
         }
 
         //Save the options
@@ -83,7 +86,7 @@ class Oci8
      *
      * @param string $statement
      * @param array $options
-     * @return Pdo_Oci8_Statement
+     * @return Statement
      */
     public function prepare($statement, $options = null)
     {
@@ -116,14 +119,14 @@ class Oci8
 
         if (!$sth) {
             $e = oci_error($this->_dbh);
-            throw new Oci8\Exceptions\SqlException($e['message']);
+            throw new SqlException($e['message']);
         }
 
         if (!is_array($options)) {
             $options = array();
         }
 
-        return new Oci8\Statement($sth, $this, $options);
+        return new Statement($sth, $this, $options);
     }
 
     /**

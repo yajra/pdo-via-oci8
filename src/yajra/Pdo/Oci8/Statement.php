@@ -10,6 +10,8 @@
  */
 namespace yajra\Pdo\Oci8;
 
+use yajra\Pdo\Oci8\Exceptions\SqlException;
+
 /**
  * Oci8 Statement class to mimic the interface of the PDOStatement class
  *
@@ -118,7 +120,7 @@ class Statement
             $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
             $message = $message . 'Statement     : ' . $e['sqltext'];
             
-            throw new \yajra\Pdo\Oci8\Exceptions\SqlException($message, $e['code']);
+            throw new SqlException($message, $e['code']);
         }
         return $result;
     }
