@@ -64,11 +64,18 @@ class Oci8
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
+        // Get the character set
+        $charset = null;
+        if (array_key_exists("charset", $options))
+        {
+            $charset = $options["charset"];
+        }
+
         //Attempt a connection
         if (isset($options[\PDO::ATTR_PERSISTENT]) && $options[\PDO::ATTR_PERSISTENT]) {
-            $this->_dbh = @oci_pconnect($username, $password, $dsn, $options['charset']);
+            $this->_dbh = @oci_pconnect($username, $password, $dsn, $charset);
         } else {
-            $this->_dbh = @oci_connect($username, $password, $dsn, $options['charset']);
+            $this->_dbh = @oci_connect($username, $password, $dsn, $charset);
         }
 
         //Check if connection was successful
