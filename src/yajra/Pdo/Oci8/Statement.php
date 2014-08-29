@@ -10,6 +10,7 @@
  */
 namespace yajra\Pdo\Oci8;
 
+use yajra\Pdo\Oci8;
 use yajra\Pdo\Oci8\Exceptions\SqlException;
 
 /**
@@ -33,7 +34,7 @@ class Statement
     /**
      * PDO Oci8 driver
      *
-     * @var Pdo_Oci8
+     * @var \yajra\Pdo\Oci8
      */
     protected $_pdoOci8;
 
@@ -69,12 +70,12 @@ class Statement
      * Constructor
      *
      * @param resource $sth Statement handle created with oci_parse()
-     * @param Pdo_Oci8 $pdoOci8 The Pdo_Oci8 object for this statement
+     * @param Oci8 $pdoOci8 The Pdo_Oci8 object for this statement
      * @param array $options Options for the statement handle
-     * @return void
+     * @throws \PDOException
      */
     public function __construct($sth,
-                                \yajra\Pdo\Oci8 $pdoOci8,
+                                Oci8 $pdoOci8,
                                 array $options = array())
     {
 
@@ -92,13 +93,15 @@ class Statement
     /**
      * Executes a prepared statement
      *
-     * @param array $inputParams
-     * @return bool
+     * @param array $inputParams An array of values with as many elements as
+     *   there are bound parameters in the SQL statement being executed.
+     * @throws SqlException
+     * @return bool TRUE on success or FALSE on failure
      */
     public function execute($inputParams = null)
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
-        if ($this->_pdoOci8->isTransaction()) {
+        if ($this->_pdoOci8->inTransaction()) {
             $mode = OCI_DEFAULT;
         }
 
@@ -128,15 +131,27 @@ class Statement
     /**
      * Fetches the next row from a result set
      *
-     * @param int|null $fetchStyle
-     * @param int $cursorOrientation
-     * @param int $offset
-     * @internal param int $cursorOffset
+     * @param int|null $fetchStyle Controls how the next row will be returned to
+     *   the caller. This value must be one of the PDO::FETCH_* constants,
+     *   defaulting to value of PDO::ATTR_DEFAULT_FETCH_MODE (which defaults to
+     *   PDO::FETCH_BOTH).
+     * @param int $cursorOrientation For a PDOStatement object representing a
+     *   scrollable cursor, this value determines which row will be returned to
+     *   the caller. This value must be one of the PDO::FETCH_ORI_* constants,
+     *  defaulting to PDO::FETCH_ORI_NEXT. To request a scrollable cursor for
+     *   your PDOStatement object, you must set the PDO::ATTR_CURSOR attribute
+     *   to PDO::CURSOR_SCROLL when you prepare the SQL statement with
+     *   PDO::prepare.
+     * @param int $cursorOffset [optional]
      * @return mixed
+     * @todo Implement cursorOrientation and cursorOffset
+     * @todo Fix PDO::FETCH_CLASS with specified class name and constructor
+     *       arguments
+     * @todo Implement PDO::FETCH_OBJECT
      */
     public function fetch($fetchStyle = \PDO::FETCH_BOTH,
                           $cursorOrientation = \PDO::FETCH_ORI_NEXT,
-                          $offset = 0)
+                          $cursorOffset = 0)
     {
         // Convert array keys (or object properties) to lowercase
         $toLowercase = ($this->getAttribute(\PDO::ATTR_CASE) == \PDO::CASE_LOWER);
@@ -199,13 +214,21 @@ class Statement
     /**
      * Binds a parameter to the specified variable name
      *
-     * @param string $parameter
-     * @param mixed $variable
-     * @param int $dataType
-     * @param int $maxLength
-     * @param array $options
-     * @return bool
-     * @todo Map PDO datatypes to oci8 datatypes and implement support for datatypes and length.
+     * @param string $parameter Parameter identifier. For a prepared statement
+     *   using named placeholders, this will be a parameter name of the form
+     *   :name. For a prepared statement using question mark placeholders, this
+     *   will be the 1-indexed position of the parameter.
+     * @param mixed $variable Name of the PHP variable to bind to the SQL
+     *   statement parameter.
+     * @param int $dataType Explicit data type for the parameter using the
+     *   PDO::PARAM_* constants.
+     * @param int $maxLength Length of the data type. To indicate that a
+     *   parameter is an OUT parameter from a stored procedure, you must
+     *   explicitly set the length.
+     * @param array $options [optional]
+     * @return bool TRUE on success or FALSE on failure.
+     * @todo Map PDO datatypes to oci8 datatypes and implement support for
+     *   datatypes and length.
      */
     public function bindParam($parameter,
                               &$variable,
@@ -267,12 +290,16 @@ class Statement
     /**
      * Binds a column to a PHP variable
      *
-     * @param mixed $column The number of the column or name of the column
-     * @param mixed $variable The PHP to which the column should be bound
-     * @param int $dataType
-     * @param int $maxLength
-     * @param array $options
-     * @return bool
+     * @param mixed $column Number of the column (1-indexed) or name of the
+     *   column in the result set. If using the column name, be aware that the
+     *   name should match the case of the column, as returned by the driver.
+     * @param mixed $variable The PHP to which the column should be bound.
+     * @param int $dataType Data type of the parameter, specified by the
+     *   PDO::PARAM_* constants.
+     * @param int $maxLength A hint for pre-allocation.
+     * @param array $options [optional] Optional parameter(s) for the driver.
+     * @throws \Exception
+     * @return bool TRUE on success or FALSE on failure.
      * @todo Implement this functionality by creating a table map of the
      *       variables passed in here, and, when iterating over the values
      *       of the query or fetching rows, assign data from each column
@@ -284,15 +311,20 @@ class Statement
                                $maxLength = -1,
                                $options = null)
     {
+        throw new \Exception("bindColumn has not been implemented");
     }
 
     /**
      * Binds a value to a parameter
      *
-     * @param string $parameter
-     * @param mixed $variable
-     * @param int $dataType
-     * @return bool
+     * @param string $parameter Parameter identifier. For a prepared statement
+     *   using named placeholders, this will be a parameter name of the form
+     *   :name. For a prepared statement using question mark placeholders, this
+     *   will be the 1-indexed position of the parameter.
+     * @param mixed $variable The value to bind to the parameter.
+     * @param int $dataType Explicit data type for the parameter using the
+     *   PDO::PARAM_* constants.
+     * @return bool TRUE on success or FALSE on failure.
      */
     public function bindValue($parameter,
                               $variable,
@@ -304,7 +336,7 @@ class Statement
     /**
      * Returns the number of rows affected by the last executed statement
      *
-     * @return int
+     * @return int The number of rows.
      */
     public function rowCount()
     {
@@ -314,8 +346,10 @@ class Statement
     /**
      * Returns a single column from the next row of a result set
      *
-     * @param int $colNumber
-     * @return string
+     * @param int $colNumber 0-indexed number of the column you wish to retrieve
+     *   from the row. If no value is supplied, it fetches the first column.
+     * @return string Returns a single column in the next row of a result set.
+     * @todo Implement colNumber
      */
     public function fetchColumn($colNumber = 0)
     {
@@ -325,17 +359,22 @@ class Statement
     /**
      * Returns an array containing all of the result set rows
      *
-     * @param int $fetchType
-     * @param mixed $idxOrClass
-     * @param array $ctorArgs
-     * @return mixed
+     * @param int $fetchStyle Controls the contents of the returned array as
+     *   documented in PDOStatement::fetch.
+     * @param mixed $fetchArgument This argument has a different meaning
+     *   depending on the value of the fetchStyle parameter.
+     * @param array $ctorArgs [optional] Arguments of custom class constructor
+     *   when the fetch_style parameter is PDO::FETCH_CLASS.
+     * @return array Array containing all of the remaining rows in the result
+     *   set. The array represents each row as either an array of column values
+     *   or an object with properties corresponding to each column name.
      */
-    public function fetchAll($fetchType = \PDO::FETCH_BOTH,
-                             $idxOrClass = null,
+    public function fetchAll($fetchStyle = \PDO::FETCH_BOTH,
+                             $fetchArgument = null,
                              $ctorArgs = null)
     {
         $results = array();
-        while($row = $this->fetch($fetchType, $idxOrClass, $ctorArgs))
+        while($row = $this->fetch($fetchStyle, $fetchArgument, $ctorArgs))
         {
             $results[] = $row;
         }
@@ -348,6 +387,8 @@ class Statement
      * @param string $className
      * @param array $ctorArgs
      * @return mixed
+     * @todo Implement className and ctorArgs; easiest implementation will be
+     *       by implementing in fetch() and calling it with proper parameters
      */
     public function fetchObject($className = null, $ctorArgs = null)
     {
@@ -355,14 +396,15 @@ class Statement
     }
 
     /**
-     * Returns the error code associated with the last operation
+     * Fetch the SQLSTATE associated with the last operation on the resource
+     * handle
      *
      * While this returns an error code, it merely emulates the action. If
      * there are no errors, it returns the success SQLSTATE code (00000).
      * If there are errors, it returns HY000. See errorInfo() to retrieve
      * the actual Oracle error code and message.
      *
-     * @return string
+     * @return string Error code
      */
     public function errorCode()
     {
@@ -371,9 +413,11 @@ class Statement
     }
 
     /**
-     * Returns extended error information for the last operation on the database
+     * Fetch extended error information associated with the last operation on
+     * the resource handle.
      *
-     * @return array
+     * @return array Array of error information about the last operation
+     *   performed
      */
     public function errorInfo()
     {
@@ -391,11 +435,11 @@ class Statement
     }
 
     /**
-     * Sets an attribute on the statement handle
+     * Sets a statement attribute
      *
      * @param int $attribute
      * @param mixed $value
-     * @return bool
+     * @return TRUE on success or FALSE on failure.
      */
     public function setAttribute($attribute, $value)
     {
@@ -404,10 +448,10 @@ class Statement
     }
 
     /**
-     * Retrieve a statement handle attribute
+     * Retrieve a statement attribute
      *
      * @param int $attribute
-     * @return mixed
+     * @return mixed The attribute value.
      */
     public function getAttribute($attribute)
     {
@@ -420,7 +464,8 @@ class Statement
     /**
      * Returns the number of columns in the result set
      *
-     * @return int
+     * @return int The number of columns in the statement result set. If there
+     *   is no result set, it returns 0.
      */
     public function columnCount()
     {
@@ -443,8 +488,9 @@ class Statement
      *     precision
      *     pdo_type
      *
-     * @param int $column Zero-based column index
-     * @return array
+     * @param int $column The 0-indexed column in the result set.
+     * @return array An associative array containing the above metadata values
+     *   for a single column.
      */
     public function getColumnMeta($column)
     {
@@ -469,42 +515,55 @@ class Statement
     /**
      * Set the default fetch mode for this statement
      *
-     * @param int $fetchType
-     * @param mixed $colClassOrObj
-     * @param array $ctorArgs
-     * @return bool
+     * @param int|null $fetchMode The fetch mode must be one of the
+     *   PDO::FETCH_* constants.
+     * @param mixed|null $modeArg Column number, class name or object.
+     * @param array|null $ctorArgs Constructor arguments.
+     * @throws \Exception
+     * @return bool TRUE on success or FALSE on failure.
+     * @todo Implement method
      */
-    public function setFetchMode($fetchType,
-                                 $colClassOrObj = null,
+    public function setFetchMode($fetchMode,
+                                 $modeArg = null,
                                  array $ctorArgs = array())
     {
+        throw new \Exception("seteFetchMode has not been implemented");
     }
 
     /**
      * Advances to the next rowset in a multi-rowset statement handle
      *
-     * @return bool
+     * @throws \Exception
+     * @return bool TRUE on success or FALSE on failure.
+     * @todo Implement method
      */
     public function nextRowset()
     {
+        throw new \Exception("seteFetchMode has not been implemented");
     }
 
     /**
      * Closes the cursor, enabling the statement to be executed again.
      *
-     * @return bool
+     * @throws \Exception
+     * @return bool TRUE on success or FALSE on failure.
+     * @todo Implement method
      */
     public function closeCursor()
     {
+        throw new \Exception("seteFetchMode has not been implemented");
     }
 
     /**
      * Dump a SQL prepared command
      *
-     * @return bool
+     * @throws \Exception
+     * @return bool TRUE on success or FALSE on failure.
+     * @todo Implement method
      */
     public function debugDumpParams()
     {
+        throw new \Exception("seteFetchMode has not been implemented");
     }
 
 }

@@ -43,7 +43,7 @@ class Oci8
      *
      * @var bool
      */
-    protected $_isTransaction = false;
+    protected $_inTransaction = false;
 
     /**
      * insert query statement table variable
@@ -53,14 +53,13 @@ class Oci8
     protected $_table;
 
     /**
-     * Constructor
+     * Creates a PDO instance representing a connection to a database
      *
-     * @param string $dsn
-     * @param string $username
-     * @param string $password
-     * @param array $options
+     * @param $dsn
+     * @param $username [optional]
+     * @param $password [optional]
+     * @param array $options [optional]
      * @throws SqlException
-     * @return \yajra\Pdo\Oci8
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
@@ -91,8 +90,12 @@ class Oci8
     /**
      * Prepares a statement for execution and returns a statement object
      *
-     * @param string $statement
-     * @param array $options
+     * @param string $statement This must be a valid SQL statement for the
+     *   target database server.
+     * @param array $options [optional] This array holds one or more key=>value
+     *   pairs to set attribute values for the PDOStatement object that this
+     *   method returns.
+     * @throws SqlException
      * @return Statement
      */
     public function prepare($statement, $options = null)
@@ -137,43 +140,57 @@ class Oci8
     }
 
     /**
-     * Begins a transaction (turns off autocommit mode)
+     * Initiates a transaction
      *
-     * @return void
+     * @throws \PDOException
+     * @return bool TRUE on success or FALSE on failure
      */
     public function beginTransaction()
     {
-        if ($this->isTransaction()) {
+        if ($this->inTransaction()) {
             throw new \PDOException('There is already an active transaction');
         }
 
-        $this->_isTransaction = true;
+        $this->_inTransaction = true;
         return true;
     }
 
     /**
      * Returns true if the current process is in a transaction
      *
+     * @deprecated Use inTransaction() instead
+     *
      * @return bool
      */
     public function isTransaction()
     {
-        return $this->_isTransaction;
+        return $this->inTransaction();
     }
 
     /**
-     * Commits all statements issued during a transaction and ends the transaction
+     * Checks if inside a transaction
      *
-     * @return bool
+     * @return bool TRUE if a transaction is currently active, and FALSE if not.
+     */
+    public function inTransaction()
+    {
+        return $this->_inTransaction;
+    }
+
+    /**
+     * Commits a transaction
+     *
+     * @throws \PDOException
+     * @return bool TRUE on success or FALSE on failure.
      */
     public function commit()
     {
-        if (!$this->isTransaction()) {
+        if (!$this->inTransaction()) {
             throw new \PDOException('There is no active transaction');
         }
 
         if (oci_commit($this->_dbh)) {
-            $this->_isTransaction = false;
+            $this->_inTransaction = false;
             return true;
         }
 
@@ -183,16 +200,17 @@ class Oci8
     /**
      * Rolls back a transaction
      *
-     * @return bool
+     * @throws \PDOException
+     * @return bool TRUE on success or FALSE on failure.
      */
     public function rollBack()
     {
-        if (!$this->isTransaction()) {
+        if (!$this->inTransaction()) {
             throw new \PDOException('There is no active transaction');
         }
 
         if (oci_rollback($this->_dbh)) {
-            $this->_isTransaction = false;
+            $this->_inTransaction = false;
             return true;
         }
 
@@ -204,7 +222,7 @@ class Oci8
      *
      * @param int $attribute
      * @param mixed $value
-     * @return bool
+     * @return bool TRUE on success or FALSE on failure.
      */
     public function setAttribute($attribute, $value)
     {
@@ -215,47 +233,53 @@ class Oci8
     /**
      * Executes an SQL statement and returns the number of affected rows
      *
-     * @param string $query
-     * @return int The number of rows affected
+     * @param string $statement The SQL statement to prepare and execute.
+     * @return int The number of rows that were modified or deleted by the SQL
+     *   statement you issued.
      */
-    public function exec($query)
+    public function exec($statement)
     {
-        $stmt = $this->prepare($query);
+        $stmt = $this->prepare($statement);
         $stmt->execute();
 
         return $stmt->rowCount();
     }
 
     /**
-     * Executes an SQL statement, returning the results as a Pdo_Oci8_Statement
+     * Executes an SQL statement, returning the results as a
+     * yajra\Pdo\Oci8\Statement object
      *
-     * @param string $query
-     * @param int|null $fetchType
-     * @param mixed|null $typeArg
-     * @param array|null $ctorArgs
-     * @return Pdo_Oci8_Statement
+     * @param string $statement The SQL statement to prepare and execute.
+     * @param int|null $fetchMode The fetch mode must be one of the
+     *   PDO::FETCH_* constants.
+     * @param mixed|null $modeArg Column number, class name or object.
+     * @param array|null $ctorArgs Constructor arguments.
+     * @return Statement
      * @todo Implement support for $fetchType, $typeArg, and $ctorArgs.
      */
-    public function query($query,
-                          $fetchType = null,
-                          $typeArg = null,
+    public function query($statement,
+                          $fetchMode = null,
+                          $modeArg = null,
                           array $ctorArgs = array())
     {
-        $stmt = $this->prepare($query);
+        $stmt = $this->prepare($statement);
         $stmt->execute();
 
         return $stmt;
     }
 
     /**
-     * Issues a PHP warning, just as with the PDO_OCI driver
+     * returns the current value of the sequence related to the table where
+     * record is inserted. The sequence name should follow this for it to work
+     * properly:
+     *
+     *   {$table}.'_'.{$column}.'_seq'
      *
      * Oracle does not support the last inserted ID functionality like MySQL.
-     * You must implement this yourself by returning the sequence ID from a
-     * stored procedure, for example.
+     * If the above sequence does not exist, the method will return 0;
      *
      * @param string $name Sequence name; no use in this context
-     * @return void
+     * @return mixed Last sequence number or 0 if sequence does not exist
      */
     public function lastInsertId($name = null)
     {
@@ -269,7 +293,8 @@ class Oci8
     }
 
     /**
-     * Returns the error code associated with the last operation
+     * Fetch the SQLSTATE associated with the last operation on the database
+     * handle
      *
      * While this returns an error code, it merely emulates the action. If
      * there are no errors, it returns the success SQLSTATE code (00000).
@@ -286,8 +311,16 @@ class Oci8
 
     /**
      * Returns extended error information for the last operation on the database
+     * handle
      *
-     * @return array
+     * The array consists of the following fields:
+     *
+     *   0  SQLSTATE error code (a five characters alphanumeric identifier
+     *      defined in the ANSI SQL standard).
+     *   1  Driver-specific error code.
+     *   2  Driver-specific error message.
+     *
+     * @return array Error information
      */
     public function errorInfo()
     {
@@ -308,7 +341,8 @@ class Oci8
      * Retrieve a database connection attribute
      *
      * @param int $attribute
-     * @return mixed
+     * @return mixed A successful call returns the value of the requested PDO
+     *   attribute. An unsuccessful call returns null.
      */
     public function getAttribute($attribute)
     {
@@ -324,7 +358,7 @@ class Oci8
      *
      * @access public
      *
-     * @return mixed Value.
+     * @return mixed New statement handle, or FALSE on error.
      */
     public function getNewCursor()
     {
@@ -337,8 +371,8 @@ class Oci8
      *
      * @access public
      *
-     * @param int $type
-     * @return mixed Value.
+     * @param int $type One of OCI_DTYPE_FILE, OCI_DTYPE_LOB or OCI_DTYPE_ROWID.
+     * @return mixed New LOB or FILE descriptor on success, FALSE on error.
      */
     public function getNewDescriptor($type = OCI_D_LOB)
     {
@@ -348,11 +382,10 @@ class Oci8
     /**
      * Special non PDO function used to close an open cursor in the database
      *
-     * @param mixed $cursor Description.
-     *
      * @access public
      *
-     * @return mixed Value.
+     * @param mixed $cursor A valid OCI statement identifier.
+     * @return mixed Returns TRUE on success or FALSE on failure.
      */
     public function closeCursor($cursor)
     {
@@ -360,11 +393,21 @@ class Oci8
     }
 
     /**
-     * Quotes a string for use in a query
+     * Places quotes around the input string
      *
-     * @param string $string
-     * @param int $paramType
-     * @return string
+     *  If you are using this function to build SQL statements, you are strongly
+     * recommended to use prepare() to prepare SQL statements with bound
+     * parameters instead of using quote() to interpolate user input into an SQL
+     * statement. Prepared statements with bound parameters are not only more
+     * portable, more convenient, immune to SQL injection, but are often much
+     * faster to execute than interpolated queries, as both the server and
+     * client side can cache a compiled form of the query.
+     *
+     * @param string $string The string to be quoted.
+     * @param int $paramType Provides a data type hint for drivers that have
+     *   alternate quoting styles
+     * @return string Returns a quoted string that is theoretically safe to pass
+     *   into an SQL statement.
      * @todo Implement support for $paramType.
      */
     public function quote($string, $paramType = \PDO::PARAM_STR)
@@ -373,7 +416,8 @@ class Oci8
     }
 
     /**
-     * function to check if sequence exists
+     * Special non PDO function to check if sequence exists
+     *
      * @param  string $name
      * @return boolean
      */
