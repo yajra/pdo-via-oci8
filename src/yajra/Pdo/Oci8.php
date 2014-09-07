@@ -255,7 +255,6 @@ class Oci8
      * @param mixed|null $modeArg Column number, class name or object.
      * @param array|null $ctorArgs Constructor arguments.
      * @return Statement
-     * @todo Implement support for $fetchType, $typeArg, and $ctorArgs.
      */
     public function query($statement,
                           $fetchMode = null,
@@ -264,6 +263,9 @@ class Oci8
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
+        if ($fetchMode) {
+            $stmt->setFetchMode($fetchMode, $modeArg, $ctorArgs);
+        }
 
         return $stmt;
     }
