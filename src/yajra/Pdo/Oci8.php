@@ -63,12 +63,15 @@ class Oci8
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
+        // Set default charset to AL32UTF8
+        $charset = 'AL32UTF8';
         // Get the character set
-        $charset = null;
         if (array_key_exists("charset", $options))
         {
             $charset = $options["charset"];
         }
+        // Convert UTF8 charset to AL32UTF8
+        $charset = strtolower($charset)=='utf8' ? 'AL32UTF8' : $charset;
 
         //Attempt a connection
         if (isset($options[\PDO::ATTR_PERSISTENT]) && $options[\PDO::ATTR_PERSISTENT]) {
