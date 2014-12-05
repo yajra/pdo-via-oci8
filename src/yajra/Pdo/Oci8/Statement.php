@@ -143,7 +143,7 @@ class Statement
 
         // Set up bound parameters, if passed in
         if (is_array($inputParams)) {
-            foreach ($inputParams as $key => $value) {
+            foreach (array_values($inputParams) as $key => $value) {
                 $this->bindParam($key, $inputParams[$key]);
             }
         }
