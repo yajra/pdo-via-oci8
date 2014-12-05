@@ -1,15 +1,4 @@
-<?php
-/**
- * PDO userspace driver proxying calls to PHP OCI8 driver
- *
- * @category Database
- * @package yajra/PDO-via-OCI8
- * @author Mathieu Dumoulin <crazyone@crazycoders.net>
- * @copyright Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
- * @license MIT
- */
-
-namespace yajra\Pdo\Oci8;
+<?php namespace yajra\Pdo\Oci8;
 
 use PDO;
 use PDOStatement;

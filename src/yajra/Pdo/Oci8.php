@@ -4,8 +4,8 @@
  *
  * @category Database
  * @package yajra/PDO-via-OCI8
- * @author Mathieu Dumoulin <crazyone@crazycoders.net>
- * @copyright Copyright (c) 2013 Mathieu Dumoulin (http://crazycoders.net/)
+ * @author Arjay Angeles <aqangeles@gmail.com>
+ * @copyright Copyright (c) 2013 Arjay Angeles
  * @license MIT
  */
 namespace yajra\Pdo;
