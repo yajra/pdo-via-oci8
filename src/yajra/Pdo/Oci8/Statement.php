@@ -148,7 +148,8 @@ class Statement extends PDOStatement {
 			$message = $message . 'Error Code    : ' . $e['code'] . PHP_EOL;
 			$message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
 			$message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
-			$message = $message . 'Statement     : ' . $e['sqltext'];
+			$message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
+			$message = $message . 'Bindings      : [' . implode(',', $inputParams) . ']' . PHP_EOL;
 
 			throw new Oci8Exception($message, $e['code']);
 		}
@@ -175,9 +176,10 @@ class Statement extends PDOStatement {
 	 *   fetch type. In all cases, FALSE is returned on failure.
 	 * @todo Implement cursorOrientation and cursorOffset
 	 */
-	public function fetch($fetchMode = null,
-	                      $cursorOrientation = PDO::FETCH_ORI_NEXT,
-	                      $cursorOffset = 0)
+	public function fetch(
+		$fetchMode = null,
+		$cursorOrientation = PDO::FETCH_ORI_NEXT,
+		$cursorOffset = 0)
 	{
 		// If not fetchMode was specified, used the default value of or the mode
 		// set by the last call to setFetchMode()
@@ -426,7 +428,7 @@ class Statement extends PDOStatement {
 			case PDO::PARAM_STMT:
 				$oci_type = OCI_B_CURSOR;
 
-				//Result sets require a cursor
+				// Result sets require a cursor
 				$variable = $this->_pdoOci8->getNewCursor();
 				break;
 
@@ -435,7 +437,7 @@ class Statement extends PDOStatement {
 				break;
 		}
 
-		//Bind the parameter
+		// Bind the parameter
 		$result = oci_bind_by_name($this->_sth, $parameter, $variable, $maxLength, $oci_type);
 
 		return $result;
