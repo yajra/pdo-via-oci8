@@ -71,7 +71,7 @@ class Oci8 extends PDO {
 		// Convert UTF8 charset to AL32UTF8
 		$charset = strtolower($charset) == 'utf8' ? 'AL32UTF8' : $charset;
 
-		//Attempt a connection
+		// Attempt a connection
 		if (isset($options[PDO::ATTR_PERSISTENT]) && $options[PDO::ATTR_PERSISTENT])
 		{
 			$this->_dbh = @oci_pconnect($username, $password, $dsn, $charset);
@@ -81,14 +81,14 @@ class Oci8 extends PDO {
 			$this->_dbh = @oci_connect($username, $password, $dsn, $charset);
 		}
 
-		//Check if connection was successful
+		// Check if connection was successful
 		if ( ! $this->_dbh)
 		{
 			$e = oci_error();
 			throw new Oci8Exception($e['message']);
 		}
 
-		//Save the options
+		// Save the options
 		$this->_options = $options;
 	}
 
@@ -377,7 +377,7 @@ class Oci8 extends PDO {
 	{
 		if ($attribute == PDO::ATTR_DRIVER_NAME)
 		{
-			return "oci";
+			return "oci8";
 		}
 
 		if (isset($this->_options[$attribute]))
