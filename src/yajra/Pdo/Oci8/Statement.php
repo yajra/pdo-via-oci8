@@ -149,7 +149,7 @@ class Statement extends PDOStatement {
 			$message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
 			$message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
 			$message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
-			$message = $message . 'Bindings      : [' . implode(',', $inputParams) . ']' . PHP_EOL;
+			$message = $message . 'Bindings      : [' . implode(',', (array) $inputParams) . ']' . PHP_EOL;
 
 			throw new Oci8Exception($message, $e['code']);
 		}
