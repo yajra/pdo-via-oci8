@@ -132,7 +132,6 @@ class Statement extends PDOStatement {
 		// Set up bound parameters, if passed in
 		if (is_array($inputParams))
 		{
-			$inputParams = array_values($inputParams);
 			foreach ($inputParams as $key => $value)
 			{
 				$this->bindParam($key, $inputParams[$key]);
