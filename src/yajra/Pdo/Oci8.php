@@ -316,7 +316,7 @@ class Oci8 extends PDO {
 			return 0;
 		}
 
-		$stmt = $this->query("select {$sequence}.currval from dual");
+		$stmt = $this->query("select {$sequence}.currval from dual", PDO::FETCH_COLUMN);
 		$id = $stmt->fetch();
 
 		return $id;
@@ -465,7 +465,7 @@ class Oci8 extends PDO {
             where
                 sequence_name=upper('{$name}')
                 and sequence_owner=upper(user)
-            ");
+            ", PDO::FETCH_COLUMN);
 
 		return $stmt->fetch();
 	}
