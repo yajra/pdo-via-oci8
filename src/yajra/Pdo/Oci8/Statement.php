@@ -431,6 +431,16 @@ class Statement extends PDOStatement {
 				$variable = $this->_pdoOci8->getNewCursor();
 				break;
 
+			case SQLT_NTY:
+				$oci_type = SQLT_NTY;
+
+				$schema = isset($options['schema']) ? $options['schema'] : '';
+				$type_name = isset($options['type_name']) ? $options['type_name'] : '';
+
+				// set params required to use custom type.
+				$variable = oci_new_collection($this->_pdoOci8->_dbh,$type_name,$schema);
+				break;
+
 			default:
 				$oci_type = SQLT_CHR;
 				break;
