@@ -74,11 +74,11 @@ class Oci8 extends PDO {
 		// Attempt a connection
 		if (isset($options[PDO::ATTR_PERSISTENT]) && $options[PDO::ATTR_PERSISTENT])
 		{
-			$this->_dbh = @oci_pconnect($username, $password, $dsn, $charset);
+			$this->_dbh = oci_pconnect($username, $password, $dsn, $charset);
 		}
 		else
 		{
-			$this->_dbh = @oci_connect($username, $password, $dsn, $charset);
+			$this->_dbh = oci_connect($username, $password, $dsn, $charset);
 		}
 
 		// Check if connection was successful
