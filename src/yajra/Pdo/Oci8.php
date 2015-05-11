@@ -7,9 +7,16 @@
  * @author Arjay Angeles <aqangeles@gmail.com>
  * @copyright Copyright (c) 2013 Arjay Angeles
  * @license MIT
+ * 
  */
+ 
+ /**
+  * Modified by Mohsen Shaali 
+  */
+  
 namespace yajra\Pdo;
 
+use Mockery\CountValidator\Exception;
 use PDO;
 use yajra\Pdo\Oci8\Exceptions\Oci8Exception;
 use yajra\Pdo\Oci8\Statement;
@@ -310,15 +317,14 @@ class Oci8 extends PDO {
 	 */
 	public function lastInsertId($name = null)
 	{
-		$sequence = $this->_table . "_" . $name . "_seq";
+		$sequence = $name . "_SEQ";
 		if ( ! $this->checkSequence($sequence))
 		{
 			return 0;
 		}
 
-		$stmt = $this->query("select {$sequence}.currval from dual", PDO::FETCH_COLUMN);
+		$stmt = $this->query("SELECT {$sequence}.CURRVAL FROM DUAL", PDO::FETCH_COLUMN);
 		$id = $stmt->fetch();
-
 		return $id;
 	}
 
@@ -460,12 +466,17 @@ class Oci8 extends PDO {
 			return false;
 		}
 
-		$stmt = $this->query("select count(*)
-            from all_sequences
-            where
-                sequence_name=upper('{$name}')
-                and sequence_owner=upper(user)
+        try {
+
+            $stmt = $this->query("SELECT COUNT(*)
+            FROM all_sequences
+            WHERE
+                SEQUENCE_NAME=UPPER('{$name}')
+                AND SEQUENCE_OWNER=UPPER(USER)
             ", PDO::FETCH_COLUMN);
+        }catch (Exception $e){
+            echo $e;
+        }
 
 		return $stmt->fetch();
 	}
