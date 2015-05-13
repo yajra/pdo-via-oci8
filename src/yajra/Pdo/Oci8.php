@@ -299,13 +299,14 @@ class Oci8 extends PDO {
 
 	/**
 	 * returns the current value of the sequence related to the table where
-	 * record is inserted. The sequence name should follow this for it to work
+	 * record is inserted by default. The sequence name should follow this for it to work
 	 * properly:
-	 *   {$table}.'_'.{$column}.'_seq'
+	 *   {$table}.'_id_seq'
+	 * If the sequence name is passed, then the function will check using that value.
 	 * Oracle does not support the last inserted ID functionality like MySQL.
 	 * If the above sequence does not exist, the method will return 0;
 	 *
-	 * @param string $sequence Sequence name; no use in this context
+	 * @param string $sequence Sequence name
 	 * @return mixed Last sequence number or 0 if sequence does not exist
 	 */
 	public function lastInsertId($sequence = null)
