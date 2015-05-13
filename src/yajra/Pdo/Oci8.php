@@ -305,18 +305,21 @@ class Oci8 extends PDO {
 	 * Oracle does not support the last inserted ID functionality like MySQL.
 	 * If the above sequence does not exist, the method will return 0;
 	 *
-	 * @param string $name Sequence name; no use in this context
+	 * @param string $sequence Sequence name; no use in this context
 	 * @return mixed Last sequence number or 0 if sequence does not exist
 	 */
-	public function lastInsertId($name = null)
+	public function lastInsertId($sequence = null)
 	{
-		$sequence = $this->_table . "_" . $name . "_seq";
+		if (is_null($sequence)) {
+			$sequence = $this->_table . "_id_seq";
+		}
+
 		if ( ! $this->checkSequence($sequence))
 		{
 			return 0;
 		}
 
-		$stmt = $this->query("select {$sequence}.currval from dual", PDO::FETCH_COLUMN);
+		$stmt = $this->query("SELECT {$sequence}.CURRVAL FROM DUAL", PDO::FETCH_COLUMN);
 		$id = $stmt->fetch();
 
 		return $id;
@@ -460,11 +463,11 @@ class Oci8 extends PDO {
 			return false;
 		}
 
-		$stmt = $this->query("select count(*)
-            from all_sequences
-            where
-                sequence_name=upper('{$name}')
-                and sequence_owner=upper(user)
+		$stmt = $this->query("SELECT count(*)
+            FROM ALL_SEQUENCES
+            WHERE
+                SEQUENCE_NAME=UPPER('{$name}')
+                AND SEQUENCE_OWNER=UPPER(USER)
             ", PDO::FETCH_COLUMN);
 
 		return $stmt->fetch();
