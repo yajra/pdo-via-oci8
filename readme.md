@@ -46,3 +46,4 @@ Licensed under the [MIT License](https://github.com/yajra/pdo-via-oci8/blob/mast
 
 - [crazycodr/pdo-via-oci8](https://github.com/crazycodr/pdo-via-oci8)
 - [ramsey/pdo_oci8](https://github.com/ramsey/pdo_oci8)
+- To all contributors of this project
