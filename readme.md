@@ -40,7 +40,7 @@ And then run `composer update`
 
 ### License
 
-Licensed under the [MIT License](https://github.com/yajra/laravel-pdo-via-oci8/blob/master/LICENSE).
+Licensed under the [MIT License](https://github.com/yajra/pdo-via-oci8/blob/master/LICENSE).
 
 ### Credits
 
