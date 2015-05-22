@@ -38,6 +38,10 @@ And then run `composer update`
 	$pdo->lastInsertId('TABLE_SEQ'); // will use TABLE_SEQ
 	```
 
-###Credits
+### License
+
+Licensed under the [MIT License](https://github.com/yajra/laravel-pdo-via-oci8/blob/master/LICENSE).
+
+### Credits
 
 - [crazycodr/pdo-via-oci8](https://github.com/crazycodr/pdo-via-oci8)
