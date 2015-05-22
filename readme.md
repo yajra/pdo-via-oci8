@@ -27,6 +27,9 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 And then run `composer update`
 
 ### Change Logs
+- **0.12.0**
+	- added support for procedure returning a cursor
+
 - **0.11.0**
 	- Rename github package name to pdo-via-oci8 from laravel-pdo-via-oci8 making the package not specific to Laravel.
 	- Sequence name can now be passed in the `lastInsertId` function. Table name that will be used by default will be based on the last table used on insert query.

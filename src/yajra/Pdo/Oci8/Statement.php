@@ -91,6 +91,13 @@ class Statement extends PDOStatement {
 	protected $_fetchIntoObject = null;
 
 	/**
+	 * PDO result set
+	 *
+	 * @var array
+	 */
+	protected $_results = array();
+
+	/**
 	 * Constructor
 	 *
 	 * @param resource $sth Statement handle created with oci_parse()
@@ -542,13 +549,22 @@ class Statement extends PDOStatement {
 	{
 		$this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
 
-		$results = array();
+		$this->_results = array();
 		while ($row = $this->fetch())
 		{
-			$results[] = $row;
+			if (is_resource(reset($row))) {
+				$stmt = new Statement(reset($row), $this->_pdoOci8, $this->_options);
+				$stmt->execute();
+				$stmt->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
+				while ($rs = $stmt->fetch()) {
+					$this->_results[] = $rs;
+				}
+			} else {
+				$this->_results[] = $row;
+			}
 		}
 
-		return $results;
+		return $this->_results;
 	}
 
 	/**
