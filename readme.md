@@ -1,4 +1,4 @@
-# PDO Userspace Driver for Oracle (oci8)
+## Oracle PDO Userspace Driver for OCI8
 
 ###PDO via Oci8
 
@@ -7,8 +7,6 @@
 [![Total Downloads](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/downloads)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8)
 [![Latest Unstable Version](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/v/unstable)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/yajra/laravel-pdo-via-oci8/blob/master/LICENSE)
-[![Support via Gratipay](https://img.shields.io/gratipay/yajra.svg)](https://gratipay.com/yajra/)
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=yajra&url=https://github.com/yajra/pdo-via-oci8&title=pdo-via-oci8&language=PHP&tags=github&category=software)
 
 
 The [yajra/pdo-via-oci8](https://github.com/yajra/pdo-via-oci8) package is a simple userspace driver for PDO that uses the tried and
@@ -32,6 +30,9 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 }
 ```
 And then run `composer update`
+
+### Buy me a beer
+<a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
 - **0.12.0**
