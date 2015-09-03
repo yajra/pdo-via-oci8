@@ -453,11 +453,12 @@ class Statement extends PDOStatement {
 				break;
 		}
 
-		// Bind the parameter
-		$result = oci_bind_by_name($this->_sth, $parameter, $variable, $maxLength, $oci_type);
+        // Bind the parameter
+        if (is_array($variable)) {
+            return oci_bind_array_by_name($this->_sth, $parameter, $variable, $maxLength, $maxLength, $oci_type);
+        }
 
-		return $result;
-
+        return oci_bind_by_name($this->_sth, $parameter, $variable, $maxLength, $oci_type);
 	}
 
 	/**
