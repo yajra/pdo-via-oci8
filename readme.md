@@ -35,6 +35,9 @@ And then run `composer update`
 <a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
+- **0.14.0**
+	- Add bindArray special non-pdo function for extensive support for oci_bind_array_by_name.
+
 - **0.13.0**
 	- Add support for oci_bind_array_by_name.
 
