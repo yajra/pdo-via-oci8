@@ -373,7 +373,7 @@ class Statement extends PDOStatement {
 	}
 
 	/**
-	 * Binds a parameter to the specified variable name
+	 * Binds a parameter to the specified variable name.
 	 *
 	 * @param string $parameter Parameter identifier. For a prepared statement
 	 *   using named placeholders, this will be a parameter name of the form
@@ -453,12 +453,29 @@ class Statement extends PDOStatement {
 				break;
 		}
 
-        // Bind the parameter
-        if (is_array($variable)) {
-            return oci_bind_array_by_name($this->_sth, $parameter, $variable, $maxLength, $maxLength, $oci_type);
-        }
+		if (is_array($variable)) {
+			return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $oci_type);
+		}
 
-        return oci_bind_by_name($this->_sth, $parameter, $variable, $maxLength, $oci_type);
+		return oci_bind_by_name($this->_sth, $parameter, $variable, $maxLength, $oci_type);
+	}
+
+	/**
+	 * Special non-PDO function that binds an array parameter to the specified variable name.
+	 *
+	 * @see  http://php.net/manual/en/function.oci-bind-array-by-name.php
+	 * @param string $parameter The Oracle placeholder.
+	 * @param array $variable An array.
+	 * @param int $maxTableLength Sets the maximum length both for incoming and result arrays.
+	 * @param int $maxItemLength Sets maximum length for array items.
+	 *                           If not specified or equals to -1, oci_bind_array_by_name() will find
+	 *                           the longest element in the incoming array and will use it as the maximum length.
+	 * @param int $type Explicit data type for the parameter using the
+	 * @return bool TRUE on success or FALSE on failure.
+	 */
+	public function bindArray($parameter, &$variable, $maxTableLength, $maxItemLength = -1, $type = SQLT_CHR)
+	{
+		return oci_bind_array_by_name($this->_sth, $parameter, $variable, $maxTableLength, $maxItemLength, $type);
 	}
 
 	/**
