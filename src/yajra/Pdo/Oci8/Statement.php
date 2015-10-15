@@ -399,6 +399,9 @@ class Statement extends PDOStatement {
 		$options = null)
 	{
 
+		// strip INOUT type for oci
+		$dataType &= ~PDO::PARAM_INPUT_OUTPUT;
+
 		//Replace the first @oci8param to a pseudo named parameter
 		if (is_numeric($parameter))
 		{
