@@ -7,5 +7,4 @@ class Oci8Test extends PHPUnit_Framework_TestCase
     {
         $this->assertTrue(true, true);
     }
-
 }

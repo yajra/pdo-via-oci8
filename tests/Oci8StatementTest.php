@@ -298,4 +298,3 @@ class Pdo_Oci8_StatementTest extends PHPUnit_Framework_TestCase
         );
     }
 }
-?>
