@@ -62,27 +62,8 @@ class Oci8 extends PDO
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
-        // Set default charset to AL32UTF8
-        $charset = 'AL32UTF8';
-        // Get the character set
-        if (array_key_exists("charset", $options)) {
-            $charset = $options["charset"];
-        }
-        // Convert UTF8 charset to AL32UTF8
-        $charset = strtolower($charset) == 'utf8' ? 'AL32UTF8' : $charset;
-
-        // Attempt a connection
-        if (isset($options[PDO::ATTR_PERSISTENT]) && $options[PDO::ATTR_PERSISTENT]) {
-            $this->dbh = oci_pconnect($username, $password, $dsn, $charset);
-        } else {
-            $this->dbh = oci_connect($username, $password, $dsn, $charset);
-        }
-
-        // Check if connection was successful
-        if (! $this->dbh) {
-            $e = oci_error();
-            throw new Oci8Exception($e['message']);
-        }
+        $charset = $this->configureCharset($options);
+        $this->connect($dsn, $username, $password, $options, $charset);
 
         // Save the options
         $this->options = $options;
@@ -263,11 +244,7 @@ class Oci8 extends PDO
      * @param array|null $ctorArgs Constructor arguments.
      * @return Statement
      */
-    public function query(
-        $statement,
-        $fetchMode = null,
-        $modeArg = null,
-        array $ctorArgs = array())
+    public function query($statement, $fetchMode = null, $modeArg = null, array $ctorArgs = array())
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
@@ -458,5 +435,48 @@ class Oci8 extends PDO
     {
         return ! preg_match('/^alter+ +table/', strtolower(trim($statement)))
         and ! preg_match('/^create+ +table/', strtolower(trim($statement)));
+    }
+
+    /**
+     * Connect to database.
+     *
+     * @param string $dsn
+     * @param string $username
+     * @param string $password
+     * @param array  $options
+     * @param string $charset
+     * @throws Oci8Exception
+     */
+    private function connect($dsn, $username, $password, array $options, $charset)
+    {
+        if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
+            $this->dbh = @oci_pconnect($username, $password, $dsn, $charset);
+        } else {
+            $this->dbh = @oci_connect($username, $password, $dsn, $charset);
+        }
+
+        if (! $this->dbh) {
+            $e = oci_error();
+            throw new Oci8Exception($e['message']);
+        }
+    }
+
+    /**
+     * Configure proper charset.
+     *
+     * @param array $options
+     * @return string
+     */
+    private function configureCharset(array $options)
+    {
+        $charset = 'AL32UTF8';
+        // Get the character set from the options.
+        if (array_key_exists("charset", $options)) {
+            $charset = $options["charset"];
+        }
+        // Convert UTF8 charset to AL32UTF8
+        $charset = strtolower($charset) == 'utf8' ? 'AL32UTF8' : $charset;
+
+        return $charset;
     }
 }
