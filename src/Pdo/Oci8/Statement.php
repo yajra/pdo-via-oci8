@@ -145,12 +145,31 @@ class Statement extends PDOStatement
             $message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
             $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
             $message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
-            $message = $message . 'Bindings      : [' . implode(',', $this->bindings) . ']' . PHP_EOL;
+            $message = $message . 'Bindings      : [' . $this->displayBindings() . ']' . PHP_EOL;
 
             throw new Oci8Exception($message, $e['code']);
         }
 
         return $result;
+    }
+
+    /**
+     * Special not PDO function to format display of query bindings.
+     *
+     * @return string
+     */
+    private function displayBindings()
+    {
+        $bindings = array();
+        foreach ($this->bindings as $binding) {
+            if (is_object($binding)) {
+                $bindings[] = get_class($binding);
+            } else {
+                $bindings[] = (string) $binding;
+            }
+        }
+
+        return implode(',', $bindings);
     }
 
     /**
