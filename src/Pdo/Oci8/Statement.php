@@ -16,70 +16,70 @@ use Yajra\Pdo\Oci8\Exceptions\Oci8Exception;
 class Statement extends PDOStatement
 {
     /**
-     * Statement handler
+     * Statement handler.
      *
      * @var resource
      */
     private $sth;
 
     /**
-     * PDO Oci8 driver
+     * PDO Oci8 connection.
      *
      * @var \Yajra\Pdo\Oci8
      */
     private $connection;
 
     /**
-     * flag to convert LOB to string or not
+     * Flag to convert LOB to string or not.
      *
      * @var boolean
      */
     private $returnLobs = true;
 
     /**
-     * Statement options
+     * Statement options.
      *
      * @var array
      */
     private $options = array();
 
     /**
-     * Fetch mode selected via setFetchMode()
+     * Fetch mode selected via setFetchMode().
      *
      * @var int
      */
     private $fetchMode = PDO::ATTR_DEFAULT_FETCH_MODE;
 
     /**
-     * Column number for PDO::FETCH_COLUMN fetch mode
+     * Column number for PDO::FETCH_COLUMN fetch mode.
      *
      * @var int
      */
     private $fetchColNo = 0;
 
     /**
-     * Class name for PDO::FETCH_CLASS fetch mode
+     * Class name for PDO::FETCH_CLASS fetch mode.
      *
      * @var string
      */
     private $fetchClassName = '\stdClass';
 
     /**
-     * Constructor arguments for PDO::FETCH_CLASS
+     * Constructor arguments for PDO::FETCH_CLASS.
      *
      * @var array
      */
     private $fetchCtorArgs = array();
 
     /**
-     * Object reference for PDO::FETCH_INTO fetch mode
+     * Object reference for PDO::FETCH_INTO fetch mode.
      *
      * @var object
      */
     private $fetchIntoObject = null;
 
     /**
-     * PDO result set
+     * PDO result set.
      *
      * @var array
      */
@@ -93,7 +93,7 @@ class Statement extends PDOStatement
     private $bindings = array();
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param resource $sth Statement handle created with oci_parse()
      * @param Oci8 $connection The Pdo_Oci8 object for this statement
@@ -114,7 +114,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Executes a prepared statement
+     * Executes a prepared statement.
      *
      * @param array $inputParams An array of values with as many elements as
      *   there are bound parameters in the SQL statement being executed.
@@ -154,7 +154,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Fetches the next row from a result set
+     * Fetches the next row from a result set.
      *
      * @param int|null $fetchMode Controls how the next row will be returned to
      *   the caller. This value must be one of the PDO::FETCH_* constants,
@@ -423,7 +423,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Binds a column to a PHP variable
+     * Binds a column to a PHP variable.
      *
      * @param mixed $column Number of the column (1-indexed) or name of the
      *   column in the result set. If using the column name, be aware that the
@@ -446,7 +446,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Binds a value to a parameter
+     * Binds a value to a parameter.
      *
      * @param string $parameter Parameter identifier. For a prepared statement
      *   using named placeholders, this will be a parameter name of the form
@@ -463,7 +463,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns the number of rows affected by the last executed statement
+     * Returns the number of rows affected by the last executed statement.
      *
      * @return int The number of rows.
      */
@@ -473,7 +473,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns a single column from the next row of a result set
+     * Returns a single column from the next row of a result set.
      *
      * @param int $colNumber 0-indexed number of the column you wish to retrieve
      *   from the row. If no value is supplied, it fetches the first column.
@@ -487,7 +487,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns an array containing all of the result set rows
+     * Returns an array containing all of the result set rows.
      *
      * @param int $fetchMode Controls the contents of the returned array as
      *   documented in PDOStatement::fetch.
@@ -521,7 +521,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Fetches the next row and returns it as an object
+     * Fetches the next row and returns it as an object.
      *
      * @param string $className
      * @param array $ctorArgs
@@ -535,8 +535,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Fetch the SQLSTATE associated with the last operation on the resource
-     * handle
+     * Fetch the SQLSTATE associated with the last operation on the resource handle.
      * While this returns an error code, it merely emulates the action. If
      * there are no errors, it returns the success SQLSTATE code (00000).
      * If there are errors, it returns HY000. See errorInfo() to retrieve
@@ -574,7 +573,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Sets a statement attribute
+     * Sets a statement attribute.
      *
      * @param int $attribute
      * @param mixed $value
@@ -603,7 +602,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns the number of columns in the result set
+     * Returns the number of columns in the result set.
      *
      * @return int The number of columns in the statement result set. If there
      *   is no result set, it returns 0.
@@ -614,7 +613,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns metadata for a column in a result set
+     * Returns metadata for a column in a result set.
      * The array returned by this function is patterned after that
      * returned by \PDO::getColumnMeta(). It includes the following
      * elements:
@@ -653,7 +652,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Set the default fetch mode for this statement
+     * Set the default fetch mode for this statement.
      *
      * @param int|null $fetchMode The fetch mode must be one of the
      *   PDO::FETCH_* constants.
@@ -715,7 +714,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Advances to the next rowset in a multi-rowset statement handle
+     * Advances to the next rowset in a multi-rowset statement handle.
      *
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
@@ -739,7 +738,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Dump a SQL prepared command
+     * Dump a SQL prepared command.
      *
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
