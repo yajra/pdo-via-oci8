@@ -93,6 +93,20 @@ class Statement extends PDOStatement
     private $bindings = array();
 
     /**
+     * Lists of LOB variables.
+     *
+     * @var array
+     */
+    private $blobObjects = array();
+
+    /**
+     * Lists of LOB object binding values.
+     *
+     * @var array
+     */
+    private $blobBindings = array();
+
+    /**
      * Constructor.
      *
      * @param resource $sth Statement handle created with oci_parse()
@@ -124,11 +138,16 @@ class Statement extends PDOStatement
     public function execute($inputParams = null)
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
+        // Enable transaction mode if blob is set.
+        if (count($this->blobObjects) > 0) {
+            $this->connection->beginTransaction();
+        }
+
         if ($this->connection->inTransaction()) {
             $mode = OCI_DEFAULT;
         }
 
-        // Set up bound parameters, if passed in
+        // Set up bound parameters, if passed in.
         if (is_array($inputParams)) {
             foreach ($inputParams as $key => $value) {
                 $this->bindings[] = $value;
@@ -137,6 +156,17 @@ class Statement extends PDOStatement
         }
 
         $result = @oci_execute($this->sth, $mode);
+
+        // Save blob objects if set.
+        if ($result && count($this->blobObjects) > 0) {
+            foreach ($this->blobObjects as $param => $blob) {
+                /** @var \OCI_Lob $blob */
+                $blob->save($this->blobBindings[$param]);
+            }
+
+            $this->connection->commit();
+        }
+
         if ($result != true) {
             $e = oci_error($this->sth);
 
@@ -368,37 +398,40 @@ class Statement extends PDOStatement
         // Adapt the type
         switch ($dataType) {
             case PDO::PARAM_BOOL:
-                $oci_type = SQLT_INT;
+                $ociType = SQLT_INT;
                 break;
 
             case PDO::PARAM_NULL:
-                $oci_type = SQLT_CHR;
+                $ociType = SQLT_CHR;
                 break;
 
             case PDO::PARAM_INT:
-                $oci_type = SQLT_INT;
+                $ociType = SQLT_INT;
                 break;
 
             case PDO::PARAM_STR:
-                $oci_type = SQLT_CHR;
+                $ociType = SQLT_CHR;
                 break;
 
             case PDO::PARAM_LOB:
-                $oci_type = OCI_B_BLOB;
+                $ociType = OCI_B_BLOB;
 
-                // create a new descriptor for blob
+                $this->blobBindings[$parameter] = $variable;
+
                 $variable = $this->connection->getNewDescriptor();
+
+                $this->blobObjects[$parameter] = &$variable;
                 break;
 
             case PDO::PARAM_STMT:
-                $oci_type = OCI_B_CURSOR;
+                $ociType = OCI_B_CURSOR;
 
                 // Result sets require a cursor
                 $variable = $this->connection->getNewCursor();
                 break;
 
             case SQLT_NTY:
-                $oci_type = SQLT_NTY;
+                $ociType = SQLT_NTY;
 
                 $schema    = isset($options['schema']) ? $options['schema'] : '';
                 $type_name = isset($options['type_name']) ? $options['type_name'] : '';
@@ -408,17 +441,17 @@ class Statement extends PDOStatement
                 break;
 
             default:
-                $oci_type = SQLT_CHR;
+                $ociType = SQLT_CHR;
                 break;
         }
 
         if (is_array($variable)) {
-            return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $oci_type);
+            return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $ociType);
         }
 
         $this->bindings[] = $variable;
 
-        return oci_bind_by_name($this->sth, $parameter, $variable, $maxLength, $oci_type);
+        return oci_bind_by_name($this->sth, $parameter, $variable, $maxLength, $ociType);
     }
 
     /**
