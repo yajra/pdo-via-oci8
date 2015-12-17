@@ -107,9 +107,7 @@ class Oci8 extends PDO
         }
 
         // Skip replacing ? with a pseudo named parameter on alter/create table command
-        if (! preg_match('/^alter+ +table/', strtolower(trim($statement)))
-            and ! preg_match('/^create+ +table/', strtolower(trim($statement)))
-        ) {
+        if ($this->isNamedParameterable($statement)) {
             // Replace ? with a pseudo named parameter
             $newStatement = null;
             $parameter    = 0;
@@ -452,5 +450,17 @@ class Oci8 extends PDO
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Check if statement can use pseudo named parameter.
+     *
+     * @param string $statement
+     * @return bool
+     */
+    private function isNamedParameterable($statement)
+    {
+        return ! preg_match('/^alter+ +table/', strtolower(trim($statement)))
+        and ! preg_match('/^create+ +table/', strtolower(trim($statement)));
     }
 }
