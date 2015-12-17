@@ -117,7 +117,7 @@ class Oci8 extends PDO
                 if ($newStatement !== null) {
                     $statement = $newStatement;
                 }
-                $newStatement = preg_replace('/\?/', ':autoparam' . $parameter, $statement, 1);
+                $newStatement = preg_replace('/\?/', ':p' . $parameter, $statement, 1);
                 $parameter++;
             }
             $statement = $newStatement;
