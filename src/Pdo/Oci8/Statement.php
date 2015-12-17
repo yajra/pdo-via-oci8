@@ -138,12 +138,7 @@ class Statement extends PDOStatement
     public function execute($inputParams = null)
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
-        // Enable transaction mode if blob is set.
-        if (! $this->connection->inTransaction() && count($this->blobObjects) > 0) {
-            $this->connection->beginTransaction();
-        }
-
-        if ($this->connection->inTransaction()) {
+        if ($this->connection->inTransaction() || count($this->blobObjects) > 0) {
             $mode = OCI_DEFAULT;
         }
 
@@ -163,7 +158,9 @@ class Statement extends PDOStatement
                 /** @var \OCI_Lob $blob */
                 $blob->save($this->blobBindings[$param]);
             }
+        }
 
+        if (! $this->connection->inTransaction() && count($this->blobObjects) > 0) {
             $this->connection->commit();
         }
 

@@ -41,8 +41,6 @@ And then run `composer update`
     - Convert to PSR-2 & PSR-4 standard.
     - Safe refactoring of variable names.
     - Auto-saving of BLOB objects.
-    - Known Limitations: 
-        - Batch transaction may not work well if it involves a BLOB object.
 
 - **0.15.0**
     - Account for PDO::PARAM_INPUT_OUTPUT in bindParam.

@@ -165,15 +165,10 @@ class Oci8 extends PDO
     /**
      * Commits a transaction.
      *
-     * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
      */
     public function commit()
     {
-        if (! $this->inTransaction()) {
-            throw new Oci8Exception('There is no active transaction');
-        }
-
         if (oci_commit($this->dbh)) {
             $this->inTransaction = false;
 
