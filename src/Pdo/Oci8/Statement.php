@@ -20,84 +20,70 @@ class Statement extends PDOStatement
      *
      * @var resource
      */
-    protected $sth;
+    private $sth;
 
     /**
      * PDO Oci8 driver
      *
      * @var \Yajra\Pdo\Oci8
      */
-    protected $pdoOci8;
-
-    /**
-     * Contains the current data
-     *
-     * @var array
-     */
-    protected $current;
-
-    /**
-     * Contains the current key
-     *
-     * @var mixed
-     */
-    protected $key;
+    private $pdoOci8;
 
     /**
      * flag to convert LOB to string or not
      *
      * @var boolean
      */
-    protected $returnLobs = true;
+    private $returnLobs = true;
 
     /**
      * Statement options
      *
      * @var array
      */
-    protected $options = array();
+    private $options = array();
 
     /**
      * Fetch mode selected via setFetchMode()
      *
      * @var int
      */
-    protected $fetchMode = PDO::ATTR_DEFAULT_FETCH_MODE;
+    private $fetchMode = PDO::ATTR_DEFAULT_FETCH_MODE;
 
     /**
      * Column number for PDO::FETCH_COLUMN fetch mode
      *
      * @var int
      */
-    protected $fetchColNo = 0;
+    private $fetchColNo = 0;
 
     /**
      * Class name for PDO::FETCH_CLASS fetch mode
      *
      * @var string
      */
-    protected $fetchClassName = '\stdClass';
+    private $fetchClassName = '\stdClass';
 
     /**
      * Constructor arguments for PDO::FETCH_CLASS
      *
      * @var array
      */
-    protected $fetchCtorArgs = array();
+    private $fetchCtorArgs = array();
 
     /**
      * Object reference for PDO::FETCH_INTO fetch mode
      *
      * @var object
      */
-    protected $fetchIntoObject = null;
+    private $fetchIntoObject = null;
 
     /**
      * PDO result set
      *
      * @var array
      */
-    protected $results = array();
+    private $results = array();
 
     /**
      * Lists of binding values.
@@ -186,10 +172,7 @@ class Statement extends PDOStatement
      *   fetch type. In all cases, FALSE is returned on failure.
      * @todo Implement cursorOrientation and cursorOffset
      */
-    public function fetch(
-        $fetchMode = null,
-        $cursorOrientation = PDO::FETCH_ORI_NEXT,
-        $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         // If not fetchMode was specified, used the default value of or the mode
         // set by the last call to setFetchMode()
@@ -353,12 +336,7 @@ class Statement extends PDOStatement
      * @todo Map PDO datatypes to oci8 datatypes and implement support for
      *   datatypes and length.
      */
-    public function bindParam(
-        $parameter,
-        &$variable,
-        $dataType = PDO::PARAM_STR,
-        $maxLength = -1,
-        $options = null)
+    public function bindParam($parameter, &$variable, $dataType = PDO::PARAM_STR, $maxLength = -1, $options = null)
     {
         // strip INOUT type for oci
         $dataType &= ~PDO::PARAM_INPUT_OUTPUT;
@@ -407,7 +385,7 @@ class Statement extends PDOStatement
                 $type_name = isset($options['type_name']) ? $options['type_name'] : '';
 
                 // set params required to use custom type.
-                $variable = oci_new_collection($this->pdoOci8->dbh, $type_name, $schema);
+                $variable = $this->pdoOci8->getNewCollection($type_name, $schema);
                 break;
 
             default:
@@ -462,12 +440,7 @@ class Statement extends PDOStatement
      *       of the query or fetching rows, assign data from each column
      *       to their respective variable in the map.
      */
-    public function bindColumn(
-        $column,
-        &$variable,
-        $dataType = null,
-        $maxLength = -1,
-        $options = null)
+    public function bindColumn($column, &$variable, $dataType = null, $maxLength = -1, $options = null)
     {
         throw new Oci8Exception("bindColumn has not been implemented");
     }
@@ -526,10 +499,7 @@ class Statement extends PDOStatement
      *   set. The array represents each row as either an array of column values
      *   or an object with properties corresponding to each column name.
      */
-    public function fetchAll(
-        $fetchMode = PDO::FETCH_BOTH,
-        $fetchArgument = null,
-        $ctorArgs = array())
+    public function fetchAll($fetchMode = PDO::FETCH_BOTH, $fetchArgument = null, $ctorArgs = array())
     {
         $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
 
@@ -596,7 +566,7 @@ class Statement extends PDOStatement
             return array(
                 'HY000',
                 $e['code'],
-                $e['message']
+                $e['message'],
             );
         }
 

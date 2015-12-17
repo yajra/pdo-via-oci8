@@ -478,4 +478,18 @@ class Oci8 extends PDO
 
         return $charset;
     }
+
+    /**
+     * Special non PDO function
+     * Allocates new collection object
+     *
+     * @param string $typeName Should be a valid named type (uppercase).
+     * @param string $schema Should point to the scheme, where the named type was created.
+     *  The name of the current user is the default value.
+     * @return \OCI_Collection
+     */
+    public function getNewCollection($typeName, $schema)
+    {
+        return oci_new_collection($this->dbh, $typeName, $schema);
+    }
 }
