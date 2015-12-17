@@ -139,7 +139,7 @@ class Statement extends PDOStatement
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
         // Enable transaction mode if blob is set.
-        if (count($this->blobObjects) > 0) {
+        if (! $this->connection->inTransaction() && count($this->blobObjects) > 0) {
             $this->connection->beginTransaction();
         }
 
