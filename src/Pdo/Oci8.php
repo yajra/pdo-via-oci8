@@ -28,28 +28,28 @@ class Oci8 extends PDO
      *
      * @var resource
      */
-    public $_dbh;
+    public $dbh;
 
     /**
      * Driver options
      *
      * @var array
      */
-    protected $_options = array();
+    protected $options = array();
 
     /**
      * Whether currently in a transaction
      *
      * @var bool
      */
-    protected $_inTransaction = false;
+    protected $inTransaction = false;
 
     /**
      * insert query statement table variable
      *
      * @var string
      */
-    protected $_table;
+    protected $table;
 
     /**
      * Creates a PDO instance representing a connection to a database
@@ -73,19 +73,19 @@ class Oci8 extends PDO
 
         // Attempt a connection
         if (isset($options[PDO::ATTR_PERSISTENT]) && $options[PDO::ATTR_PERSISTENT]) {
-            $this->_dbh = oci_pconnect($username, $password, $dsn, $charset);
+            $this->dbh = oci_pconnect($username, $password, $dsn, $charset);
         } else {
-            $this->_dbh = oci_connect($username, $password, $dsn, $charset);
+            $this->dbh = oci_connect($username, $password, $dsn, $charset);
         }
 
         // Check if connection was successful
-        if (! $this->_dbh) {
+        if (! $this->dbh) {
             $e = oci_error();
             throw new Oci8Exception($e['message']);
         }
 
         // Save the options
-        $this->_options = $options;
+        $this->options = $options;
     }
 
     /**
@@ -103,7 +103,7 @@ class Oci8 extends PDO
     {
         // Get instance options
         if ($options == null) {
-            $options = $this->_options;
+            $options = $this->options;
         }
 
         // Skip replacing ? with a pseudo named parameter on alter/create table command
@@ -127,14 +127,14 @@ class Oci8 extends PDO
         if (strpos(strtolower($statement), 'insert into') !== false) {
             preg_match('/insert into\s+([^\s\(]*)?/', strtolower($statement), $matches);
             // store insert into table name
-            $this->_table = $matches[1];
+            $this->table = $matches[1];
         }
 
         // Prepare the statement
-        $sth = @oci_parse($this->_dbh, $statement);
+        $sth = @oci_parse($this->dbh, $statement);
 
         if (! $sth) {
-            $e = oci_error($this->_dbh);
+            $e = oci_error($this->dbh);
             throw new Oci8Exception($e['message']);
         }
 
@@ -157,7 +157,7 @@ class Oci8 extends PDO
             throw new Oci8Exception('There is already an active transaction');
         }
 
-        $this->_inTransaction = true;
+        $this->inTransaction = true;
 
         return true;
     }
@@ -180,7 +180,7 @@ class Oci8 extends PDO
      */
     public function inTransaction()
     {
-        return $this->_inTransaction;
+        return $this->inTransaction;
     }
 
     /**
@@ -195,8 +195,8 @@ class Oci8 extends PDO
             throw new Oci8Exception('There is no active transaction');
         }
 
-        if (oci_commit($this->_dbh)) {
-            $this->_inTransaction = false;
+        if (oci_commit($this->dbh)) {
+            $this->inTransaction = false;
 
             return true;
         }
@@ -216,8 +216,8 @@ class Oci8 extends PDO
             throw new Oci8Exception('There is no active transaction');
         }
 
-        if (oci_rollback($this->_dbh)) {
-            $this->_inTransaction = false;
+        if (oci_rollback($this->dbh)) {
+            $this->inTransaction = false;
 
             return true;
         }
@@ -234,7 +234,7 @@ class Oci8 extends PDO
      */
     public function setAttribute($attribute, $value)
     {
-        $this->_options[$attribute] = $value;
+        $this->options[$attribute] = $value;
 
         return true;
     }
@@ -295,7 +295,7 @@ class Oci8 extends PDO
     public function lastInsertId($sequence = null)
     {
         if (is_null($sequence)) {
-            $sequence = $this->_table . "_id_seq";
+            $sequence = $this->table . "_id_seq";
         }
 
         if (! $this->checkSequence($sequence)) {
@@ -338,7 +338,7 @@ class Oci8 extends PDO
      */
     public function errorInfo()
     {
-        $e = oci_error($this->_dbh);
+        $e = oci_error($this->dbh);
 
         if (is_array($e)) {
             return array(
@@ -364,8 +364,8 @@ class Oci8 extends PDO
             return "oci8";
         }
 
-        if (isset($this->_options[$attribute])) {
-            return $this->_options[$attribute];
+        if (isset($this->options[$attribute])) {
+            return $this->options[$attribute];
         }
 
         return null;
@@ -380,7 +380,7 @@ class Oci8 extends PDO
      */
     public function getNewCursor()
     {
-        return oci_new_cursor($this->_dbh);
+        return oci_new_cursor($this->dbh);
     }
 
     /**
@@ -393,7 +393,7 @@ class Oci8 extends PDO
      */
     public function getNewDescriptor($type = OCI_D_LOB)
     {
-        return oci_new_descriptor($this->_dbh, $type);
+        return oci_new_descriptor($this->dbh, $type);
     }
 
     /**
