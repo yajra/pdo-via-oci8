@@ -442,13 +442,15 @@ class Oci8 extends PDO
             return false;
         }
 
-        $stmt = $this->query("SELECT count(*)
-            FROM ALL_SEQUENCES
-            WHERE
-                SEQUENCE_NAME=UPPER('{$name}')
-                AND SEQUENCE_OWNER=UPPER(USER)
-            ", PDO::FETCH_COLUMN);
+        try {
+            $stmt = $this->query(
+                "SELECT count(*) FROM ALL_SEQUENCES WHERE SEQUENCE_NAME=UPPER('{$name}') AND SEQUENCE_OWNER=UPPER(USER)",
+                PDO::FETCH_COLUMN
+            );
 
-        return $stmt->fetch();
+            return $stmt->fetch();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
