@@ -100,6 +100,13 @@ class Statement extends PDOStatement
     protected $results = array();
 
     /**
+     * Lists of binding values.
+     *
+     * @var array
+     */
+    private $bindings = array();
+
+    /**
      * Constructor
      *
      * @param resource $sth Statement handle created with oci_parse()
@@ -138,6 +145,7 @@ class Statement extends PDOStatement
         // Set up bound parameters, if passed in
         if (is_array($inputParams)) {
             foreach ($inputParams as $key => $value) {
+                $this->bindings[] = $value;
                 $this->bindParam($key, $inputParams[$key]);
             }
         }
@@ -151,7 +159,7 @@ class Statement extends PDOStatement
             $message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
             $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
             $message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
-            $message = $message . 'Bindings      : [' . implode(',', (array) $inputParams) . ']' . PHP_EOL;
+            $message = $message . 'Bindings      : [' . implode(',', $this->bindings) . ']' . PHP_EOL;
 
             throw new Oci8Exception($message, $e['code']);
         }
@@ -352,16 +360,15 @@ class Statement extends PDOStatement
         $maxLength = -1,
         $options = null)
     {
-
         // strip INOUT type for oci
         $dataType &= ~PDO::PARAM_INPUT_OUTPUT;
 
-        //Replace the first @oci8param to a pseudo named parameter
+        // Replace the first @oci8param to a pseudo named parameter
         if (is_numeric($parameter)) {
             $parameter = ':autoparam' . $parameter;
         }
 
-        //Adapt the type
+        // Adapt the type
         switch ($dataType) {
             case PDO::PARAM_BOOL:
                 $oci_type = SQLT_INT;
@@ -412,6 +419,8 @@ class Statement extends PDOStatement
             return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $oci_type);
         }
 
+        $this->bindings[] = $variable;
+
         return oci_bind_by_name($this->sth, $parameter, $variable, $maxLength, $oci_type);
     }
 
@@ -430,6 +439,8 @@ class Statement extends PDOStatement
      */
     public function bindArray($parameter, &$variable, $maxTableLength, $maxItemLength = -1, $type = SQLT_CHR)
     {
+        $this->bindings[] = $variable;
+
         return oci_bind_array_by_name($this->sth, $parameter, $variable, $maxTableLength, $maxItemLength, $type);
     }
 
