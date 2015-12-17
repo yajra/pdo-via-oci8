@@ -25,7 +25,7 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 ```json
 {
     "require": {
-        "yajra/laravel-pdo-via-oci8": "~0.12"
+        "yajra/laravel-pdo-via-oci8": "1.*"
     }
 }
 ```
@@ -35,25 +35,34 @@ And then run `composer update`
 <a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
+- **1.0.0**
+    - Change of namespace from yajra to Yajra (capital Y).
+    - Enhance error dump with proper bindings.
+    - Convert to PSR-2 & PSR-4 standard.
+    - Safe refactoring of variable names.
+    - Auto-saving of BLOB objects.
+    - Known Limitations: 
+        - Batch transaction may not work well if it involves a BLOB object.
+
 - **0.15.0**
-	- Account for PDO::PARAM_INPUT_OUTPUT in bindParam.
+    - Account for PDO::PARAM_INPUT_OUTPUT in bindParam.
 
 - **0.14.0**
-	- Add bindArray special non-pdo function for extensive support for oci_bind_array_by_name.
+    - Add bindArray special non-pdo function for extensive support for oci_bind_array_by_name.
 
 - **0.13.0**
-	- Add support for oci_bind_array_by_name.
+    - Add support for oci_bind_array_by_name.
 
 - **0.12.0**
-	- Add support for procedure returning a cursor.
+    - Add support for procedure returning a cursor.
 
 - **0.11.0**
-	- Rename github package name to pdo-via-oci8 from laravel-pdo-via-oci8 making the package not specific to Laravel.
-	- Sequence name can now be passed in the `lastInsertId` function. Table name that will be used by default will be based on the last table used on insert query.
-	```php
-	$pdo->lastInsertId(); // will use TABLE_ID_SEQ
-	$pdo->lastInsertId('TABLE_SEQ'); // will use TABLE_SEQ
-	```
+    - Rename github package name to pdo-via-oci8 from laravel-pdo-via-oci8 making the package not specific to Laravel.
+    - Sequence name can now be passed in the `lastInsertId` function. Table name that will be used by default will be based on the last table used on insert query.
+    ```php
+    $pdo->lastInsertId(); // will use TABLE_ID_SEQ
+    $pdo->lastInsertId('TABLE_SEQ'); // will use TABLE_SEQ
+    ```
 
 ### License
 
