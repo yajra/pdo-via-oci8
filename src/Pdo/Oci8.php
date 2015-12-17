@@ -436,10 +436,6 @@ class Oci8 extends PDO
      */
     public function checkSequence($name)
     {
-        if (! $name) {
-            return false;
-        }
-
         try {
             $stmt = $this->query(
                 "SELECT count(*) FROM ALL_SEQUENCES WHERE SEQUENCE_NAME=UPPER('{$name}') AND SEQUENCE_OWNER=UPPER(USER)",
