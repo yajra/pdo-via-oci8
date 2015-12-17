@@ -27,7 +27,7 @@ class Statement extends PDOStatement
      *
      * @var \Yajra\Pdo\Oci8
      */
-    private $pdoOci8;
+    private $connection;
 
     /**
      * flag to convert LOB to string or not
@@ -96,11 +96,11 @@ class Statement extends PDOStatement
      * Constructor
      *
      * @param resource $sth Statement handle created with oci_parse()
-     * @param Oci8 $pdoOci8 The Pdo_Oci8 object for this statement
+     * @param Oci8 $connection The Pdo_Oci8 object for this statement
      * @param array $options Options for the statement handle
      * @throws Oci8Exception
      */
-    public function __construct($sth, Oci8 $pdoOci8, array $options = array())
+    public function __construct($sth, Oci8 $connection, array $options = array())
     {
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new Oci8Exception(
@@ -108,9 +108,9 @@ class Statement extends PDOStatement
                 . (string) get_resource_type($sth) . ' received instead');
         }
 
-        $this->sth     = $sth;
-        $this->pdoOci8 = $pdoOci8;
-        $this->options = $options;
+        $this->sth        = $sth;
+        $this->connection = $connection;
+        $this->options    = $options;
     }
 
     /**
@@ -124,7 +124,7 @@ class Statement extends PDOStatement
     public function execute($inputParams = null)
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
-        if ($this->pdoOci8->inTransaction()) {
+        if ($this->connection->inTransaction()) {
             $mode = OCI_DEFAULT;
         }
 
@@ -368,14 +368,14 @@ class Statement extends PDOStatement
                 $oci_type = OCI_B_BLOB;
 
                 // create a new descriptor for blob
-                $variable = $this->pdoOci8->getNewDescriptor();
+                $variable = $this->connection->getNewDescriptor();
                 break;
 
             case PDO::PARAM_STMT:
                 $oci_type = OCI_B_CURSOR;
 
                 // Result sets require a cursor
-                $variable = $this->pdoOci8->getNewCursor();
+                $variable = $this->connection->getNewCursor();
                 break;
 
             case SQLT_NTY:
@@ -385,7 +385,7 @@ class Statement extends PDOStatement
                 $type_name = isset($options['type_name']) ? $options['type_name'] : '';
 
                 // set params required to use custom type.
-                $variable = $this->pdoOci8->getNewCollection($type_name, $schema);
+                $variable = $this->connection->getNewCollection($type_name, $schema);
                 break;
 
             default:
@@ -506,7 +506,7 @@ class Statement extends PDOStatement
         $this->results = array();
         while ($row = $this->fetch()) {
             if (is_resource(reset($row))) {
-                $stmt = new Statement(reset($row), $this->pdoOci8, $this->options);
+                $stmt = new Statement(reset($row), $this->connection, $this->options);
                 $stmt->execute();
                 $stmt->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
                 while ($rs = $stmt->fetch()) {
