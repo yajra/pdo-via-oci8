@@ -28,31 +28,31 @@ class Oci8 extends PDO
      *
      * @var resource
      */
-    public $dbh;
+    private $dbh;
 
     /**
-     * Driver options
+     * Driver options.
      *
      * @var array
      */
-    protected $options = array();
+    private $options = array();
 
     /**
-     * Whether currently in a transaction
+     * Whether currently in a transaction.
      *
      * @var bool
      */
-    protected $inTransaction = false;
+    private $inTransaction = false;
 
     /**
-     * insert query statement table variable
+     * Insert query statement table variable.
      *
      * @var string
      */
-    protected $table;
+    private $table;
 
     /**
-     * Creates a PDO instance representing a connection to a database
+     * Creates a PDO instance representing a connection to a database.
      *
      * @param $dsn
      * @param $username [optional]
@@ -125,7 +125,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Initiates a transaction
+     * Initiates a transaction.
      *
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure
@@ -142,7 +142,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Returns true if the current process is in a transaction
+     * Returns true if the current process is in a transaction.
      *
      * @deprecated Use inTransaction() instead
      * @return bool
@@ -153,7 +153,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Checks if inside a transaction
+     * Checks if inside a transaction.
      *
      * @return bool TRUE if a transaction is currently active, and FALSE if not.
      */
@@ -163,7 +163,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Commits a transaction
+     * Commits a transaction.
      *
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
@@ -184,7 +184,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Rolls back a transaction
+     * Rolls back a transaction.
      *
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
@@ -205,7 +205,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Sets an attribute on the database handle
+     * Sets an attribute on the database handle.
      *
      * @param int $attribute
      * @param mixed $value
@@ -219,7 +219,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Executes an SQL statement and returns the number of affected rows
+     * Executes an SQL statement and returns the number of affected rows.
      *
      * @param string $statement The SQL statement to prepare and execute.
      * @return int The number of rows that were modified or deleted by the SQL
@@ -235,7 +235,7 @@ class Oci8 extends PDO
 
     /**
      * Executes an SQL statement, returning the results as a
-     * Yajra\Pdo\Oci8\Statement object
+     * Yajra\Pdo\Oci8\Statement object.
      *
      * @param string $statement The SQL statement to prepare and execute.
      * @param int|null $fetchMode The fetch mode must be one of the
@@ -285,7 +285,7 @@ class Oci8 extends PDO
 
     /**
      * Fetch the SQLSTATE associated with the last operation on the database
-     * handle
+     * handle.
      * While this returns an error code, it merely emulates the action. If
      * there are no errors, it returns the success SQLSTATE code (00000).
      * If there are errors, it returns HY000. See errorInfo() to retrieve
@@ -301,8 +301,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Returns extended error information for the last operation on the database
-     * handle
+     * Returns extended error information for the last operation on the database handle.
      * The array consists of the following fields:
      *   0  SQLSTATE error code (a five characters alphanumeric identifier
      *      defined in the ANSI SQL standard).
