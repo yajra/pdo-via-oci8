@@ -1,9 +1,11 @@
-<?php namespace yajra\Pdo\Oci8;
+<?php
+
+namespace Yajra\Pdo\Oci8;
 
 use PDO;
 use PDOStatement;
-use yajra\Pdo\Oci8;
-use yajra\Pdo\Oci8\Exceptions\Oci8Exception;
+use Yajra\Pdo\Oci8;
+use Yajra\Pdo\Oci8\Exceptions\Oci8Exception;
 
 /**
  * Oci8 Statement class to mimic the interface of the PDOStatement class
@@ -13,7 +15,6 @@ use yajra\Pdo\Oci8\Exceptions\Oci8Exception;
  */
 class Statement extends PDOStatement
 {
-
     /**
      * Statement handler
      *
@@ -24,7 +25,7 @@ class Statement extends PDOStatement
     /**
      * PDO Oci8 driver
      *
-     * @var \yajra\Pdo\Oci8
+     * @var \Yajra\Pdo\Oci8
      */
     protected $_pdoOci8;
 

@@ -4,7 +4,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "yajra - Arjay Angeles",
+            "name": "Arjay Angeles",
             "email": "aqangeles@gmail.com"
         }
     ],
@@ -12,8 +12,8 @@
        "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": {
-            "yajra\\": "src/"
+        "psr-4": {
+            "Yajra\\": "src/"
         }
     },
     "config": {

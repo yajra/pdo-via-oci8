@@ -20,7 +20,7 @@ class Pdo_Oci8_StatementTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        // $this->_object = new \yajra\Pdo\Oci8($dsn, array('charset'));
+        // $this->_object = new \Yajra\Pdo\Oci8($dsn, array('charset'));
     }
 
     /**

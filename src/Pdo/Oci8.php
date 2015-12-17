@@ -9,11 +9,11 @@
  * @copyright Copyright (c) 2013 Arjay Angeles
  * @license MIT
  */
-namespace yajra\Pdo;
+namespace Yajra\Pdo;
 
 use PDO;
-use yajra\Pdo\Oci8\Exceptions\Oci8Exception;
-use yajra\Pdo\Oci8\Statement;
+use Yajra\Pdo\Oci8\Exceptions\Oci8Exception;
+use Yajra\Pdo\Oci8\Statement;
 
 /**
  * Oci8 class to mimic the interface of the PDO class
@@ -23,7 +23,6 @@ use yajra\Pdo\Oci8\Statement;
  */
 class Oci8 extends PDO
 {
-
     /**
      * Database handler
      *
@@ -257,7 +256,7 @@ class Oci8 extends PDO
 
     /**
      * Executes an SQL statement, returning the results as a
-     * yajra\Pdo\Oci8\Statement object
+     * Yajra\Pdo\Oci8\Statement object
      *
      * @param string $statement The SQL statement to prepare and execute.
      * @param int|null $fetchMode The fetch mode must be one of the
