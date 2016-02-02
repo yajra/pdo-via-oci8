@@ -446,7 +446,7 @@ class Statement extends PDOStatement
             return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $ociType);
         }
 
-        $this->bindings[] = $variable;
+        $this->bindings[] = &$variable;
 
         return oci_bind_by_name($this->sth, $parameter, $variable, $maxLength, $ociType);
     }
