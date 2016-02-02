@@ -35,6 +35,9 @@ And then run `composer update`
 <a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
+- **1.0.1**
+    - PHP 7 fix for bindValue. PR #23 by @snelg.
+
 - **1.0.0**
     - Change of namespace from yajra to Yajra (capital Y).
     - Enhance error dump with proper bindings.
