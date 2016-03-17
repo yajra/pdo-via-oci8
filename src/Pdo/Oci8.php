@@ -62,7 +62,20 @@ class Oci8 extends PDO
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
+
+        $charset = null;
+        $dsn    = preg_replace('/^oci:/', '', $dsn);
+        $tokens  = preg_split('/;/', $dsn);
+        $dsn    = str_replace(array('dbname=//', 'dbname='), '', $tokens[0]);
+
+        //Find the charset in Connection String: oci:dbname=192.168.10.145/orcl;charset=CL8MSWIN1251
+        $charset = $this->_getCharset($tokens);
+        // OR Get charset from options
+        if(!$charset)
         $charset = $this->configureCharset($options);
+
+
+
         $this->connect($dsn, $username, $password, $options, $charset);
 
         // Save the options
@@ -453,6 +466,34 @@ class Oci8 extends PDO
             $e = oci_error();
             throw new Oci8Exception($e['message']);
         }
+    }
+
+    /**
+     * Find the charset
+     *
+     * @param string $charset charset
+     *
+     * @return charset
+     */
+    private function _getCharset($charset=null)
+    {
+        if (!$charset) {
+            return null;
+        }
+
+        $expr   = '/^(charset=)(\w+)$/';
+        $tokens = array_filter(
+            $charset, function ($token) use ($expr) {
+            return preg_match($expr, $token, $matches);
+        }
+        );
+        if (sizeof($tokens)>0) {
+            preg_match($expr, array_shift($tokens), $matches);
+            $_charset = $matches[2];
+        } else {
+            $_charset = null;
+        }
+        return $_charset;
     }
 
     /**
