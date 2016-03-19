@@ -779,17 +779,11 @@ class Statement extends PDOStatement
      *
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
+     * @todo Implement method
      */
     public function closeCursor()
     {
-        if(!$this->sth) return true;
-         try {
-              \oci_free_statement($this->sth);
-        } catch (\Exception $e) {
-            throw new Oci8Exception($e->getMessage());
-        }
-         $this->sth = null;
-        return true;
+        throw new Oci8Exception("closeCursor has not been implemented");
     }
 
     /**
