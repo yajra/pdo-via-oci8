@@ -54,27 +54,26 @@ class Oci8 extends PDO
     /**
      * Creates a PDO instance representing a connection to a database.
      *
-     * @param $dsn
-     * @param $username [optional]
-     * @param $password [optional]
-     * @param array $options [optional]
+     * @param string $dsn
+     * @param string $username
+     * @param string $password
+     * @param array $options
      * @throws Oci8Exception
      */
     public function __construct($dsn, $username, $password, array $options = array())
     {
 
         $charset = null;
-        $dsn    = preg_replace('/^oci:/', '', $dsn);
+        $dsn     = preg_replace('/^oci:/', '', $dsn);
         $tokens  = preg_split('/;/', $dsn);
-        $dsn    = str_replace(array('dbname=//', 'dbname='), '', $tokens[0]);
+        $dsn     = str_replace(['dbname=//', 'dbname='], '', $tokens[0]);
 
         //Find the charset in Connection String: oci:dbname=192.168.10.145/orcl;charset=CL8MSWIN1251
         $charset = $this->_getCharset($tokens);
         // OR Get charset from options
-        if(!$charset)
-        $charset = $this->configureCharset($options);
-
-
+        if (! $charset) {
+            $charset = $this->configureCharset($options);
+        }
 
         $this->connect($dsn, $username, $password, $options, $charset);
 
