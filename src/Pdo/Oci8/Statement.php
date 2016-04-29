@@ -554,7 +554,9 @@ class Statement extends PDOStatement
 
         $this->results = array();
         while ($row = $this->fetch()) {
-            if (is_array($row)) reset($row);
+            if (is_array($row)) {
+                $row = reset($row);
+            }
             if (is_resource($row)) {
                 $stmt = new Statement($row, $this->connection, $this->options);
                 $stmt->execute();
