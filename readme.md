@@ -35,6 +35,10 @@ And then run `composer update`
 <a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
+- **1.0.3**
+    - Function fetchAll() bug fix. Fix #27
+    - PR #28, credits to @dkochnov.
+
 - **1.0.2**
     - Parse DSN - check charset option in connection string and clean "PDO style".
     - PR #26, credits to @eisberg.
