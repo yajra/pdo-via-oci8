@@ -436,6 +436,16 @@ class Statement extends PDOStatement
                 // set params required to use custom type.
                 $variable = $this->connection->getNewCollection($type_name, $schema);
                 break;
+                
+            case SQLT_CLOB:
+                $ociType = OCI_B_CLOB;
+
+                $this->blobBindings[$parameter] = $variable;
+
+                $variable = $this->connection->getNewDescriptor();
+
+                $this->blobObjects[$parameter] = &$variable;
+            break;
 
             default:
                 $ociType = SQLT_CHR;
