@@ -560,7 +560,7 @@ class Statement extends PDOStatement
      */
     public function fetchAll($fetchMode = PDO::FETCH_BOTH, $fetchArgument = null, $ctorArgs = array())
     {
-        $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
+        $this->setFetchMode($fetchMode, $fetchArgument, ( is_array($ctorArgs) ? $ctorArgs : [] ) );
 
         $this->results = array();
         while ($row = $this->fetch()) {
