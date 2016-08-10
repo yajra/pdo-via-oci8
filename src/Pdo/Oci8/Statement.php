@@ -720,7 +720,7 @@ class Statement extends PDOStatement
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function setFetchMode($fetchMode, $modeArg = null, array $ctorArgs = array())
+    public function setFetchMode($fetchMode, $modeArg = null, $ctorArgs = array())
     {
         // See which fetch mode we have
         switch ($fetchMode) {
