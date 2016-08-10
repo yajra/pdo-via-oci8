@@ -35,6 +35,10 @@ And then run `composer update`
 <a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
+- **1.1.1**
+- 3rd argument in Statement::fetchAll(), $ctorArgs, should allow null. 
+- PR #34, credits to @nhowell.
+
 - **1.1.0**
     - Add support for CLOB data types. 
     - PR #31, credits to @Tylerian.
