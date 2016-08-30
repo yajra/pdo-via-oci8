@@ -527,4 +527,15 @@ class Oci8 extends PDO
     {
         return oci_new_collection($this->dbh, $typeName, $schema);
     }
+
+    /**
+     * Special not PDO function.
+     * Get options used in creating the connection.
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
 }
