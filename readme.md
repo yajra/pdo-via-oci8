@@ -35,6 +35,11 @@ And then run `composer update`
 <a href='https://pledgie.com/campaigns/29542'><img alt='Click here to lend your support to: PDO-via-OCI8 and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29542.png?skin_name=chrome' border='0' ></a>
 
 ### Change Logs
+- **1.2.1**
+- Change regex replacement pattern in prepare. PR #38, credits to @jjware.
+- Fix #37.
+- Refactor regex replacement using preg_replace_callback.
+
 - **1.2.0**
 - Implement closeCursor. 
 - Add oci8 connection options getter.
