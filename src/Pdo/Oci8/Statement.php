@@ -445,7 +445,7 @@ class Statement extends PDOStatement
                 $variable = $this->connection->getNewDescriptor();
 
                 $this->blobObjects[$parameter] = &$variable;
-            	break;
+                break;
 
             default:
                 $ociType = SQLT_CHR;
@@ -558,8 +558,12 @@ class Statement extends PDOStatement
      *   set. The array represents each row as either an array of column values
      *   or an object with properties corresponding to each column name.
      */
-    public function fetchAll($fetchMode = PDO::FETCH_BOTH, $fetchArgument = null, $ctorArgs = array())
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = array())
     {
+        if (is_null($fetchMode)) {
+            $fetchMode = $this->fetchMode;
+        }
+
         $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
 
         $this->results = array();
