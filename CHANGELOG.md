@@ -1,5 +1,9 @@
 #PDO-VIA-OCI8 Change Log
 
+## v1.3.1 - 2017-02-02
+- Fix fetchAll fetchMode parameter and set to null by default.
+- Fix https://github.com/yajra/laravel-oci8/issues/246.
+
 ## v1.3.0 - 2017-01-05
 - Add .gitattributes and config files.
 - Add code of conduct.
