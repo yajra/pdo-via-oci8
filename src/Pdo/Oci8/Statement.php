@@ -455,7 +455,7 @@ class Statement extends PDOStatement
         }
 
         if (is_array($variable)) {
-            return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $ociType);
+            return $this->bindArray($parameter, $variable, count($variable), $maxLength, $ociType);
         }
 
         $this->bindings[] = &$variable;
