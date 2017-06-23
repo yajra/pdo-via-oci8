@@ -191,6 +191,8 @@ class Statement extends PDOStatement
         foreach ($this->bindings as $binding) {
             if (is_object($binding)) {
                 $bindings[] = get_class($binding);
+            } elseif (is_array($binding)) {
+                $bindings[] = 'Array';
             } else {
                 $bindings[] = (string) $binding;
             }
