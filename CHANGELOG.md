@@ -1,5 +1,9 @@
 #PDO-VIA-OCI8 Change Log
 
+## v1.3.2 - 2017-06-24
+- Fixes for Array bindings. 
+- PR [#43](https://github.com/yajra/pdo-via-oci8/pull/43) credits to @shannonfairchild.
+
 ## v1.3.1 - 2017-02-02
 - Fix fetchAll fetchMode parameter and set to null by default.
 - Fix https://github.com/yajra/laravel-oci8/issues/246.
