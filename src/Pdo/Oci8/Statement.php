@@ -191,6 +191,8 @@ class Statement extends PDOStatement
         foreach ($this->bindings as $binding) {
             if (is_object($binding)) {
                 $bindings[] = get_class($binding);
+            } elseif (is_array($binding)) {
+                $bindings[] = 'Array';
             } else {
                 $bindings[] = (string) $binding;
             }
@@ -453,7 +455,7 @@ class Statement extends PDOStatement
         }
 
         if (is_array($variable)) {
-            return $this->bindArray($parameter, $variable, $maxLength, $maxLength, $ociType);
+            return $this->bindArray($parameter, $variable, count($variable), $maxLength, $ociType);
         }
 
         $this->bindings[] = &$variable;
