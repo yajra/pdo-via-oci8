@@ -1,4 +1,4 @@
-#PDO-VIA-OCI8 Change Log
+# PDO-VIA-OCI8 Change Log
 
 ## v1.3.2 - 2017-06-24
 - Fixes for Array bindings. 
