@@ -1,5 +1,8 @@
 # PDO-VIA-OCI8 Change Log
 
+## v1.3.3 - 2017-11-16
+- Handle ROWID output exception. [#49](https://github.com/yajra/pdo-via-oci8/pull/49)
+
 ## v1.3.2 - 2017-06-24
 - Fixes for Array bindings. 
 - PR [#43](https://github.com/yajra/pdo-via-oci8/pull/43) credits to @shannonfairchild.
