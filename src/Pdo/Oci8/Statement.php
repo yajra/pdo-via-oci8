@@ -248,7 +248,7 @@ class Statement extends PDOStatement
                 if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value)) {
-                            $rs[$field] = $value->load();
+                            $rs[$field] = $this->loadLob($value);
                         }
                     }
                 }
@@ -266,7 +266,7 @@ class Statement extends PDOStatement
                 if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value)) {
-                            $rs[$field] = $value->load();
+                            $rs[$field] = $this->loadLob($value);
                         }
                     }
                 }
@@ -281,7 +281,7 @@ class Statement extends PDOStatement
                 if ($this->returnLobs && is_array($rs)) {
                     foreach ($rs as $field => $value) {
                         if (is_object($value)) {
-                            $rs[$field] = $value->load();
+                            $rs[$field] = $this->loadLob($value);
                         }
                     }
                 }
@@ -290,14 +290,14 @@ class Statement extends PDOStatement
 
             case PDO::FETCH_COLUMN:
                 $rs    = oci_fetch_row($this->sth);
-                $colno = (int) $this->fetchColNo;
-                if (is_array($rs) && array_key_exists($colno, $rs)) {
-                    $value = $rs[$colno];
+                $colNo = (int) $this->fetchColNo;
+                if (is_array($rs) && array_key_exists($colNo, $rs)) {
+                    $value = $rs[$colNo];
                     if (is_object($value)) {
-                        return $value->load();
-                    } else {
-                        return $value;
+                        return $this->loadLob($value);
                     }
+
+                    return $value;
                 } else {
                     return false;
                 }
