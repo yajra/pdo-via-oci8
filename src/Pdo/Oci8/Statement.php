@@ -353,7 +353,13 @@ class Statement extends PDOStatement
 
                     // convert LOB to string
                     if ($this->returnLobs && is_object($value)) {
-                        $object->$field = $value->load();
+                        $ociFieldIndex = is_int($field) ? $field : array_search($field, array_keys($rs));
+                        // oci field type index is base 1.
+                        if (oci_field_type($this->sth, $ociFieldIndex + 1) == 'ROWID') {
+                            throw new Oci8Exception('ROWID output is not yet supported. Please use ROWIDTOCHAR(ROWID) function as workaround.');
+                        } else {
+                            $object->$field = $this->loadLob($value);
+                        }
                     } else {
                         $object->$field = $value;
                     }
@@ -363,6 +369,21 @@ class Statement extends PDOStatement
         }
 
         return false;
+    }
+
+    /**
+     * Load a LOB object value.
+     *
+     * @param mixed $lob
+     * @return mixed
+     */
+    private function loadLob($lob)
+    {
+        try {
+            return $lob->load();
+        } catch (\Exception $e) {
+            return $lob;
+        }
     }
 
     /**
