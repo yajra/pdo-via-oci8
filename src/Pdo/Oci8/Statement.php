@@ -426,7 +426,7 @@ class Statement extends PDOStatement
                 break;
 
             case PDO::PARAM_INT:
-                $ociType = SQLT_INT;
+                $ociType = SQLT_LNG;
                 break;
 
             case PDO::PARAM_STR:
