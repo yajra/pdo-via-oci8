@@ -1,5 +1,8 @@
 # PDO-VIA-OCI8 Change Log
 
+## v1.3.4 - 2017-11-16
+- Changed to LONG type because number type can not be registered normally [#42](https://github.com/yajra/pdo-via-oci8/pull/49) credits to @reo0306.
+
 ## v1.3.3 - 2017-11-16
 - Handle ROWID output exception. [#49](https://github.com/yajra/pdo-via-oci8/pull/49)
 
