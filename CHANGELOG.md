@@ -2,7 +2,7 @@
 
 ## v1.3.5 - 2017-11-28
 
-- Do not quote numeric values. #51
+- Do not quote numeric values. [#51](https://github.com/yajra/pdo-via-oci8/pull/51)
 - Fix changelog markdown lint.
 
 ## v1.3.4 - 2017-11-16
@@ -21,7 +21,7 @@
 ## v1.3.1 - 2017-02-02
 
 - Fix fetchAll fetchMode parameter and set to null by default.
-- Fix https://github.com/yajra/laravel-oci8/issues/246.
+- Fix [#246](https://github.com/yajra/laravel-oci8/issues/246).
 
 ## v1.3.0 - 2017-01-05
 
@@ -39,7 +39,7 @@
 
 ## v1.2.0
 
-- Implement closeCursor. 
+- Implement closeCursor.
 - Add oci8 connection options getter.
 
 ## v1.1.1
