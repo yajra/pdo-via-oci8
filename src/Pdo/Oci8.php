@@ -402,6 +402,10 @@ class Oci8 extends PDO
      */
     public function quote($string, $paramType = PDO::PARAM_STR)
     {
+        if (is_numeric($string)) {
+            return $string;
+        }
+
         return "'" . str_replace("'", "''", $string) . "'";
     }
 
