@@ -166,15 +166,8 @@ class Statement extends PDOStatement
 
         if ($result != true) {
             $e = oci_error($this->sth);
-
-            $message = '';
-            $message = $message . 'Error Code    : ' . $e['code'] . PHP_EOL;
-            $message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
-            $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
-            $message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
-            $message = $message . 'Bindings      : [' . $this->displayBindings() . ']' . PHP_EOL;
-
-            throw new Oci8Exception($message, $e['code']);
+            $e['bindings'] = $this->displayBindings();
+            throw new Oci8Exception ($e['message'], $e['code'], null, $e);
         }
 
         return $result;
@@ -198,7 +191,7 @@ class Statement extends PDOStatement
             }
         }
 
-        return implode(',', $bindings);
+        return '[' . implode(',', $bindings) . ']';
     }
 
     /**
