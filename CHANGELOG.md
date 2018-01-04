@@ -1,4 +1,10 @@
-# PDO-VIA-OCI8 Change Log
+# PDO-VIA-OCI8 Changelog
+
+## v1.3.6 - 2017-11-28
+
+- Revert "Changed to LONG type because number type can not be registered normally" [#55](https://github.com/yajra/pdo-via-oci8/pull/55)
+- Fix [yajra/laravel-oci8#386](https://github.com/yajra/laravel-oci8/issues/386).
+- Fix failing unit tests Failed asserting that '40' is identical to 40.
 
 ## v1.3.5 - 2017-11-28
 
