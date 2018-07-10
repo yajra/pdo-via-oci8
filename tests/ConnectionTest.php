@@ -12,7 +12,6 @@ class ConnectionTest extends TestCase
         $password = 'oracle';
 
         $connection = new Oci8($dsn, $username, $password);
-        $connection->
 
         $this->assertInstanceOf(Oci8::class, $connection);
     }
