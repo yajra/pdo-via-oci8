@@ -22,8 +22,6 @@ sudo pecl channel-update pecl.php.net
 
 echo 'instantclient,/opt/oracle/instantclient' | pecl install oci8
 
-echo "extension = oci8.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-
 php -m
 
 # run oracle db via docker
