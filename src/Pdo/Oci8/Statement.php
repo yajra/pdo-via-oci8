@@ -32,7 +32,7 @@ class Statement extends PDOStatement
     /**
      * Flag to convert LOB to string or not.
      *
-     * @var boolean
+     * @var bool
      */
     private $returnLobs = true;
 
@@ -41,7 +41,7 @@ class Statement extends PDOStatement
      *
      * @var array
      */
-    private $options = array();
+    private $options = [];
 
     /**
      * Fetch mode selected via setFetchMode().
@@ -69,7 +69,7 @@ class Statement extends PDOStatement
      *
      * @var array
      */
-    private $fetchCtorArgs = array();
+    private $fetchCtorArgs = [];
 
     /**
      * Object reference for PDO::FETCH_INTO fetch mode.
@@ -83,28 +83,28 @@ class Statement extends PDOStatement
      *
      * @var array
      */
-    private $results = array();
+    private $results = [];
 
     /**
      * Lists of binding values.
      *
      * @var array
      */
-    private $bindings = array();
+    private $bindings = [];
 
     /**
      * Lists of LOB variables.
      *
      * @var array
      */
-    private $blobObjects = array();
+    private $blobObjects = [];
 
     /**
      * Lists of LOB object binding values.
      *
      * @var array
      */
-    private $blobBindings = array();
+    private $blobBindings = [];
 
     /**
      * Constructor.
@@ -114,7 +114,7 @@ class Statement extends PDOStatement
      * @param array $options Options for the statement handle
      * @throws Oci8Exception
      */
-    public function __construct($sth, Oci8 $connection, array $options = array())
+    public function __construct($sth, Oci8 $connection, array $options = [])
     {
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new Oci8Exception(
@@ -160,7 +160,7 @@ class Statement extends PDOStatement
         // Save blob objects if set.
         if ($result && count($this->blobObjects) > 0) {
             foreach ($this->blobObjects as $param => $blob) {
-                /** @var \OCI_Lob $blob */
+                /* @var \OCI_Lob $blob */
                 $blob->save($this->blobBindings[$param]);
             }
         }
@@ -192,7 +192,7 @@ class Statement extends PDOStatement
      */
     private function displayBindings()
     {
-        $bindings = array();
+        $bindings = [];
         foreach ($this->bindings as $binding) {
             if (is_object($binding)) {
                 $bindings[] = get_class($binding);
@@ -330,7 +330,7 @@ class Statement extends PDOStatement
                 } else {
                     if ($fetchMode === PDO::FETCH_OBJ) {
                         $className = '\stdClass';
-                        $ctorargs  = array();
+                        $ctorargs  = [];
                     } else {
                         $className = $this->fetchClassName;
                         $ctorargs  = $this->fetchCtorArgs;
@@ -531,7 +531,7 @@ class Statement extends PDOStatement
      */
     public function bindColumn($column, &$variable, $dataType = null, $maxLength = -1, $options = null)
     {
-        throw new Oci8Exception("bindColumn has not been implemented");
+        throw new Oci8Exception('bindColumn has not been implemented');
     }
 
     /**
@@ -588,7 +588,7 @@ class Statement extends PDOStatement
      *   set. The array represents each row as either an array of column values
      *   or an object with properties corresponding to each column name.
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = array())
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = [])
     {
         if (is_null($fetchMode)) {
             $fetchMode = $this->fetchMode;
@@ -596,10 +596,10 @@ class Statement extends PDOStatement
 
         $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
 
-        $this->results = array();
+        $this->results = [];
         while ($row = $this->fetch()) {
             if ((is_array($row) || is_object($row)) && is_resource(reset($row))) {
-                $stmt = new Statement(reset($row), $this->connection, $this->options);
+                $stmt = new self(reset($row), $this->connection, $this->options);
                 $stmt->execute();
                 $stmt->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
                 while ($rs = $stmt->fetch()) {
@@ -620,7 +620,7 @@ class Statement extends PDOStatement
      * @param array $ctorArgs
      * @return mixed
      */
-    public function fetchObject($className = null, $ctorArgs = array())
+    public function fetchObject($className = null, $ctorArgs = [])
     {
         $this->setFetchMode(PDO::FETCH_CLASS, $className, $ctorArgs);
 
@@ -655,14 +655,14 @@ class Statement extends PDOStatement
         $e = oci_error($this->sth);
 
         if (is_array($e)) {
-            return array(
+            return [
                 'HY000',
                 $e['code'],
                 $e['message'],
-            );
+            ];
         }
 
-        return array('00000', null, null);
+        return ['00000', null, null];
     }
 
     /**
@@ -670,7 +670,7 @@ class Statement extends PDOStatement
      *
      * @param int $attribute
      * @param mixed $value
-     * @return TRUE on success or FALSE on failure.
+     * @return true on success or FALSE on failure.
      */
     public function setAttribute($attribute, $value)
     {
@@ -680,7 +680,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Retrieve a statement attribute
+     * Retrieve a statement attribute.
      *
      * @param int $attribute
      * @return mixed The attribute value.
@@ -690,8 +690,6 @@ class Statement extends PDOStatement
         if (isset($this->options[$attribute])) {
             return $this->options[$attribute];
         }
-
-        return null;
     }
 
     /**
@@ -717,7 +715,7 @@ class Statement extends PDOStatement
      *     table
      *     len
      *     precision
-     *     pdo_type
+     *     pdo_type.
      *
      * @param int $column The 0-indexed column in the result set.
      * @return array An associative array containing the above metadata values
@@ -730,10 +728,10 @@ class Statement extends PDOStatement
             $column++;
         }
 
-        $meta                     = array();
+        $meta                     = [];
         $meta['native_type']      = oci_field_type($this->sth, $column);
         $meta['driver:decl_type'] = oci_field_type_raw($this->sth, $column);
-        $meta['flags']            = array();
+        $meta['flags']            = [];
         $meta['name']             = oci_field_name($this->sth, $column);
         $meta['table']            = null;
         $meta['len']              = oci_field_size($this->sth, $column);
@@ -754,7 +752,7 @@ class Statement extends PDOStatement
      * @throws Oci8Exception
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function setFetchMode($fetchMode, $modeArg = null, $ctorArgs = array())
+    public function setFetchMode($fetchMode, $modeArg = null, $ctorArgs = [])
     {
         // See which fetch mode we have
         switch ($fetchMode) {
@@ -765,7 +763,7 @@ class Statement extends PDOStatement
                 $this->fetchMode       = $fetchMode;
                 $this->fetchColNo      = 0;
                 $this->fetchClassName  = '\stdClass';
-                $this->fetchCtorArgs   = array();
+                $this->fetchCtorArgs   = [];
                 $this->fetchIntoObject = null;
                 break;
             case PDO::FETCH_CLASS:
@@ -787,19 +785,19 @@ class Statement extends PDOStatement
                 $this->fetchMode       = $fetchMode;
                 $this->fetchColNo      = 0;
                 $this->fetchClassName  = '\stdClass';
-                $this->fetchCtorArgs   = array();
+                $this->fetchCtorArgs   = [];
                 $this->fetchIntoObject = $modeArg;
                 break;
             case PDO::FETCH_COLUMN:
                 $this->fetchMode       = $fetchMode;
                 $this->fetchColNo      = (int) $modeArg;
                 $this->fetchClassName  = '\stdClass';
-                $this->fetchCtorArgs   = array();
+                $this->fetchCtorArgs   = [];
                 $this->fetchIntoObject = null;
                 break;
             default:
-                throw new Oci8Exception("Requested fetch mode is not supported " .
-                    "by this implementation");
+                throw new Oci8Exception('Requested fetch mode is not supported ' .
+                    'by this implementation');
                 break;
         }
 
@@ -815,7 +813,7 @@ class Statement extends PDOStatement
      */
     public function nextRowset()
     {
-        throw new Oci8Exception("setFetchMode has not been implemented");
+        throw new Oci8Exception('setFetchMode has not been implemented');
     }
 
     /**
@@ -837,6 +835,6 @@ class Statement extends PDOStatement
      */
     public function debugDumpParams()
     {
-        throw new Oci8Exception("setFetchMode has not been implemented");
+        throw new Oci8Exception('setFetchMode has not been implemented');
     }
 }
