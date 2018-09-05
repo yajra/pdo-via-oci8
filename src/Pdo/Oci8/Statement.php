@@ -48,7 +48,7 @@ class Statement extends PDOStatement
      *
      * @var int
      */
-    private $fetchMode = PDO::ATTR_DEFAULT_FETCH_MODE;
+    private $fetchMode = PDO::FETCH_BOTH;
 
     /**
      * Column number for PDO::FETCH_COLUMN fetch mode.
@@ -125,6 +125,11 @@ class Statement extends PDOStatement
         $this->sth        = $sth;
         $this->connection = $connection;
         $this->options    = $options;
+
+        $fetchMode = $connection->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE);
+        if ($fetchMode) {
+            $this->setFetchMode($fetchMode);
+        }
     }
 
     /**
