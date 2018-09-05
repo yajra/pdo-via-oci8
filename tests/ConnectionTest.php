@@ -1,7 +1,7 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Yajra\Pdo\Oci8;
+use PHPUnit\Framework\TestCase;
 
 class ConnectionTest extends TestCase
 {
