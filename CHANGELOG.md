@@ -1,5 +1,11 @@
 # PDO-VIA-OCI8 Changelog
 
+## v1.3.7 - 2017-11-28
+
+- Fix for large param for blob and clob. [#56](https://github.com/yajra/pdo-via-oci8/pull/56)
+- Fix fetch mode usage and use `PDO::FETCH_BOTH` as default. [#59](https://github.com/yajra/pdo-via-oci8/pull/59) 
+- Init ci testing. [#58](https://github.com/yajra/pdo-via-oci8/pull/58)
+
 ## v1.3.6 - 2017-11-28
 
 - Revert "Changed to LONG type because number type can not be registered normally" [#55](https://github.com/yajra/pdo-via-oci8/pull/55)
