@@ -444,6 +444,7 @@ class Statement extends PDOStatement
                 $this->blobBindings[$parameter] = $variable;
 
                 $variable = $this->connection->getNewDescriptor();
+                $variable->writeTemporary($this->blobBindings[$parameter], OCI_TEMP_BLOB);
 
                 $this->blobObjects[$parameter] = &$variable;
                 break;
@@ -471,6 +472,7 @@ class Statement extends PDOStatement
                 $this->blobBindings[$parameter] = $variable;
 
                 $variable = $this->connection->getNewDescriptor();
+                $variable->writeTemporary($this->blobBindings[$parameter], OCI_TEMP_CLOB);
 
                 $this->blobObjects[$parameter] = &$variable;
                 break;
