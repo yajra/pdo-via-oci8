@@ -244,7 +244,7 @@ class Oci8 extends PDO
      * @param array|null $ctorArgs Constructor arguments.
      * @return Statement
      */
-    public function query($statement, $fetchMode = null, $modeArg = null, array $ctorArgs = [])
+    public function query($statement, $fetchMode = null, $modeArg = null, $ctorArgs = null)
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
@@ -474,7 +474,8 @@ class Oci8 extends PDO
 
         $expr   = '/^(charset=)(\w+)$/';
         $tokens = array_filter(
-            $charset, function ($token) use ($expr) {
+            $charset,
+            function ($token) use ($expr) {
                 return preg_match($expr, $token, $matches);
             }
         );
@@ -530,5 +531,21 @@ class Oci8 extends PDO
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * Return available drivers
+     * Will insert the OCI driver on the list, if not exist
+     *
+     * @return array with drivers
+     */
+    public static function getAvailableDrivers()
+    {
+        $drivers = \PDO::getAvailableDrivers();
+        if (!in_array("oci", $drivers)) {
+            array_push($drivers, "oci");
+        }
+
+        return $drivers;
     }
 }
