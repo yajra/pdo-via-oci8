@@ -447,7 +447,7 @@ class Oci8 extends PDO
      */
     private function connect($dsn, $username, $password, array $options, $charset)
     {
-        if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
+        if (array_key_exists(PDO::ATTR_PERSISTENT, $options)) {
             $this->dbh = @oci_pconnect($username, $password, $dsn, $charset);
         } else {
             $this->dbh = @oci_connect($username, $password, $dsn, $charset);
