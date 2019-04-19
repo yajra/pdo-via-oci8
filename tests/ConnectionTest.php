@@ -14,8 +14,8 @@ class ConnectionTest extends TestCase
      */
     public function setUp()
     {
-        $user = getenv("OCI_USER") ?: 'oracle';
-        $pwd = getenv("OCI_PWD") ?: 'system';
+        $user = getenv("OCI_USER") ?: 'system';
+        $pwd = getenv("OCI_PWD") ?: 'oracle';
         $dsn = getenv("OCI_DSN") ?: 'oci:dbname=127.0.0.1:49161/xe';
         $this->con = new Oci8($dsn, $user, $pwd);
     }
@@ -37,8 +37,8 @@ class ConnectionTest extends TestCase
      */
     public function testPersistentConnection()
     {
-        $user = getenv("OCI_USER") ?: 'oracle';
-        $pwd = getenv("OCI_PWD") ?: 'system';
+        $user = getenv("OCI_USER") ?: 'system';
+        $pwd = getenv("OCI_PWD") ?: 'oracle';
         $dsn = getenv("OCI_DSN") ?: 'oci:dbname=127.0.0.1:49161/xe';
         $con = new Oci8($dsn, $user, $pwd, array(\PDO::ATTR_PERSISTENT => true));
         $this->assertNotNull($con);
@@ -51,8 +51,8 @@ class ConnectionTest extends TestCase
      */
     public function testConnectionWithParameters()
     {
-        $user = getenv("OCI_USER") ?: 'oracle';
-        $pwd = getenv("OCI_PWD") ?: 'system';
+        $user = getenv("OCI_USER") ?: 'system';
+        $pwd = getenv("OCI_PWD") ?: 'oracle';
         $dsn = getenv("OCI_DSN") ?: 'oci:dbname=127.0.0.1:49161/xe';
         $con = new Oci8("$dsn;charset=utf8", $user, $pwd);
         $this->assertNotNull($con);
