@@ -60,18 +60,14 @@ class ConnectionTest extends TestCase
 
     /**
      * Test if throws an exception when failing to open connection
-     *
-     * @expectedException PDOException
-     *
-     * @return null
      */
     public function testInvalidConnection()
     {
         $user = "pdooci";
         $pwd = "pdooci";
-        $str = "yaddayaddayadda";
+        $str = "oci:dbname=127.0.0.1:49161/hoi";
         $this->expectException(Oci8\Exceptions\Oci8Exception::class);
-        $con = new Oci8($str, $user, $pwd, array(\PDO::ATTR_PERSISTENT => true));
+        new Oci8($str, $user, $pwd, array(\PDO::ATTR_PERSISTENT => true));
     }
 
     /**
@@ -188,5 +184,11 @@ class ConnectionTest extends TestCase
         $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
         $var = 'Joop';
         $this->assertTrue($stmt->bindParam(1, $var, PDO::PARAM_STR));
+    }
+
+    public function testClose()
+    {
+        $this->con->close();
+        $this->assertEquals(['00000', null, null], $this->con->errorInfo());
     }
 }

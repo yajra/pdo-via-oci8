@@ -312,7 +312,7 @@ class Oci8 extends PDO
      */
     public function errorInfo()
     {
-        $e = oci_error($this->dbh);
+        $e = $this->dbh ? oci_error($this->dbh) : null;
 
         if (is_array($e)) {
             return [
@@ -547,5 +547,28 @@ class Oci8 extends PDO
         }
 
         return $drivers;
+    }
+
+    /**
+     * Close the connection
+     *
+     * @link https://www.oracle.com/technetwork/topics/php/php-scalability-ha-twp-128842.pdf oci_close should be called if the connection is pooled
+     */
+    public function close()
+    {
+        if ($this->dbh) {
+            oci_close($this->dbh);
+            $this->dbh = null;
+        }
+    }
+
+    /**
+     * Close the connection when object is removed
+     *
+     * @link https://www.php.net/manual/en/pdo.connections.php PDO should remove the connection
+     */
+    public function __destruct()
+    {
+        $this->close();
     }
 }
