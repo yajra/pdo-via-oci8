@@ -1,9 +1,13 @@
 # PDO-VIA-OCI8 Changelog
 
+## v1.3.8 - 2019-04-24
+
+- Added support for oci session_mode (wallet) [#61](https://github.com/yajra/pdo-via-oci8/pull/61), credits to @Blizzke.
+
 ## v1.3.7 - 2017-11-28
 
 - Fix for large param for blob and clob. [#56](https://github.com/yajra/pdo-via-oci8/pull/56)
-- Fix fetch mode usage and use `PDO::FETCH_BOTH` as default. [#59](https://github.com/yajra/pdo-via-oci8/pull/59) 
+- Fix fetch mode usage and use `PDO::FETCH_BOTH` as default. [#59](https://github.com/yajra/pdo-via-oci8/pull/59)
 - Init ci testing. [#58](https://github.com/yajra/pdo-via-oci8/pull/58)
 
 ## v1.3.6 - 2017-11-28
@@ -27,7 +31,7 @@
 
 ## v1.3.2 - 2017-06-24
 
-- Fixes for Array bindings. 
+- Fixes for Array bindings.
 - PR [#43](https://github.com/yajra/pdo-via-oci8/pull/43) credits to @shannonfairchild.
 
 ## v1.3.1 - 2017-02-02
@@ -56,12 +60,12 @@
 
 ## v1.1.1
 
-- 3rd argument in Statement::fetchAll(), $ctorArgs, should allow null. 
+- 3rd argument in Statement::fetchAll(), $ctorArgs, should allow null.
 - PR #34, credits to @nhowell.
 
 ## v1.1.0
 
-- Add support for CLOB data types. 
+- Add support for CLOB data types.
 - PR #31, credits to @Tylerian.
 
 ## v1.0.5
