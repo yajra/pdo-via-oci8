@@ -151,7 +151,7 @@ class Statement extends PDOStatement
         if (is_array($inputParams)) {
             foreach ($inputParams as $key => $value) {
                 $this->bindings[] = $value;
-                $this->bindParam($key, $inputParams[$key]);
+                $this->bindParam(is_string($key) ? $key : $key + 1, $inputParams[$key]);
             }
         }
 

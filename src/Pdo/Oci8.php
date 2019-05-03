@@ -101,7 +101,7 @@ class Oci8 extends PDO
         // Skip replacing ? with a pseudo named parameter on alter/create table command
         if ($this->isNamedParameterable($statement)) {
             // Replace ? with a pseudo named parameter
-            $parameter    = 0;
+            $parameter    = 1; // parameter should start at 1.
             $statement    = preg_replace_callback('/(?:\'[^\']*\')(*SKIP)(*F)|\?/', function () use (&$parameter) {
                 return ':p' . $parameter++;
             }, $statement);
