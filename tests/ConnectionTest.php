@@ -179,13 +179,6 @@ class ConnectionTest extends TestCase
         $this->assertInstanceOf(PDOStatement::class, $statement);
     }
 
-    public function testBindParam()
-    {
-        $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
-        $var = 'Joop';
-        $this->assertTrue($stmt->bindParam(1, $var, PDO::PARAM_STR));
-    }
-
     public function testClose()
     {
         $this->con->close();
