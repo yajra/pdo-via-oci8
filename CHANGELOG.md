@@ -1,5 +1,13 @@
 # PDO-VIA-OCI8 Changelog
 
+## v1.4.0 - 2019-05-09
+
+- Fix [#63](https://github.com/yajra/pdo-via-oci8/issues/63) query params [#62](https://github.com/yajra/pdo-via-oci8/pull/62). Credits to @istaveren.
+- Add call to oci_close on destruct of the object. [#7f10323](https://github.com/yajra/pdo-via-oci8/commit/7f103234e3b47402588010838e181aa5dcd08add)
+- Update docker container to use for TravisCI [#65](https://github.com/yajra/pdo-via-oci8/pull/65).
+- Add tests.
+
+
 ## v1.3.8 - 2019-04-24
 
 - Added support for oci session_mode (wallet) [#61](https://github.com/yajra/pdo-via-oci8/pull/61), credits to @Blizzke.
