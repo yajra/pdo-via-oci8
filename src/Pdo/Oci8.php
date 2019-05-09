@@ -537,22 +537,22 @@ class Oci8 extends PDO
 
     /**
      * Return available drivers
-     * Will insert the OCI driver on the list, if not exist
+     * Will insert the OCI driver on the list, if not exist.
      *
      * @return array with drivers
      */
     public static function getAvailableDrivers()
     {
         $drivers = \PDO::getAvailableDrivers();
-        if (!in_array("oci", $drivers)) {
-            array_push($drivers, "oci");
+        if (! in_array('oci', $drivers)) {
+            array_push($drivers, 'oci');
         }
 
         return $drivers;
     }
 
     /**
-     * Close the connection
+     * Close the connection.
      *
      * @link https://www.oracle.com/technetwork/topics/php/php-scalability-ha-twp-128842.pdf oci_close should be called if the connection is pooled
      */
@@ -565,7 +565,7 @@ class Oci8 extends PDO
     }
 
     /**
-     * Close the connection when object is removed
+     * Close the connection when object is removed.
      *
      * @link https://www.php.net/manual/en/pdo.connections.php PDO should remove the connection
      */
