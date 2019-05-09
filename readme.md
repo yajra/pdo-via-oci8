@@ -31,6 +31,35 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 ```
 And then run `composer update`
 
+## Testing
+
+There is a test suite (using `PHPUnit` with a version bigger than 6.x) on the `test` directory. If you want to
+test (you must test your code!), create a table called `people` with two
+columns:
+
+1. `name` as `varchar2(50)`
+2. `email` as `varchar2(30)`
+
+And some environment variables:
+
+1. `OCI_USER` with the database user name
+2. `OCI_PWD` with the database password
+3. `OCI_STR` with the database connection string
+
+And then go to the `test` dir and run `PHPUnit` like:
+
+```
+phpunit --colors .
+```
+Examle to get it up and running on docker DB container-registry.oracle.com/database/enterprise:12.2.0.1
+
+    create pluggable database testpdb admin user oracle identified by system file_name_convert = ('/pdbseed/', '/testpdb01/');
+    alter pluggable database testpdb open;
+
+    ALTER SESSION SET CONTAINER=testpdb;
+
+    CREATE TABLE person (name NVARCHAR2(50), email NVARCHAR2(30));
+
 ## Buy me a coffee
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/yajra)
 <a href='https://www.patreon.com/bePatron?u=4521203'><img alt='Become a Patron' src='https://s3.amazonaws.com/patreon_public_assets/toolbox/patreon.png' border='0' width='200px' ></a>

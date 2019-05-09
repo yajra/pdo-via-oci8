@@ -119,7 +119,8 @@ class Statement extends PDOStatement
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new Oci8Exception(
                 'Resource expected of type oci8 statement; '
-                . (string) get_resource_type($sth) . ' received instead');
+                . (string) get_resource_type($sth) . ' received instead'
+            );
         }
 
         $this->sth        = $sth;
@@ -780,7 +781,8 @@ class Statement extends PDOStatement
             case PDO::FETCH_INTO:
                 if (! is_object($modeArg)) {
                     throw new Oci8Exception(
-                        '$modeArg must be instance of an object');
+                        '$modeArg must be instance of an object'
+                    );
                 }
                 $this->fetchMode       = $fetchMode;
                 $this->fetchColNo      = 0;
