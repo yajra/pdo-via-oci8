@@ -8,20 +8,20 @@ class ConnectionTest extends TestCase
     protected $con = null;
 
     /**
-     * Set up a new object
+     * Set up a new object.
      *
      * @return null
      */
     public function setUp()
     {
-        $user = getenv("OCI_USER") ?: 'system';
-        $pwd = getenv("OCI_PWD") ?: 'oracle';
-        $dsn = getenv("OCI_DSN") ?: 'oci:dbname=127.0.0.1:49161/xe';
+        $user      = getenv('OCI_USER') ?: 'system';
+        $pwd       = getenv('OCI_PWD') ?: 'oracle';
+        $dsn       = getenv('OCI_DSN') ?: 'oci:dbname=127.0.0.1:49161/xe';
         $this->con = new Oci8($dsn, $user, $pwd);
     }
 
     /**
-     * Test if it is a valid object
+     * Test if it is a valid object.
      *
      * @return null
      */
@@ -31,47 +31,47 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test if can connect using persistent connections
+     * Test if can connect using persistent connections.
      *
      * @return null
      */
     public function testPersistentConnection()
     {
-        $user = getenv("OCI_USER") ?: 'system';
-        $pwd = getenv("OCI_PWD") ?: 'oracle';
-        $dsn = getenv("OCI_DSN") ?: 'oci:dbname=127.0.0.1:49161/xe';
-        $con = new Oci8($dsn, $user, $pwd, array(\PDO::ATTR_PERSISTENT => true));
+        $user = getenv('OCI_USER') ?: 'system';
+        $pwd  = getenv('OCI_PWD') ?: 'oracle';
+        $dsn  = getenv('OCI_DSN') ?: 'oci:dbname=127.0.0.1:49161/xe';
+        $con  = new Oci8($dsn, $user, $pwd, [\PDO::ATTR_PERSISTENT => true]);
         $this->assertNotNull($con);
     }
 
     /**
-     * Test if can connect, using parameters
+     * Test if can connect, using parameters.
      *
      * @return null
      */
     public function testConnectionWithParameters()
     {
-        $user = getenv("OCI_USER") ?: 'system';
-        $pwd = getenv("OCI_PWD") ?: 'oracle';
-        $dsn = getenv("OCI_DSN") ?: 'oci:dbname=127.0.0.1:49161/xe';
-        $con = new Oci8("$dsn;charset=utf8", $user, $pwd);
+        $user = getenv('OCI_USER') ?: 'system';
+        $pwd  = getenv('OCI_PWD') ?: 'oracle';
+        $dsn  = getenv('OCI_DSN') ?: 'oci:dbname=127.0.0.1:49161/xe';
+        $con  = new Oci8("$dsn;charset=utf8", $user, $pwd);
         $this->assertNotNull($con);
     }
 
     /**
-     * Test if throws an exception when failing to open connection
+     * Test if throws an exception when failing to open connection.
      */
     public function testInvalidConnection()
     {
-        $user = "pdooci";
-        $pwd = "pdooci";
-        $str = "oci:dbname=127.0.0.1:49161/hoi";
+        $user = 'pdooci';
+        $pwd  = 'pdooci';
+        $str  = 'oci:dbname=127.0.0.1:49161/hoi';
         $this->expectException(Oci8\Exceptions\Oci8Exception::class);
-        new Oci8($str, $user, $pwd, array(\PDO::ATTR_PERSISTENT => true));
+        new Oci8($str, $user, $pwd, [\PDO::ATTR_PERSISTENT => true]);
     }
 
     /**
-     * Set and get an attribute
+     * Set and get an attribute.
      *
      * @return null
      */
@@ -82,7 +82,7 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test the error code
+     * Test the error code.
      *
      * @return null
      */
@@ -94,17 +94,17 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test if OCI is present on the available drivers
+     * Test if OCI is present on the available drivers.
      *
      * @return null
      */
     public function testDrivers()
     {
-        $this->assertTrue(in_array("oci", $this->con->getAvailableDrivers()));
+        $this->assertTrue(in_array('oci', $this->con->getAvailableDrivers()));
     }
 
     /**
-     * Test if is on a transaction
+     * Test if is on a transaction.
      *
      * @return null
      */
@@ -117,7 +117,7 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test quotes
+     * Test quotes.
      *
      * @return null
      */
@@ -128,7 +128,7 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test if fails if requiring the last inserted id without a sequence
+     * Test if fails if requiring the last inserted id without a sequence.
      *
      * @return null
      */
@@ -138,13 +138,13 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test if returns the last inserted id with a sequence
+     * Test if returns the last inserted id with a sequence.
      *
      * @return null
      */
     public function testLastIdWithSequence()
     {
-        $id = $this->con->lastInsertId("person_sequence");
+        $id = $this->con->lastInsertId('person_sequence');
         $this->assertTrue(is_numeric($id));
     }
 
@@ -155,7 +155,7 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test setting case
+     * Test setting case.
      * @param int $case
      * @dataProvider caseProvider
      */
@@ -167,10 +167,10 @@ class ConnectionTest extends TestCase
 
     public function caseProvider()
     {
-        return array(
-            array(\PDO::CASE_LOWER),
-            array(\PDO::CASE_UPPER),
-        );
+        return [
+            [\PDO::CASE_LOWER],
+            [\PDO::CASE_UPPER],
+        ];
     }
 
     public function testQuery()
