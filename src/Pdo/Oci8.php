@@ -244,7 +244,7 @@ class Oci8 extends PDO
      * @param array|null $ctorArgs Constructor arguments.
      * @return Statement
      */
-    public function query($statement, $fetchMode = null, $modeArg = null, array $ctorArgs = [])
+    public function query($statement, $fetchMode = null, $modeArg = null, $ctorArgs = null)
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
@@ -312,7 +312,7 @@ class Oci8 extends PDO
      */
     public function errorInfo()
     {
-        $e = oci_error($this->dbh);
+        $e = $this->dbh ? oci_error($this->dbh) : null;
 
         if (is_array($e)) {
             return [
@@ -449,7 +449,7 @@ class Oci8 extends PDO
     {
         $sessionMode = array_key_exists('session_mode', $options) ? $options['session_mode'] : null;
 
-        if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
+        if (array_key_exists(PDO::ATTR_PERSISTENT, $options)) {
             $this->dbh = @oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
         } else {
             $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
@@ -476,7 +476,8 @@ class Oci8 extends PDO
 
         $expr   = '/^(charset=)(\w+)$/';
         $tokens = array_filter(
-            $charset, function ($token) use ($expr) {
+            $charset,
+            function ($token) use ($expr) {
                 return preg_match($expr, $token, $matches);
             }
         );
@@ -532,5 +533,44 @@ class Oci8 extends PDO
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * Return available drivers
+     * Will insert the OCI driver on the list, if not exist.
+     *
+     * @return array with drivers
+     */
+    public static function getAvailableDrivers()
+    {
+        $drivers = \PDO::getAvailableDrivers();
+        if (! in_array('oci', $drivers)) {
+            array_push($drivers, 'oci');
+        }
+
+        return $drivers;
+    }
+
+    /**
+     * Close the connection.
+     *
+     * @link https://www.oracle.com/technetwork/topics/php/php-scalability-ha-twp-128842.pdf oci_close should be called if the connection is pooled
+     */
+    public function close()
+    {
+        if ($this->dbh) {
+            oci_close($this->dbh);
+            $this->dbh = null;
+        }
+    }
+
+    /**
+     * Close the connection when object is removed.
+     *
+     * @link https://www.php.net/manual/en/pdo.connections.php PDO should remove the connection
+     */
+    public function __destruct()
+    {
+        $this->close();
     }
 }
