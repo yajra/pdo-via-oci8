@@ -109,27 +109,41 @@ class Statement extends PDOStatement
     /**
      * Constructor.
      *
-     * @param resource $sth Statement handle created with oci_parse()
      * @param Oci8 $connection The Pdo_Oci8 object for this statement
      * @param array $options Options for the statement handle
      * @throws Oci8Exception
      */
-    public function __construct($sth, Oci8 $connection, array $options = [])
+    public function __construct(Oci8 $connection, array $options = [])
     {
-        if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
-            throw new Oci8Exception(
-                'Resource expected of type oci8 statement; '
-                . (string) get_resource_type($sth) . ' received instead'
-            );
-        }
-
-        $this->sth        = $sth;
         $this->connection = $connection;
         $this->options    = $options;
 
         $fetchMode = $connection->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE);
         if ($fetchMode) {
             $this->setFetchMode($fetchMode);
+        }
+    }
+
+    /**
+     * Prepare the statement.
+     * 
+     * @param resource $dbh
+     * @param string $statement
+     * @throws Oci8Exception
+     */
+    public function parse($dbh, $statement)
+    {
+        if (strtolower(get_resource_type($dbh)) != 'oci8 connection') {
+            throw new Oci8Exception(
+                'Resource expected of type \'oci8 connection\''
+                . (string) get_resource_type($dbh) . ' received instead'
+            );
+        }
+
+        $this->sth = oci_parse($dbh, $statement);
+        if (! $this->sth) {
+            $e = oci_error($dbh);
+            throw new Oci8Exception($e['message']);
         }
     }
 

@@ -5,6 +5,14 @@ use PHPUnit\Framework\TestCase;
 
 class ConnectionTest extends TestCase
 {
+    const DEFAULT_USER = 'system';
+    const DEFAULT_PWD  = 'oracle';
+    const DEFAULT_DSN  = 'oci:dbname=127.0.0.1:49161/xe';
+
+    /**
+     *
+     * @var Oci8
+     */
     protected $con = null;
 
     /**
@@ -14,9 +22,9 @@ class ConnectionTest extends TestCase
      */
     public function setUp()
     {
-        $user      = getenv('OCI_USER') ?: 'system';
-        $pwd       = getenv('OCI_PWD') ?: 'oracle';
-        $dsn       = getenv('OCI_DSN') ?: 'oci:dbname=127.0.0.1:49161/xe';
+        $user      = getenv('OCI_USER') ?: self::DEFAULT_USER;
+        $pwd       = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn       = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
         $this->con = new Oci8($dsn, $user, $pwd);
     }
 
@@ -37,9 +45,9 @@ class ConnectionTest extends TestCase
      */
     public function testPersistentConnection()
     {
-        $user = getenv('OCI_USER') ?: 'system';
-        $pwd  = getenv('OCI_PWD') ?: 'oracle';
-        $dsn  = getenv('OCI_DSN') ?: 'oci:dbname=127.0.0.1:49161/xe';
+        $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
+        $pwd  = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn  = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
         $con  = new Oci8($dsn, $user, $pwd, [\PDO::ATTR_PERSISTENT => true]);
         $this->assertNotNull($con);
     }
@@ -51,9 +59,9 @@ class ConnectionTest extends TestCase
      */
     public function testConnectionWithParameters()
     {
-        $user = getenv('OCI_USER') ?: 'system';
-        $pwd  = getenv('OCI_PWD') ?: 'oracle';
-        $dsn  = getenv('OCI_DSN') ?: 'oci:dbname=127.0.0.1:49161/xe';
+        $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
+        $pwd  = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn  = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
         $con  = new Oci8("$dsn;charset=utf8", $user, $pwd);
         $this->assertNotNull($con);
     }
@@ -183,5 +191,23 @@ class ConnectionTest extends TestCase
     {
         $this->con->close();
         $this->assertEquals(['00000', null, null], $this->con->errorInfo());
+    }
+
+    public function testOtherStatementClass()
+    {
+        $this->con->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [TestStatement::class, [$this->con]]);
+        $stmt = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
+        $this->assertEquals(1, TestStatement::$called);
+    }
+}
+
+class TestStatement extends Oci8\Statement
+{
+    public static $called = 0;
+
+    public function parse($dbh, $statement)
+    {
+        self::$called++;
+        parent::parse($dbh, $statement);
     }
 }

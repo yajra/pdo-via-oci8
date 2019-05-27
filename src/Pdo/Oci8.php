@@ -114,19 +114,22 @@ class Oci8 extends PDO
             $this->table = $matches[1];
         }
 
-        // Prepare the statement
-        $sth = @oci_parse($this->dbh, $statement);
-
-        if (! $sth) {
-            $e = oci_error($this->dbh);
-            throw new Oci8Exception($e['message']);
-        }
-
         if (! is_array($options)) {
             $options = [];
         }
 
-        return new Statement($sth, $this, $options);
+        // Prepare the statement
+        if ($objClass = $this->getAttribute(PDO::ATTR_STATEMENT_CLASS)) {
+            $sth = new $objClass[0](...$objClass[1]);
+            if (! $sth instanceof Statement) {
+                throw new Oci8Exception("Class '$stmClass' must be an instance of ".Statement::class);
+            }
+        } else {
+            $sth = new Statement($this, $options);
+        }
+        $sth->parse($this->dbh, $statement);
+
+        return $sth;
     }
 
     /**
