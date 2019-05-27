@@ -126,7 +126,7 @@ class Statement extends PDOStatement
 
     /**
      * Prepare the statement.
-     * 
+     *
      * @param resource $dbh
      * @param string $statement
      * @throws Oci8Exception

@@ -10,7 +10,6 @@ class ConnectionTest extends TestCase
     const DEFAULT_DSN  = 'oci:dbname=127.0.0.1:49161/xe';
 
     /**
-     *
      * @var Oci8
      */
     protected $con = null;
