@@ -133,10 +133,11 @@ class Statement extends PDOStatement
      */
     public function parse($dbh, $statement)
     {
-        if (strtolower(get_resource_type($dbh)) != 'oci8 connection') {
+        $resourceType = strtolower(get_resource_type($dbh));
+        if (!in_array($resourceType, [ 'oci8 connection', 'oci8 persistent connection' ])) {
             throw new Oci8Exception(
-                'Resource expected of type \'oci8 connection\''
-                . (string) get_resource_type($dbh) . ' received instead'
+                'Resource expected of type "oci8 connection" or "oci8 persistent connection" but got "'
+                . (string) get_resource_type($dbh) . '" instead.'
             );
         }
 
