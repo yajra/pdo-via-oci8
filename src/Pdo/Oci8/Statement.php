@@ -433,7 +433,7 @@ class Statement extends PDOStatement
 
         // Replace the first @oci8param to a pseudo named parameter
         if (is_numeric($parameter)) {
-            $parameter = ':p' . $parameter;
+            $parameter = ':p' . intval($parameter - 1);
         }
 
         // Adapt the type

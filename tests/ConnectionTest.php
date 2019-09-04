@@ -198,6 +198,22 @@ class ConnectionTest extends TestCase
         $stmt = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
         $this->assertEquals(1, TestStatement::$called);
     }
+  
+    public function testBindParamSingle()
+    {
+        $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
+        $var  = 'Joop';
+        $this->assertTrue($stmt->bindParam(1, $var, PDO::PARAM_STR));
+    }
+
+    public function testBindParamMultiple()
+    {
+        $stmt  = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
+        $var   = 'Joop';
+        $email = 'joop@world.com';
+        $this->assertTrue($stmt->bindParam(':person', $var, PDO::PARAM_STR));
+        $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
+    }
 }
 
 class TestStatement extends Oci8\Statement
