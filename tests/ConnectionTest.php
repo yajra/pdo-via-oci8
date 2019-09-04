@@ -198,7 +198,7 @@ class ConnectionTest extends TestCase
         $stmt = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
         $this->assertEquals(1, TestStatement::$called);
     }
-  
+
     public function testBindParamSingle()
     {
         $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
