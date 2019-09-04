@@ -16,6 +16,11 @@
             "Yajra\\": "src/"
         }
     },
+    "extra": {
+        "branch-alias": {
+          "dev-master": "2.0-dev"
+        }
+    },
     "scripts": {
         "docker": "docker run -d -p 49160:22 -p 49161:1521 deepdiver/docker-oracle-xe-11g"
     },
