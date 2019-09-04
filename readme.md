@@ -25,7 +25,7 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 ```json
 {
     "require": {
-        "yajra/laravel-pdo-via-oci8": "1.*"
+        "yajra/laravel-pdo-via-oci8": "2.*"
     }
 }
 ```
