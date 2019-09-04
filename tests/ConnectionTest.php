@@ -184,4 +184,20 @@ class ConnectionTest extends TestCase
         $this->con->close();
         $this->assertEquals(['00000', null, null], $this->con->errorInfo());
     }
+
+    public function testBindParamSingle()
+    {
+        $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
+        $var  = 'Joop';
+        $this->assertTrue($stmt->bindParam(1, $var, PDO::PARAM_STR));
+    }
+
+    public function testBindParamMultiple()
+    {
+        $stmt  = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
+        $var   = 'Joop';
+        $email = 'joop@world.com';
+        $this->assertTrue($stmt->bindParam(':person', $var, PDO::PARAM_STR));
+        $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
+    }
 }
