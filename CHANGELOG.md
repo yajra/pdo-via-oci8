@@ -3,10 +3,6 @@
 ## v2.0.0 - 2019-09-04
 
 - Fix [#64](https://github.com/yajra/pdo-via-oci8/issues/64) for single bind params [#67](https://github.com/yajra/pdo-via-oci8/pull/67), credits to @istaveren.
-- Fix [#69](https://github.com/yajra/pdo-via-oci8/issues/69) adding support for PDO::ATTR_STATEMENT_CLASS [#70](https://github.com/yajra/pdo-via-oci8/pull/70), credits to @istaveren.
-- Add parse method to statement.
-
-> Note: Statement class constructor was updated and `$sth` param was removed.
 
 ## v1.4.0 - 2019-05-09
 
