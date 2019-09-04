@@ -192,13 +192,6 @@ class ConnectionTest extends TestCase
         $this->assertEquals(['00000', null, null], $this->con->errorInfo());
     }
 
-    public function testOtherStatementClass()
-    {
-        $this->con->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [TestStatement::class, [$this->con]]);
-        $stmt = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
-        $this->assertEquals(1, TestStatement::$called);
-    }
-
     public function testBindParamSingle()
     {
         $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
@@ -213,16 +206,5 @@ class ConnectionTest extends TestCase
         $email = 'joop@world.com';
         $this->assertTrue($stmt->bindParam(':person', $var, PDO::PARAM_STR));
         $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
-    }
-}
-
-class TestStatement extends Oci8\Statement
-{
-    public static $called = 0;
-
-    public function parse($dbh, $statement)
-    {
-        self::$called++;
-        parent::parse($dbh, $statement);
     }
 }
