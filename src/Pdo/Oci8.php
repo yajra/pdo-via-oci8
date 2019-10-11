@@ -71,26 +71,24 @@ class Oci8 extends PDO
         parse_str(str_replace(';', '&', $connectStr), $connectParams);
 
         if (strpos((string) $dsn, 'oci:') !== 0) {
-            throw new Oci8Exception('Invalid driver name');
+            throw new Oci8Exception('Unsupported driver name');
         } elseif (empty($connectParams['dbname'])) {
             throw new Oci8Exception('Invalid connection string');
         } else {
-            if (isset($connectParams['dbname'])) {
-                $connectParams['dbname'] = str_replace('//', '', $connectParams['dbname']);
-            }
+            $dsnStr = str_replace('//', '', $connectParams['dbname']);
             if (isset($connectParams['host']) && isset($connectParams['port'])) {
-                $connectParams['host'] = $connectParams['host'] . ':' . $connectParams['port'];
-                unset($connectParams['port']);
+                $hostStr = $connectParams['host'] . ':' . $connectParams['port'];
+            } elseif (isset($connectParams['host'])) {
+                $hostStr = $connectParams['host'];
             }
-            if (isset($connectParams['host'])) {
-                $connectParams['dbname'] = $connectParams['host'] . '/' . $connectParams['dbname'];
-                unset($connectParams['host']);
+            if (! empty($hostStr)) {
+                $dsnStr = $hostStr . '/' . $dsnStr;
             }
             // A charset specified in $dsn takes precedence over one specified in $options
             ! empty($connectParams['charset'])
                 ? $charset = $this->configureCharset($connectParams)
                 : $charset = $this->configureCharset($options);
-            $this->connect($connectParams['dbname'], $username, $password, $options, $charset);
+            $this->connect($dsnStr, $username, $password, $options, $charset);
             // Save the options
             $this->options = $options;
         }
