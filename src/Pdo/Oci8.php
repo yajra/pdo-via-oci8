@@ -87,7 +87,7 @@ class Oci8 extends PDO
                 unset($connectParams['host']);
             }
             // A charset specified in $dsn takes precedence over one specified in $options
-            !empty($connectParams['charset'])
+            ! empty($connectParams['charset'])
                 ? $charset = $this->configureCharset($connectParams)
                 : $charset = $this->configureCharset($options);
             $this->connect($connectParams['dbname'], $username, $password, $options, $charset);
@@ -486,7 +486,7 @@ class Oci8 extends PDO
     private function configureCharset(array $options)
     {
         $defaultCharset = 'AL32UTF8';
-        if (!empty($options['charset'])) {
+        if (! empty($options['charset'])) {
             // Convert UTF8 charset to AL32UTF8
             return strtolower($options['charset']) == 'utf8' ? $defaultCharset : $options['charset'];
         }
