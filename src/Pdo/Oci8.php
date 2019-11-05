@@ -56,8 +56,8 @@ class Oci8 extends PDO
      *
      * Supports any connection string that is supported by oci_connect(),
      * or a valid PDO-style DSN (oci:host=host;port=port;dbname=dbname;charset=charset)
-     * @link: https://www.php.net/manual/en/function.oci-connect.php
-     * @link: https://www.php.net/manual/en/pdo.construct.php
+     * @link https://www.php.net/manual/en/function.oci-connect.php
+     * @link https://www.php.net/manual/en/pdo.construct.php
      *
      * @param string $dsn
      * @param string $username
@@ -67,31 +67,35 @@ class Oci8 extends PDO
      */
     public function __construct($dsn, $username, $password, array $options = [])
     {
-        $connectStr = preg_replace('/^oci:/', '', (string) $dsn);
-        parse_str(str_replace(';', '&', $connectStr), $connectParams);
-
-        if (strpos((string) $dsn, 'oci:') !== 0) {
-            throw new Oci8Exception('Unsupported driver name');
-        } elseif (empty($connectParams['dbname'])) {
-            throw new Oci8Exception('Invalid connection string');
+        $dsn = (string) trim($dsn);
+        if (strpos($dsn, 'oci:') === 0) {
+            $connectStr = preg_replace('/^oci:/', '', $dsn);
+            parse_str(str_replace(';', '&', $connectStr), $connectParams);
+            if (empty($connectParams['dbname'])) {
+                throw new Oci8Exception('Invalid connection string');
+            } else {
+                $dsnStr = str_replace('//', '', $connectParams['dbname']);
+                if (isset($connectParams['host']) && isset($connectParams['port'])) {
+                    $host = $connectParams['host'] . ':' . $connectParams['port'];
+                } elseif (isset($connectParams['host'])) {
+                    $host = $connectParams['host'];
+                }
+                if (! empty($host)) {
+                    $dsnStr = $host . '/' . $dsnStr;
+                }
+                // A charset specified in the connection string takes
+                // precedence over one specified in $options
+                ! empty($connectParams['charset'])
+                    ? $charset = $this->configureCharset($connectParams)
+                    : $charset = $this->configureCharset($options);
+                $dsn = $dsnStr;
+            }
         } else {
-            $dsnStr = str_replace('//', '', $connectParams['dbname']);
-            if (isset($connectParams['host']) && isset($connectParams['port'])) {
-                $hostStr = $connectParams['host'] . ':' . $connectParams['port'];
-            } elseif (isset($connectParams['host'])) {
-                $hostStr = $connectParams['host'];
-            }
-            if (! empty($hostStr)) {
-                $dsnStr = $hostStr . '/' . $dsnStr;
-            }
-            // A charset specified in $dsn takes precedence over one specified in $options
-            ! empty($connectParams['charset'])
-                ? $charset = $this->configureCharset($connectParams)
-                : $charset = $this->configureCharset($options);
-            $this->connect($dsnStr, $username, $password, $options, $charset);
-            // Save the options
-            $this->options = $options;
+            $charset = $this->configureCharset($options);
         }
+        $this->connect($dsn, $username, $password, $options, $charset);
+        // Save the options
+        $this->options = $options;
     }
 
     /**
