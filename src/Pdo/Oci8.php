@@ -54,6 +54,11 @@ class Oci8 extends PDO
     /**
      * Creates a PDO instance representing a connection to a database.
      *
+     * Supports any connection string that is supported by oci_connect(),
+     * or a valid PDO-style DSN (oci:host=host;port=port;dbname=dbname;charset=charset)
+     * @link https://www.php.net/manual/en/function.oci-connect.php
+     * @link https://www.php.net/manual/en/pdo.construct.php
+     *
      * @param string $dsn
      * @param string $username
      * @param string $password
@@ -62,20 +67,33 @@ class Oci8 extends PDO
      */
     public function __construct($dsn, $username, $password, array $options = [])
     {
-        $charset = null;
-        $dsn     = preg_replace('/^oci:/', '', $dsn);
-        $tokens  = preg_split('/;/', $dsn);
-        $dsn     = str_replace(['dbname=//', 'dbname='], '', $tokens[0]);
-
-        //Find the charset in Connection String: oci:dbname=192.168.10.145/orcl;charset=CL8MSWIN1251
-        $charset = $this->_getCharset($tokens);
-        // OR Get charset from options
-        if (! $charset) {
+        $dsn = (string) trim($dsn);
+        if (strpos($dsn, 'oci:') === 0) {
+            $connectStr = preg_replace('/^oci:/', '', $dsn);
+            parse_str(str_replace(';', '&', $connectStr), $connectParams);
+            if (empty($connectParams['dbname'])) {
+                throw new Oci8Exception('Invalid connection string');
+            } else {
+                $dsnStr = str_replace('//', '', $connectParams['dbname']);
+                if (isset($connectParams['host']) && isset($connectParams['port'])) {
+                    $host = $connectParams['host'] . ':' . $connectParams['port'];
+                } elseif (isset($connectParams['host'])) {
+                    $host = $connectParams['host'];
+                }
+                if (! empty($host)) {
+                    $dsnStr = $host . '/' . $dsnStr;
+                }
+                // A charset specified in the connection string takes
+                // precedence over one specified in $options
+                ! empty($connectParams['charset'])
+                    ? $charset = $this->configureCharset($connectParams)
+                    : $charset = $this->configureCharset($options);
+                $dsn = $dsnStr;
+            }
+        } else {
             $charset = $this->configureCharset($options);
         }
-
         $this->connect($dsn, $username, $password, $options, $charset);
-
         // Save the options
         $this->options = $options;
     }
@@ -462,36 +480,6 @@ class Oci8 extends PDO
     }
 
     /**
-     * Find the charset.
-     *
-     * @param string $charset charset
-     *
-     * @return charset
-     */
-    private function _getCharset($charset=null)
-    {
-        if (! $charset) {
-            return;
-        }
-
-        $expr   = '/^(charset=)(\w+)$/';
-        $tokens = array_filter(
-            $charset,
-            function ($token) use ($expr) {
-                return preg_match($expr, $token, $matches);
-            }
-        );
-        if (count($tokens) > 0) {
-            preg_match($expr, array_shift($tokens), $matches);
-            $_charset = $matches[2];
-        } else {
-            $_charset = null;
-        }
-
-        return $_charset;
-    }
-
-    /**
      * Configure proper charset.
      *
      * @param array $options
@@ -499,15 +487,12 @@ class Oci8 extends PDO
      */
     private function configureCharset(array $options)
     {
-        $charset = 'AL32UTF8';
-        // Get the character set from the options.
-        if (array_key_exists('charset', $options)) {
-            $charset = $options['charset'];
+        $defaultCharset = 'AL32UTF8';
+        if (! empty($options['charset'])) {
+            // Convert UTF8 charset to AL32UTF8
+            return strtolower($options['charset']) == 'utf8' ? $defaultCharset : $options['charset'];
         }
-        // Convert UTF8 charset to AL32UTF8
-        $charset = strtolower($charset) == 'utf8' ? 'AL32UTF8' : $charset;
-
-        return $charset;
+        return $defaultCharset;
     }
 
     /**
