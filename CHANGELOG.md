@@ -1,5 +1,9 @@
 # PDO-VIA-OCI8 Changelog
 
+## v2.1.0 - 2019-11-16
+
+- Added support for PDO-style connection strings [#72](https://github.com/yajra/pdo-via-oci8/pull/72), credits to @wernerm.
+
 ## v2.0.0 - 2019-09-04
 
 - Fix [#64](https://github.com/yajra/pdo-via-oci8/issues/64) for single bind params [#67](https://github.com/yajra/pdo-via-oci8/pull/67), credits to @istaveren.
