@@ -463,8 +463,14 @@ class Statement extends PDOStatement
                 $schema    = isset($options['schema']) ? $options['schema'] : '';
                 $type_name = isset($options['type_name']) ? $options['type_name'] : '';
 
+                // barrigapicante update to keep the collection data
+                $collection_temp = $this->connection->getNewCollection($type_name, $schema);
+                $collection_temp->assign($variable);
                 // set params required to use custom type.
                 $variable = $this->connection->getNewCollection($type_name, $schema);
+                // barrigapicante update to keep the collection data
+                $variable->assign($collection_temp);
+                
                 break;
 
             case SQLT_CLOB:
