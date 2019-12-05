@@ -464,7 +464,7 @@ class Statement extends PDOStatement
                 $schema    = isset($options['schema']) ? $options['schema'] : '';
                 $type_name = isset($options['type_name']) ? $options['type_name'] : '';
 
-                if (strtoupper(get_class($variable))=="OCI-COLLECTION") {
+                if (strtoupper(get_class($variable)) == "OCI-COLLECTION") {
                     $collection_temp = $this->connection->getNewCollection($type_name, $schema);
                     $collection_temp->assign($variable);
 
