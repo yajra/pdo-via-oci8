@@ -475,7 +475,7 @@ class Oci8 extends PDO
 
         if (! $this->dbh) {
             $e = oci_error();
-            throw new Oci8Exception($e['message']);
+            throw new Oci8Exception($e['message'], $e['code']);
         }
     }
 
