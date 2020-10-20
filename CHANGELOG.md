@@ -1,5 +1,9 @@
 # PDO-VIA-OCI8 Changelog
 
+## v2.1.3 - 2020-10-20
+
+- Return ora code on failed connection. [#78](https://github.com/yajra/pdo-via-oci8/pull/78), credits to @bendzaminas.
+
 ## v2.1.2 - 2020-10-20
 
 - Fix PDO::ATTR_PERSISTENT when is set to false [#80](https://github.com/yajra/pdo-via-oci8/pull/80), credits to @cvillegaslobos.
