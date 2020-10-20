@@ -1,5 +1,9 @@
 # PDO-VIA-OCI8 Changelog
 
+## v2.1.2 - 2020-10-20
+
+- Fix PDO::ATTR_PERSISTENT when is set to false [#80](https://github.com/yajra/pdo-via-oci8/pull/80), credits to @cvillegaslobos.
+
 ## v2.1.1 - 2019-12-05
 
 - Fix SQLT_NTY collection binding. [#74](https://github.com/yajra/pdo-via-oci8/pull/74), credits to @barrigapicante.
