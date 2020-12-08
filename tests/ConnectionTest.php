@@ -1,13 +1,13 @@
 <?php
 
-use Yajra\Pdo\Oci8;
 use PHPUnit\Framework\TestCase;
+use Yajra\Pdo\Oci8;
 
 class ConnectionTest extends TestCase
 {
     const DEFAULT_USER = 'system';
-    const DEFAULT_PWD  = 'oracle';
-    const DEFAULT_DSN  = 'oci:dbname=127.0.0.1:49161/xe';
+    const DEFAULT_PWD = 'oracle';
+    const DEFAULT_DSN = 'oci:dbname=127.0.0.1:49161/xe';
 
     /**
      * @var Oci8
@@ -21,9 +21,9 @@ class ConnectionTest extends TestCase
      */
     public function setUp(): void
     {
-        $user      = getenv('OCI_USER') ?: self::DEFAULT_USER;
-        $pwd       = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
-        $dsn       = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
+        $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
+        $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
         $this->con = new Oci8($dsn, $user, $pwd);
     }
 
@@ -45,9 +45,9 @@ class ConnectionTest extends TestCase
     public function testPersistentConnection()
     {
         $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
-        $pwd  = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
-        $dsn  = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
-        $con  = new Oci8($dsn, $user, $pwd, [\PDO::ATTR_PERSISTENT => true]);
+        $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
+        $con = new Oci8($dsn, $user, $pwd, [PDO::ATTR_PERSISTENT => true]);
         $this->assertNotNull($con);
     }
 
@@ -59,9 +59,9 @@ class ConnectionTest extends TestCase
     public function testConnectionWithParameters()
     {
         $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
-        $pwd  = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
-        $dsn  = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
-        $con  = new Oci8("$dsn;charset=utf8", $user, $pwd);
+        $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
+        $con = new Oci8("$dsn;charset=utf8", $user, $pwd);
         $this->assertNotNull($con);
     }
 
@@ -71,10 +71,10 @@ class ConnectionTest extends TestCase
     public function testInvalidConnection()
     {
         $user = 'pdooci';
-        $pwd  = 'pdooci';
-        $str  = 'oci:dbname=127.0.0.1:49161/hoi';
+        $pwd = 'pdooci';
+        $str = 'oci:dbname=127.0.0.1:49161/hoi';
         $this->expectException(Oci8\Exceptions\Oci8Exception::class);
-        new Oci8($str, $user, $pwd, [\PDO::ATTR_PERSISTENT => true]);
+        new Oci8($str, $user, $pwd, [PDO::ATTR_PERSISTENT => true]);
     }
 
     /**
@@ -84,8 +84,8 @@ class ConnectionTest extends TestCase
      */
     public function testAttributes()
     {
-        $this->con->setAttribute(\PDO::ATTR_AUTOCOMMIT, true);
-        $this->assertTrue($this->con->getAttribute(\PDO::ATTR_AUTOCOMMIT));
+        $this->con->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
+        $this->assertTrue($this->con->getAttribute(PDO::ATTR_AUTOCOMMIT));
     }
 
     /**
@@ -157,26 +157,26 @@ class ConnectionTest extends TestCase
 
     public function testCaseDefaultValue()
     {
-        $case = $this->con->getAttribute(\PDO::ATTR_CASE);
-        $this->assertEquals(\PDO::CASE_NATURAL, $case);
+        $case = $this->con->getAttribute(PDO::ATTR_CASE);
+        $this->assertEquals(PDO::CASE_NATURAL, $case);
     }
 
     /**
      * Test setting case.
-     * @param int $case
+     * @param  int  $case
      * @dataProvider caseProvider
      */
     public function testSettingCase($case)
     {
-        $this->con->setAttribute(\PDO::ATTR_CASE, $case);
-        $this->assertEquals($case, $this->con->getAttribute(\PDO::ATTR_CASE));
+        $this->con->setAttribute(PDO::ATTR_CASE, $case);
+        $this->assertEquals($case, $this->con->getAttribute(PDO::ATTR_CASE));
     }
 
     public function caseProvider()
     {
         return [
-            [\PDO::CASE_LOWER],
-            [\PDO::CASE_UPPER],
+            [PDO::CASE_LOWER],
+            [PDO::CASE_UPPER],
         ];
     }
 
@@ -195,14 +195,14 @@ class ConnectionTest extends TestCase
     public function testBindParamSingle()
     {
         $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
-        $var  = 'Joop';
+        $var = 'Joop';
         $this->assertTrue($stmt->bindParam(1, $var, PDO::PARAM_STR));
     }
 
     public function testBindParamMultiple()
     {
-        $stmt  = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
-        $var   = 'Joop';
+        $stmt = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
+        $var = 'Joop';
         $email = 'joop@world.com';
         $this->assertTrue($stmt->bindParam(':person', $var, PDO::PARAM_STR));
         $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
