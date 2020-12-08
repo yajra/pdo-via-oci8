@@ -176,7 +176,7 @@ class Statement extends PDOStatement
                 $this->fetchIntoObject = null;
                 break;
             case PDO::FETCH_INTO:
-                if (!is_object($modeArg)) {
+                if (! is_object($modeArg)) {
                     throw new Oci8Exception(
                         '$modeArg must be instance of an object'
                     );
@@ -313,7 +313,7 @@ class Statement extends PDOStatement
                 $schema = isset($options['schema']) ? $options['schema'] : '';
                 $type_name = isset($options['type_name']) ? $options['type_name'] : '';
 
-                if (strtoupper(get_class($variable)) == "OCI-COLLECTION") {
+                if (strtoupper(get_class($variable)) == 'OCI-COLLECTION') {
                     $collection_temp = $this->connection->getNewCollection($type_name, $schema);
                     $collection_temp->assign($variable);
 
@@ -596,7 +596,7 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns an array containing all of the result set rows
+     * Returns an array containing all of the result set rows.
      * @link https://php.net/manual/en/pdostatement.fetchall.php
      * @param  int  $mode  [optional] <p>
      * Controls the contents of the returned array as documented in
@@ -695,7 +695,7 @@ class Statement extends PDOStatement
             }
         }
 
-        if (!$this->connection->inTransaction() && count($this->blobObjects) > 0) {
+        if (! $this->connection->inTransaction() && count($this->blobObjects) > 0) {
             $this->connection->commit();
         }
 
