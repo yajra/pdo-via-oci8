@@ -31,6 +31,10 @@ Add `yajra/laravel-pdo-via-oci8` as a requirement to composer.json:
 ```
 And then run `composer update`
 
+## PHP 8 Support
+
+When using PHP 8, please use version 3: `"yajra/laravel-pdo-via-oci8": "3.*"`.
+
 ## Testing
 
 There is a test suite (using `PHPUnit` with a version bigger than 6.x) on the `test` directory. If you want to

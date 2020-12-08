@@ -8,8 +8,12 @@
             "email": "aqangeles@gmail.com"
         }
     ],
+    "require": {
+        "php": "^8.0",
+        "ext-pdo": "*"
+    },
     "require-dev": {
-       "phpunit/phpunit": "^6.4"
+        "phpunit/phpunit": "^8.4|^9.0"
     },
     "autoload": {
         "psr-4": {
@@ -18,7 +22,7 @@
     },
     "extra": {
         "branch-alias": {
-          "dev-master": "2.0-dev"
+          "dev-master": "3.x-dev"
         }
     },
     "scripts": {
