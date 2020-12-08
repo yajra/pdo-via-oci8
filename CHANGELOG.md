@@ -1,5 +1,11 @@
 # PDO-VIA-OCI8 Changelog
 
+## v3.0.0 - 2020-12-08
+
+- Add PHP 8 support. [#83](https://github.com/yajra/pdo-via-oci8/pull/83)
+- Fix #82
+- Move tests to github actions.
+
 ## v2.1.3 - 2020-10-20
 
 - Return ora code on failed connection. [#78](https://github.com/yajra/pdo-via-oci8/pull/78), credits to @bendzaminas.
