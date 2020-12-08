@@ -796,6 +796,7 @@ class Statement extends PDOStatement
         $modeArg = $params;
         // See which fetch mode we have
         switch ($mode) {
+            case PDO::ATTR_DEFAULT_FETCH_MODE:
             case PDO::FETCH_ASSOC:
             case PDO::FETCH_NUM:
             case PDO::FETCH_BOTH:
@@ -837,8 +838,7 @@ class Statement extends PDOStatement
                 $this->fetchIntoObject = null;
                 break;
             default:
-                throw new Oci8Exception('Requested fetch mode is not supported ' .
-                    'by this implementation');
+                throw new Oci8Exception('Requested fetch mode is not supported by this implementation');
                 break;
         }
 
