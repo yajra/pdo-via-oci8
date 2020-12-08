@@ -19,7 +19,7 @@ class ConnectionTest extends TestCase
      *
      * @return null
      */
-    public function setUp()
+    public function setUp(): void
     {
         $user      = getenv('OCI_USER') ?: self::DEFAULT_USER;
         $pwd       = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
