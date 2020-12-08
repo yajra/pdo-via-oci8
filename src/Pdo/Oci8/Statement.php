@@ -588,32 +588,57 @@ class Statement extends PDOStatement
     }
 
     /**
-     * Returns an array containing all of the result set rows.
-     *
-     * @param int $fetchMode Controls the contents of the returned array as
-     *   documented in PDOStatement::fetch.
-     * @param mixed $fetchArgument This argument has a different meaning
-     *   depending on the value of the fetchMode parameter.
-     * @param array $ctorArgs [optional] Arguments of custom class constructor
-     *   when the fetch_style parameter is PDO::FETCH_CLASS.
-     * @return array Array containing all of the remaining rows in the result
-     *   set. The array represents each row as either an array of column values
-     *   or an object with properties corresponding to each column name.
+     * Returns an array containing all of the result set rows
+     * @link https://php.net/manual/en/pdostatement.fetchall.php
+     * @param int $mode [optional] <p>
+     * Controls the contents of the returned array as documented in
+     * <b>PDOStatement::fetch</b>.
+     * Defaults to value of <b>PDO::ATTR_DEFAULT_FETCH_MODE</b>
+     * (which defaults to <b>PDO::FETCH_BOTH</b>)
+     * </p>
+     * <p>
+     * To return an array consisting of all values of a single column from
+     * the result set, specify <b>PDO::FETCH_COLUMN</b>. You
+     * can specify which column you want with the
+     * <i>column-index</i> parameter.
+     * </p>
+     * <p>
+     * To fetch only the unique values of a single column from the result set,
+     * bitwise-OR <b>PDO::FETCH_COLUMN</b> with
+     * <b>PDO::FETCH_UNIQUE</b>.
+     * </p>
+     * <p>
+     * To return an associative array grouped by the values of a specified
+     * column, bitwise-OR <b>PDO::FETCH_COLUMN</b> with
+     * <b>PDO::FETCH_GROUP</b>.
+     * </p>
+     * @param mixed ...$args <p>
+     * Arguments of custom class constructor when the <i>fetch_style</i>
+     * parameter is <b>PDO::FETCH_CLASS</b>.
+     * </p>
+     * @return array <b>PDOStatement::fetchAll</b> returns an array containing
+     * all of the remaining rows in the result set. The array represents each
+     * row as either an array of column values or an object with properties
+     * corresponding to each column name.
+     * </p>
+     * <p>
+     * Using this method to fetch large result sets will result in a heavy
+     * demand on system and possibly network resources. Rather than retrieving
+     * all of the data and manipulating it in PHP, consider using the database
+     * server to manipulate the result sets. For example, use the WHERE and
+     * ORDER BY clauses in SQL to restrict results before retrieving and
+     * processing them with PHP.
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = [])
+    public function fetchAll($mode = PDO::FETCH_BOTH, ...$args)
     {
-        if (is_null($fetchMode)) {
-            $fetchMode = $this->fetchMode;
-        }
-
-        $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
+        $this->setFetchMode($mode, $args);
 
         $this->results = [];
         while ($row = $this->fetch()) {
             if ((is_array($row) || is_object($row)) && is_resource(reset($row))) {
                 $stmt = new self(reset($row), $this->connection, $this->options);
                 $stmt->execute();
-                $stmt->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
+                $stmt->setFetchMode($mode, $args);
                 while ($rs = $stmt->fetch()) {
                     $this->results[] = $rs;
                 }
