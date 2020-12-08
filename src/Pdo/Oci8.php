@@ -82,12 +82,12 @@ class Oci8 extends PDO
                 } elseif (isset($connectParams['host'])) {
                     $host = $connectParams['host'];
                 }
-                if (!empty($host)) {
+                if (! empty($host)) {
                     $dsnStr = $host.'/'.$dsnStr;
                 }
                 // A charset specified in the connection string takes
                 // precedence over one specified in $options
-                !empty($connectParams['charset'])
+                ! empty($connectParams['charset'])
                     ? $charset = $this->configureCharset($connectParams)
                     : $charset = $this->configureCharset($options);
                 $dsn = $dsnStr;
@@ -109,10 +109,11 @@ class Oci8 extends PDO
     private function configureCharset(array $options)
     {
         $defaultCharset = 'AL32UTF8';
-        if (!empty($options['charset'])) {
+        if (! empty($options['charset'])) {
             // Convert UTF8 charset to AL32UTF8
             return strtolower($options['charset']) == 'utf8' ? $defaultCharset : $options['charset'];
         }
+
         return $defaultCharset;
     }
 
@@ -136,7 +137,7 @@ class Oci8 extends PDO
             $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
         }
 
-        if (!$this->dbh) {
+        if (! $this->dbh) {
             $e = oci_error();
             throw new Oci8Exception($e['message'], $e['code']);
         }
@@ -151,7 +152,7 @@ class Oci8 extends PDO
     public static function getAvailableDrivers()
     {
         $drivers = PDO::getAvailableDrivers();
-        if (!in_array('oci', $drivers)) {
+        if (! in_array('oci', $drivers)) {
             array_push($drivers, 'oci');
         }
 
@@ -220,7 +221,7 @@ class Oci8 extends PDO
      */
     public function rollBack()
     {
-        if (!$this->inTransaction()) {
+        if (! $this->inTransaction()) {
             throw new Oci8Exception('There is no active transaction');
         }
 
@@ -299,12 +300,12 @@ class Oci8 extends PDO
         // Prepare the statement
         $sth = @oci_parse($this->dbh, $statement);
 
-        if (!$sth) {
+        if (! $sth) {
             $e = oci_error($this->dbh);
             throw new Oci8Exception($e['message']);
         }
 
-        if (!is_array($options)) {
+        if (! is_array($options)) {
             $options = [];
         }
 
@@ -319,8 +320,8 @@ class Oci8 extends PDO
      */
     private function isNamedParameterable($statement)
     {
-        return !preg_match('/^alter+ +table/', strtolower(trim($statement)))
-            and !preg_match('/^create+ +table/', strtolower(trim($statement)));
+        return ! preg_match('/^alter+ +table/', strtolower(trim($statement)))
+            and ! preg_match('/^create+ +table/', strtolower(trim($statement)));
     }
 
     /**
@@ -341,7 +342,7 @@ class Oci8 extends PDO
             $sequence = $this->table.'_id_seq';
         }
 
-        if (!$this->checkSequence($sequence)) {
+        if (! $this->checkSequence($sequence)) {
             return 0;
         }
 
