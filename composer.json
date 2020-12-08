@@ -9,11 +9,11 @@
         }
     ],
     "require": {
-       "php": "^8.0",
+        "php": "^8.0",
         "ext-pdo": "*"
     },
     "require-dev": {
-       "phpunit/phpunit": "^6.4"
+        "phpunit/phpunit": "^8.4|^9.0"
     },
     "autoload": {
         "psr-4": {
