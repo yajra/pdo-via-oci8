@@ -271,13 +271,11 @@ class Oci8 extends PDO
      * on failure.
      * @see PDOStatement::setFetchMode For a full description of the second and following parameters.
      */
-    public function query ($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, ...$fetch_mode_args)
+    public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, ...$fetch_mode_args)
     {
-        $stmt = $this->prepare($query);
+        $stmt = $this->prepare($statement);
         $stmt->execute();
-        if ($mode) {
-            $stmt->setFetchMode($mode, $fetch_mode_args);
-        }
+        $stmt->setFetchMode($mode, $fetch_mode_args);
 
         return $stmt;
     }
