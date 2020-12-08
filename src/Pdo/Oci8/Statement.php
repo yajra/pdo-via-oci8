@@ -629,8 +629,12 @@ class Statement extends PDOStatement
      * ORDER BY clauses in SQL to restrict results before retrieving and
      * processing them with PHP.
      */
-    public function fetchAll($mode = PDO::FETCH_BOTH, ...$args)
+    public function fetchAll($mode = null, ...$args)
     {
+        if (is_null($mode)) {
+            $mode = $this->fetchMode;
+        }
+
         $this->setFetchMode($mode, $args);
 
         $this->results = [];
