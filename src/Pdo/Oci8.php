@@ -255,19 +255,28 @@ class Oci8 extends PDO
      * Executes an SQL statement, returning the results as a
      * Yajra\Pdo\Oci8\Statement object.
      *
-     * @param string $statement The SQL statement to prepare and execute.
-     * @param int|null $mode The fetch mode must be one of the
-     *   PDO::FETCH_* constants.
-     * @param mixed|null $arg3 Column number, class name or object.
-     * @param array|null $ctorargs Constructor arguments.
-     * @return Statement
+     * @link https://php.net/manual/en/pdo.query.php
+     * @param string $statement <p>
+     * The SQL statement to prepare and execute.
+     * </p>
+     * <p>
+     * Data inside the query should be properly escaped.
+     * </p>
+     * @param int $mode The fetch mode must be one of the PDO::FETCH_* constants.
+     * @param mixed $fetch_mode_args <p>
+     * Arguments of custom class constructor when the <i>mode</i>
+     * parameter is set to <b>PDO::FETCH_CLASS</b>.
+     * </p>
+     * @return \Yajra\Pdo\Oci8\Statement <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
+     * on failure.
+     * @see PDOStatement::setFetchMode For a full description of the second and following parameters.
      */
-    public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array())
+    public function query ($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, ...$fetch_mode_args)
     {
-        $stmt = $this->prepare($statement);
+        $stmt = $this->prepare($query);
         $stmt->execute();
         if ($mode) {
-            $stmt->setFetchMode($mode, $arg3, $ctorargs);
+            $stmt->setFetchMode($mode, $fetch_mode_args);
         }
 
         return $stmt;

@@ -756,23 +756,26 @@ class Statement extends PDOStatement
 
     /**
      * Set the default fetch mode for this statement.
-     *
-     * @param int|null $fetchMode The fetch mode must be one of the
-     *   PDO::FETCH_* constants.
-     * @param mixed|null $modeArg Column number, class name or object.
-     * @param array|null $ctorArgs Constructor arguments.
-     * @throws Oci8Exception
-     * @return bool TRUE on success or FALSE on failure.
+     * @link https://php.net/manual/en/pdostatement.setfetchmode.php
+     * @param int $mode <p>
+     * The fetch mode must be one of the PDO::FETCH_* constants.
+     * </p>
+     * @param string|object $classNameObject [optional] <p>
+     * Class name or object
+     * </p>
+     * @param mixed ...$params <p> Constructor arguments. </p>
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
-    public function setFetchMode($fetchMode, $modeArg = null, $ctorArgs = [])
+    public function setFetchMode ($mode, $className = null, ...$params)
     {
+        $modeArg = $params;
         // See which fetch mode we have
-        switch ($fetchMode) {
+        switch ($mode) {
             case PDO::FETCH_ASSOC:
             case PDO::FETCH_NUM:
             case PDO::FETCH_BOTH:
             case PDO::FETCH_OBJ:
-                $this->fetchMode       = $fetchMode;
+                $this->fetchMode       = $mode;
                 $this->fetchColNo      = 0;
                 $this->fetchClassName  = '\stdClass';
                 $this->fetchCtorArgs   = [];
@@ -780,13 +783,13 @@ class Statement extends PDOStatement
                 break;
             case PDO::FETCH_CLASS:
             case PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE:
-                $this->fetchMode      = $fetchMode;
+                $this->fetchMode      = $mode;
                 $this->fetchColNo     = 0;
                 $this->fetchClassName = '\stdClass';
                 if ($modeArg) {
                     $this->fetchClassName = $modeArg;
                 }
-                $this->fetchCtorArgs   = $ctorArgs;
+                // $this->fetchCtorArgs   = $ctorArgs;
                 $this->fetchIntoObject = null;
                 break;
             case PDO::FETCH_INTO:
@@ -795,14 +798,14 @@ class Statement extends PDOStatement
                         '$modeArg must be instance of an object'
                     );
                 }
-                $this->fetchMode       = $fetchMode;
+                $this->fetchMode       = $mode;
                 $this->fetchColNo      = 0;
                 $this->fetchClassName  = '\stdClass';
                 $this->fetchCtorArgs   = [];
                 $this->fetchIntoObject = $modeArg;
                 break;
             case PDO::FETCH_COLUMN:
-                $this->fetchMode       = $fetchMode;
+                $this->fetchMode       = $mode;
                 $this->fetchColNo      = (int) $modeArg;
                 $this->fetchClassName  = '\stdClass';
                 $this->fetchCtorArgs   = [];
