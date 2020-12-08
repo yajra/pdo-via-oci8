@@ -256,18 +256,18 @@ class Oci8 extends PDO
      * Yajra\Pdo\Oci8\Statement object.
      *
      * @param string $statement The SQL statement to prepare and execute.
-     * @param int|null $fetchMode The fetch mode must be one of the
+     * @param int|null $mode The fetch mode must be one of the
      *   PDO::FETCH_* constants.
-     * @param mixed|null $modeArg Column number, class name or object.
-     * @param array|null $ctorArgs Constructor arguments.
+     * @param mixed|null $arg3 Column number, class name or object.
+     * @param array|null $ctorargs Constructor arguments.
      * @return Statement
      */
-    public function query($statement, $fetchMode = null, $modeArg = null, $ctorArgs = null)
+    public function query($statement, $mode = PDO::ATTR_DEFAULT_FETCH_MODE, $arg3 = null, array $ctorargs = array())
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
-        if ($fetchMode) {
-            $stmt->setFetchMode($fetchMode, $modeArg, $ctorArgs);
+        if ($mode) {
+            $stmt->setFetchMode($mode, $arg3, $ctorargs);
         }
 
         return $stmt;
