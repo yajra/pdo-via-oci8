@@ -1,5 +1,10 @@
 # PDO-VIA-OCI8 Changelog
 
+## v2.2.0 - 2020-12-11
+
+- Added support for oci_set_call_timeout function [#85](https://github.com/yajra/pdo-via-oci8/pull/85), credits to @ognjenVlad.
+- Fix [yajra/laravel-oci8#621](https://github.com/yajra/laravel-oci8/issues/621).
+
 ## v2.1.3 - 2020-10-20
 
 - Return ora code on failed connection. [#78](https://github.com/yajra/pdo-via-oci8/pull/78), credits to @bendzaminas.
