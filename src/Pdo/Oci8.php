@@ -525,6 +525,21 @@ class Oci8 extends PDO
     }
 
     /**
+     * Sets a timeout limiting the maximum time a database round-trip
+     *
+     * @param int $time_out
+     * @return bool
+     */
+    public function setCallTimeout($time_out)
+    {
+        if (!$this->dbh) {
+            return false;
+        }
+
+        return oci_set_call_timeout($this->dbh, $time_out);
+    }
+
+    /**
      * Special non PDO function
      * Allocates new collection object.
      *
