@@ -4,6 +4,7 @@
  * PDO userspace driver proxying calls to PHP OCI8 driver.
  *
  * @category Database
+ *
  * @author Arjay Angeles <aqangeles@gmail.com>
  * @copyright Copyright (c) 2013 Arjay Angeles
  * @license MIT
@@ -58,6 +59,7 @@ class Oci8 extends PDO
      *
      * Supports any connection string that is supported by oci_connect(),
      * or a valid PDO-style DSN (oci:host=host;port=port;dbname=dbname;charset=charset)
+     *
      * @link https://www.php.net/manual/en/function.oci-connect.php
      * @link https://www.php.net/manual/en/pdo.construct.php
      *
@@ -65,6 +67,7 @@ class Oci8 extends PDO
      * @param  string  $username
      * @param  string  $password
      * @param  array  $options
+     *
      * @throws Oci8Exception
      */
     public function __construct($dsn, $username, $password, array $options = [])
@@ -125,6 +128,7 @@ class Oci8 extends PDO
      * @param  string  $password
      * @param  array  $options
      * @param  string  $charset
+     *
      * @throws Oci8Exception
      */
     private function connect($dsn, $username, $password, array $options, $charset)
@@ -163,6 +167,7 @@ class Oci8 extends PDO
      * Initiates a transaction.
      *
      * @return bool TRUE on success or FALSE on failure
+     *
      * @throws Oci8Exception
      */
     public function beginTransaction()
@@ -190,6 +195,7 @@ class Oci8 extends PDO
      * Returns true if the current process is in a transaction.
      *
      * @return bool
+     *
      * @deprecated Use inTransaction() instead
      */
     public function isTransaction()
@@ -217,6 +223,7 @@ class Oci8 extends PDO
      * Rolls back a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
      * @throws Oci8Exception
      */
     public function rollBack()
@@ -253,7 +260,7 @@ class Oci8 extends PDO
      *
      * @param  string  $statement  The SQL statement to prepare and execute.
      * @return int The number of rows that were modified or deleted by the SQL
-     *   statement you issued.
+     *             statement you issued.
      */
     public function exec($statement)
     {
@@ -267,11 +274,12 @@ class Oci8 extends PDO
      * Prepares a statement for execution and returns a statement object.
      *
      * @param  string  $statement  This must be a valid SQL statement for the
-     *   target database server.
+     *                             target database server.
      * @param  array  $options  [optional] This array holds one or more key=>value
-     *   pairs to set attribute values for the PDOStatement object that this
-     *   method returns.
+     *                          pairs to set attribute values for the PDOStatement object that this
+     *                          method returns.
      * @return Statement
+     *
      * @throws Oci8Exception
      */
     public function prepare($statement, $options = null)
@@ -377,19 +385,21 @@ class Oci8 extends PDO
      * Yajra\Pdo\Oci8\Statement object.
      *
      * @link https://php.net/manual/en/pdo.query.php
+     *
      * @param  string  $statement  <p>
-     * The SQL statement to prepare and execute.
-     * </p>
-     * <p>
-     * Data inside the query should be properly escaped.
-     * </p>
+     *                             The SQL statement to prepare and execute.
+     *                             </p>
+     *                             <p>
+     *                             Data inside the query should be properly escaped.
+     *                             </p>
      * @param  int  $mode  The fetch mode must be one of the PDO::FETCH_* constants.
      * @param  mixed  $fetch_mode_args  <p>
-     * Arguments of custom class constructor when the <i>mode</i>
-     * parameter is set to <b>PDO::FETCH_CLASS</b>.
-     * </p>
+     *                                  Arguments of custom class constructor when the <i>mode</i>
+     *                                  parameter is set to <b>PDO::FETCH_CLASS</b>.
+     *                                  </p>
      * @return Statement <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
-     * on failure.
+     *                   on failure.
+     *
      * @see PDOStatement::setFetchMode For a full description of the second and following parameters.
      */
     public function query($statement, $mode = null, ...$fetch_mode_args)
@@ -451,7 +461,7 @@ class Oci8 extends PDO
      *
      * @param  int  $attribute
      * @return mixed A successful call returns the value of the requested PDO
-     *   attribute. An unsuccessful call returns null.
+     *               attribute. An unsuccessful call returns null.
      */
     public function getAttribute($attribute)
     {
@@ -510,9 +520,10 @@ class Oci8 extends PDO
      *
      * @param  string  $string  The string to be quoted.
      * @param  int  $paramType  Provides a data type hint for drivers that have
-     *   alternate quoting styles
+     *                          alternate quoting styles
      * @return string Returns a quoted string that is theoretically safe to pass
-     *   into an SQL statement.
+     *                into an SQL statement.
+     *
      * @todo Implement support for $paramType.
      */
     public function quote($string, $paramType = PDO::PARAM_STR)
@@ -525,14 +536,14 @@ class Oci8 extends PDO
     }
 
     /**
-     * Sets a timeout limiting the maximum time a database round-trip
+     * Sets a timeout limiting the maximum time a database round-trip.
      *
-     * @param int $time_out
+     * @param  int  $time_out
      * @return bool
      */
     public function setCallTimeout($time_out)
     {
-        if (!$this->dbh) {
+        if (! $this->dbh) {
             return false;
         }
 
@@ -545,7 +556,7 @@ class Oci8 extends PDO
      *
      * @param  string  $typeName  Should be a valid named type (uppercase).
      * @param  string  $schema  Should point to the scheme, where the named type was created.
-     *  The name of the current user is the default value.
+     *                          The name of the current user is the default value.
      * @return OCI_Collection
      */
     public function getNewCollection($typeName, $schema)

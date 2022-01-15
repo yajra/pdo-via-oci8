@@ -115,6 +115,7 @@ class Statement extends PDOStatement
      * @param  resource  $sth  Statement handle created with oci_parse()
      * @param  Oci8  $connection  The Pdo_Oci8 object for this statement
      * @param  array  $options  Options for the statement handle
+     *
      * @throws Oci8Exception
      */
     public function __construct($sth, Oci8 $connection, array $options = [])
@@ -138,13 +139,15 @@ class Statement extends PDOStatement
 
     /**
      * Set the default fetch mode for this statement.
+     *
      * @link https://php.net/manual/en/pdostatement.setfetchmode.php
+     *
      * @param  int  $mode  <p>
-     * The fetch mode must be one of the PDO::FETCH_* constants.
-     * </p>
+     *                     The fetch mode must be one of the PDO::FETCH_* constants.
+     *                     </p>
      * @param  string|object  $classNameObject  [optional] <p>
-     * Class name or object
-     * </p>
+     *                                          Class name or object
+     *                                          </p>
      * @param  mixed  ...$params  <p> Constructor arguments. </p>
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
@@ -206,15 +209,17 @@ class Statement extends PDOStatement
      * Binds a column to a PHP variable.
      *
      * @param  mixed  $column  Number of the column (1-indexed) or name of the
-     *   column in the result set. If using the column name, be aware that the
-     *   name should match the case of the column, as returned by the driver.
+     *                         column in the result set. If using the column name, be aware that the
+     *                         name should match the case of the column, as returned by the driver.
      * @param  mixed  $variable  The PHP to which the column should be bound.
      * @param  int  $dataType  Data type of the parameter, specified by the
-     *   PDO::PARAM_* constants.
+     *                         PDO::PARAM_* constants.
      * @param  int  $maxLength  A hint for pre-allocation.
      * @param  array  $options  [optional] Optional parameter(s) for the driver.
      * @return bool TRUE on success or FALSE on failure.
+     *
      * @throws Oci8Exception
+     *
      * @todo Implement this functionality by creating a table map of the
      *       variables passed in here, and, when iterating over the values
      *       of the query or fetching rows, assign data from each column
@@ -229,12 +234,12 @@ class Statement extends PDOStatement
      * Binds a value to a parameter.
      *
      * @param  string  $parameter  Parameter identifier. For a prepared statement
-     *   using named placeholders, this will be a parameter name of the form
-     *   :name. For a prepared statement using question mark placeholders, this
-     *   will be the 1-indexed position of the parameter.
+     *                             using named placeholders, this will be a parameter name of the form
+     *                             :name. For a prepared statement using question mark placeholders, this
+     *                             will be the 1-indexed position of the parameter.
      * @param  mixed  $variable  The value to bind to the parameter.
      * @param  int  $dataType  Explicit data type for the parameter using the
-     *   PDO::PARAM_* constants.
+     *                         PDO::PARAM_* constants.
      * @return bool TRUE on success or FALSE on failure.
      */
     public function bindValue($parameter, $variable, $dataType = PDO::PARAM_STR)
@@ -246,18 +251,19 @@ class Statement extends PDOStatement
      * Binds a parameter to the specified variable name.
      *
      * @param  string  $parameter  Parameter identifier. For a prepared statement
-     *   using named placeholders, this will be a parameter name of the form
-     *   :name. For a prepared statement using question mark placeholders, this
-     *   will be the 1-indexed position of the parameter.
+     *                             using named placeholders, this will be a parameter name of the form
+     *                             :name. For a prepared statement using question mark placeholders, this
+     *                             will be the 1-indexed position of the parameter.
      * @param  mixed  $variable  Name of the PHP variable to bind to the SQL
-     *   statement parameter.
+     *                           statement parameter.
      * @param  int  $dataType  Explicit data type for the parameter using the
-     *   PDO::PARAM_* constants.
+     *                         PDO::PARAM_* constants.
      * @param  int  $maxLength  Length of the data type. To indicate that a
-     *   parameter is an OUT parameter from a stored procedure, you must
-     *   explicitly set the length.
+     *                          parameter is an OUT parameter from a stored procedure, you must
+     *                          explicitly set the length.
      * @param  array  $options  [optional]
      * @return bool TRUE on success or FALSE on failure.
+     *
      * @todo Map PDO datatypes to oci8 datatypes and implement support for
      *   datatypes and length.
      */
@@ -356,12 +362,13 @@ class Statement extends PDOStatement
      * Special non-PDO function that binds an array parameter to the specified variable name.
      *
      * @see  http://php.net/manual/en/function.oci-bind-array-by-name.php
+     *
      * @param  string  $parameter  The Oracle placeholder.
      * @param  array  $variable  An array.
      * @param  int  $maxTableLength  Sets the maximum length both for incoming and result arrays.
      * @param  int  $maxItemLength  Sets maximum length for array items.
-     *                           If not specified or equals to -1, oci_bind_array_by_name() will find
-     *                           the longest element in the incoming array and will use it as the maximum length.
+     *                              If not specified or equals to -1, oci_bind_array_by_name() will find
+     *                              the longest element in the incoming array and will use it as the maximum length.
      * @param  int  $type  Explicit data type for the parameter using the
      * @return bool TRUE on success or FALSE on failure.
      */
@@ -386,7 +393,7 @@ class Statement extends PDOStatement
      * Returns a single column from the next row of a result set.
      *
      * @param  int  $colNumber  0-indexed number of the column you wish to retrieve
-     *   from the row. If no value is supplied, it fetches the first column.
+     *                          from the row. If no value is supplied, it fetches the first column.
      * @return string Returns a single column in the next row of a result set.
      */
     public function fetchColumn($colNumber = null)
@@ -400,19 +407,20 @@ class Statement extends PDOStatement
      * Fetches the next row from a result set.
      *
      * @param  int|null  $fetchMode  Controls how the next row will be returned to
-     *   the caller. This value must be one of the PDO::FETCH_* constants,
-     *   defaulting to value of PDO::ATTR_DEFAULT_FETCH_MODE (which defaults to
-     *   PDO::FETCH_BOTH).
+     *                               the caller. This value must be one of the PDO::FETCH_* constants,
+     *                               defaulting to value of PDO::ATTR_DEFAULT_FETCH_MODE (which defaults to
+     *                               PDO::FETCH_BOTH).
      * @param  int  $cursorOrientation  For a PDOStatement object representing a
-     *   scrollable cursor, this value determines which row will be returned to
-     *   the caller. This value must be one of the PDO::FETCH_ORI_* constants,
-     *  defaulting to PDO::FETCH_ORI_NEXT. To request a scrollable cursor for
-     *   your PDOStatement object, you must set the PDO::ATTR_CURSOR attribute
-     *   to PDO::CURSOR_SCROLL when you prepare the SQL statement with
-     *   PDO::prepare.
+     *                                  scrollable cursor, this value determines which row will be returned to
+     *                                  the caller. This value must be one of the PDO::FETCH_ORI_* constants,
+     *                                  defaulting to PDO::FETCH_ORI_NEXT. To request a scrollable cursor for
+     *                                  your PDOStatement object, you must set the PDO::ATTR_CURSOR attribute
+     *                                  to PDO::CURSOR_SCROLL when you prepare the SQL statement with
+     *                                  PDO::prepare.
      * @param  int  $cursorOffset  [optional]
      * @return mixed The return value of this function on success depends on the
-     *   fetch type. In all cases, FALSE is returned on failure.
+     *               fetch type. In all cases, FALSE is returned on failure.
+     *
      * @todo Implement cursorOrientation and cursorOffset
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
@@ -597,45 +605,47 @@ class Statement extends PDOStatement
 
     /**
      * Returns an array containing all of the result set rows.
+     *
      * @link https://php.net/manual/en/pdostatement.fetchall.php
+     *
      * @param  int  $mode  [optional] <p>
-     * Controls the contents of the returned array as documented in
-     * <b>PDOStatement::fetch</b>.
-     * Defaults to value of <b>PDO::ATTR_DEFAULT_FETCH_MODE</b>
-     * (which defaults to <b>PDO::FETCH_BOTH</b>)
-     * </p>
-     * <p>
-     * To return an array consisting of all values of a single column from
-     * the result set, specify <b>PDO::FETCH_COLUMN</b>. You
-     * can specify which column you want with the
-     * <i>column-index</i> parameter.
-     * </p>
-     * <p>
-     * To fetch only the unique values of a single column from the result set,
-     * bitwise-OR <b>PDO::FETCH_COLUMN</b> with
-     * <b>PDO::FETCH_UNIQUE</b>.
-     * </p>
-     * <p>
-     * To return an associative array grouped by the values of a specified
-     * column, bitwise-OR <b>PDO::FETCH_COLUMN</b> with
-     * <b>PDO::FETCH_GROUP</b>.
-     * </p>
+     *                     Controls the contents of the returned array as documented in
+     *                     <b>PDOStatement::fetch</b>.
+     *                     Defaults to value of <b>PDO::ATTR_DEFAULT_FETCH_MODE</b>
+     *                     (which defaults to <b>PDO::FETCH_BOTH</b>)
+     *                     </p>
+     *                     <p>
+     *                     To return an array consisting of all values of a single column from
+     *                     the result set, specify <b>PDO::FETCH_COLUMN</b>. You
+     *                     can specify which column you want with the
+     *                     <i>column-index</i> parameter.
+     *                     </p>
+     *                     <p>
+     *                     To fetch only the unique values of a single column from the result set,
+     *                     bitwise-OR <b>PDO::FETCH_COLUMN</b> with
+     *                     <b>PDO::FETCH_UNIQUE</b>.
+     *                     </p>
+     *                     <p>
+     *                     To return an associative array grouped by the values of a specified
+     *                     column, bitwise-OR <b>PDO::FETCH_COLUMN</b> with
+     *                     <b>PDO::FETCH_GROUP</b>.
+     *                     </p>
      * @param  mixed  ...$args  <p>
-     * Arguments of custom class constructor when the <i>fetch_style</i>
-     * parameter is <b>PDO::FETCH_CLASS</b>.
-     * </p>
+     *                          Arguments of custom class constructor when the <i>fetch_style</i>
+     *                          parameter is <b>PDO::FETCH_CLASS</b>.
+     *                          </p>
      * @return array <b>PDOStatement::fetchAll</b> returns an array containing
-     * all of the remaining rows in the result set. The array represents each
-     * row as either an array of column values or an object with properties
-     * corresponding to each column name.
-     * </p>
-     * <p>
-     * Using this method to fetch large result sets will result in a heavy
-     * demand on system and possibly network resources. Rather than retrieving
-     * all of the data and manipulating it in PHP, consider using the database
-     * server to manipulate the result sets. For example, use the WHERE and
-     * ORDER BY clauses in SQL to restrict results before retrieving and
-     * processing them with PHP.
+     *               all of the remaining rows in the result set. The array represents each
+     *               row as either an array of column values or an object with properties
+     *               corresponding to each column name.
+     *               </p>
+     *               <p>
+     *               Using this method to fetch large result sets will result in a heavy
+     *               demand on system and possibly network resources. Rather than retrieving
+     *               all of the data and manipulating it in PHP, consider using the database
+     *               server to manipulate the result sets. For example, use the WHERE and
+     *               ORDER BY clauses in SQL to restrict results before retrieving and
+     *               processing them with PHP.
      */
     public function fetchAll($mode = null, ...$args)
     {
@@ -666,8 +676,9 @@ class Statement extends PDOStatement
      * Executes a prepared statement.
      *
      * @param  array  $inputParams  An array of values with as many elements as
-     *   there are bound parameters in the SQL statement being executed.
+     *                              there are bound parameters in the SQL statement being executed.
      * @return bool TRUE on success or FALSE on failure
+     *
      * @throws Oci8Exception
      */
     public function execute($inputParams = null)
@@ -771,7 +782,7 @@ class Statement extends PDOStatement
      * the resource handle.
      *
      * @return array Array of error information about the last operation
-     *   performed
+     *               performed
      */
     public function errorInfo()
     {
@@ -806,7 +817,7 @@ class Statement extends PDOStatement
      * Returns the number of columns in the result set.
      *
      * @return int The number of columns in the statement result set. If there
-     *   is no result set, it returns 0.
+     *             is no result set, it returns 0.
      */
     public function columnCount()
     {
@@ -829,7 +840,7 @@ class Statement extends PDOStatement
      *
      * @param  int  $column  The 0-indexed column in the result set.
      * @return array An associative array containing the above metadata values
-     *   for a single column.
+     *               for a single column.
      */
     public function getColumnMeta($column)
     {
@@ -856,7 +867,9 @@ class Statement extends PDOStatement
      * Advances to the next rowset in a multi-rowset statement handle.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
      * @throws Oci8Exception
+     *
      * @todo Implement method
      */
     public function nextRowset()
@@ -878,7 +891,9 @@ class Statement extends PDOStatement
      * Dump a SQL prepared command.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
      * @throws Oci8Exception
+     *
      * @todo Implement method
      */
     public function debugDumpParams()
