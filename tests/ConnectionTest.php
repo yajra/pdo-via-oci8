@@ -163,6 +163,7 @@ class ConnectionTest extends TestCase
 
     /**
      * Test setting case.
+     *
      * @param  int  $case
      * @dataProvider caseProvider
      */
