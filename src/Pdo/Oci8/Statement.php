@@ -363,6 +363,11 @@ class Statement extends PDOStatement
 
         $this->bindings[] = &$variable;
 
+        if ($maxLength === null) {
+            // PDOStatement->bindParam(param: int|string, &var: mixed, [type: int = PDO::PARAM_STR], [maxLength: int = null], [driverOptions: mixed = null])
+            // function oci_bind_by_name($statement, $bv_name, &$variable, $maxlength = -1, $type = SQLT_CHR) {}
+            $maxLength = -1;
+        }
         return oci_bind_by_name($this->sth, $parameter, $variable, $maxLength, $ociType);
     }
 
