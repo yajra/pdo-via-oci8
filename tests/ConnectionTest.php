@@ -24,7 +24,7 @@ class ConnectionTest extends TestCase
         $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
         $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
         $dsn = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
-        $this->con = new Oci8($dsn, $user, $pwd);
+        $this->con = new Oci8($dsn, $user, $pwd, [PDO::ATTR_CASE => PDO::CASE_NATURAL]);
     }
 
     /**
