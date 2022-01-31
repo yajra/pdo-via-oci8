@@ -536,6 +536,16 @@ class Oci8 extends PDO
     }
 
     /**
+     * Special non PDO function to get DB resource.
+     *
+     * @return resource
+     */
+    public function getResource()
+    {
+        return $this->dbh;
+    }
+
+    /**
      * Return available drivers
      * Will insert the OCI driver on the list, if not exist.
      *
