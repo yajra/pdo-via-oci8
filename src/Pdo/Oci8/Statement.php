@@ -683,7 +683,7 @@ class Statement extends PDOStatement
      *               processing them with PHP.
      * @throws \ReflectionException
      */
-    public function fetchAll($mode = PDO::FETCH_BOTH, $fetch_argument = null, ...$args): array
+    public function fetchAll($mode = PDO::FETCH_OBJ, $fetch_argument = null, ...$args): array
     {
         if (is_null($mode)) {
             $mode = $this->fetchMode;
