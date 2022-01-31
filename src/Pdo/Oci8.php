@@ -576,6 +576,16 @@ class Oci8 extends PDO
     }
 
     /**
+     * Special non PDO function to get DB resource.
+     *
+     * @return resource
+     */
+    public function getResource()
+    {
+        return $this->dbh;
+    }
+
+    /**
      * Close the connection when object is removed.
      *
      * @link https://www.php.net/manual/en/pdo.connections.php PDO should remove the connection
