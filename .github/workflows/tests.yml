@@ -43,8 +43,12 @@ jobs:
               run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
             - name: Setup OCI8
+              run: ./oci8-php8.sh
+              if: matrix.php == 8
+
+            - name: Setup OCI8
               run: ./oci8.sh
-              if: matrix.php >= 8
+              if: matrix.php > 8
 
             - name: Install dependencies
               uses: nick-invision/retry@v1
