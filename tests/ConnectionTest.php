@@ -52,6 +52,28 @@ class ConnectionTest extends TestCase
     }
 
     /**
+     * Test if can connect using persistent connections.
+     *
+     * @return null
+     */
+    public function testConnectionWithIdentifier()
+    {
+        $expectedIdentifier = "PDO_OCI8_CON";
+
+        $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
+        $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
+        $con = new Oci8($dsn, $user, $pwd, [PDO::OCI_ATTR_CLIENT_IDENTIFIER => $expectedIdentifier]);
+        $this->assertNotNull($con);
+
+        $stmt = $con->query("SELECT SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER') as IDENTIFIER FROM DUAL");
+        $foundClientIdentifier = $stmt->fetchColumn(0);
+        $con->close();
+
+        $this->assertEquals($expectedIdentifier, $foundClientIdentifier);
+    }
+
+    /**
      * Test if can connect, using parameters.
      *
      * @return null

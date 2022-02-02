@@ -27,6 +27,13 @@ use Yajra\Pdo\Oci8\Statement;
 class Oci8 extends PDO
 {
     /**
+     * Provides a way to specify the client identifier on the database session.
+     * @since 7.2.16
+     * @since 7.3.3
+     */
+    public const OCI_ATTR_CLIENT_IDENTIFIER = 1002;
+
+    /**
      * Database handler.
      *
      * @var resource
@@ -139,6 +146,12 @@ class Oci8 extends PDO
             $this->dbh = @oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
         } else {
             $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
+        }
+
+        if (array_key_exists(Oci8::OCI_ATTR_CLIENT_IDENTIFIER, $options) && $options[Oci8::OCI_ATTR_CLIENT_IDENTIFIER]) {
+            $identifier = substr($options[Oci8::OCI_ATTR_CLIENT_IDENTIFIER], 0, 64);
+
+            oci_set_client_identifier($this->dbh, $identifier);
         }
 
         if (! $this->dbh) {
