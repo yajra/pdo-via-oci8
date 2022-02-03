@@ -211,7 +211,7 @@ class ConnectionTest extends TestCase
 
     public function testSetConnectionIdentifier()
     {
-        $expectedIdentifier = "PDO_OCI8_CON";
+        $expectedIdentifier = 'PDO_OCI8_CON';
 
         $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
         $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
