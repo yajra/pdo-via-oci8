@@ -1,5 +1,11 @@
 # PDO-VIA-OCI8 Changelog
 
+## v2.4.0 - 2022-02-09
+
+- Add method to set client identifier. #101
+- Fix yajra/laravel-oci8#453
+- Fix #99
+
 ## v2.3.0 - 2022-01-31
 
 - Fix #96, add method to get db resource. #97
