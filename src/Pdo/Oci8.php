@@ -551,6 +551,21 @@ class Oci8 extends PDO
     }
 
     /**
+     * Set the client identifier.
+     *
+     * @param $identifier
+     * @return bool
+     */
+    public function setClientIdentifier($identifier)
+    {
+        if (! $this->dbh) {
+            return false;
+        }
+
+        return oci_set_client_identifier($this->dbh, $identifier);
+    }
+
+    /**
      * Special non PDO function
      * Allocates new collection object.
      *
