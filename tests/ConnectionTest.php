@@ -209,4 +209,22 @@ class ConnectionTest extends TestCase
         $this->assertTrue($stmt->bindParam(':person', $var, PDO::PARAM_STR));
         $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
     }
+
+    public function testSetConnectionIdentifier()
+    {
+        $expectedIdentifier = 'PDO_OCI8_CON';
+
+        $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
+        $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
+        $dsn = getenv('OCI_DSN') ?: self::DEFAULT_DSN;
+        $con = new Oci8($dsn, $user, $pwd);
+        $this->assertNotNull($con);
+
+        $con->setClientIdentifier($expectedIdentifier);
+        $stmt = $con->query("SELECT SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER') as IDENTIFIER FROM DUAL");
+        $foundClientIdentifier = $stmt->fetchColumn(0);
+        $con->close();
+
+        $this->assertEquals($expectedIdentifier, $foundClientIdentifier);
+    }
 }
