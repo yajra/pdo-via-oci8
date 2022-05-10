@@ -9,3 +9,5 @@
 .scrutinizer.yml export-ignore
 .travis.yml export-ignore
 phpunit.xml export-ignore
+oci8.sh export-ignore
+oci8-php8.sh export-ignore
