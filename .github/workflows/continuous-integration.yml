@@ -7,17 +7,22 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  phpunit:
+  tests:
 
     runs-on: ubuntu-latest
-
+    services:
+      oracle:
+        image: deepdiver/docker-oracle-xe-11g:2.0
+        ports:
+          - 49160:22
+          - 49161:1521
     strategy:
       fail-fast: true
       matrix:
         php: [8.0, 8.1]
         stability: [prefer-stable]
 
-    name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
+    name: PHP ${{ matrix.php }} - STABILITY ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
@@ -27,19 +32,30 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, memcached
-          tools: composer:v2
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached
+          tools: composer:v2, pecl
           coverage: none
 
       - name: Setup Memcached
         uses: niden/actions-memcached@v7
+
+      - name: Setup problem matchers
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Setup OCI8
+        run: ./oci8-php8.sh
+        if: matrix.php == 8
+
+      - name: Setup OCI8
+        run: ./oci8.sh
+        if: matrix.php > 8
 
       - name: Install dependencies
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: COMPOSER_ROOT_VERSION=dev-master composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
+          command: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
 
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
