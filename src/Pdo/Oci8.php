@@ -65,10 +65,10 @@ class Oci8 extends PDO
      * @link https://www.php.net/manual/en/function.oci-connect.php
      * @link https://www.php.net/manual/en/pdo.construct.php
      *
-     * @param string $dsn
-     * @param string $username
-     * @param string $password
-     * @param array  $options
+     * @param  string  $dsn
+     * @param  string  $username
+     * @param  string  $password
+     * @param  array  $options
      *
      * @throws Oci8Exception
      */
@@ -83,16 +83,16 @@ class Oci8 extends PDO
             } else {
                 $dsnStr = str_replace('//', '', $connectParams['dbname']);
                 if (isset($connectParams['host']) && isset($connectParams['port'])) {
-                    $host = $connectParams['host'] . ':' . $connectParams['port'];
+                    $host = $connectParams['host'].':'.$connectParams['port'];
                 } elseif (isset($connectParams['host'])) {
                     $host = $connectParams['host'];
                 }
-                if (!empty($host)) {
-                    $dsnStr = $host . '/' . $dsnStr;
+                if (! empty($host)) {
+                    $dsnStr = $host.'/'.$dsnStr;
                 }
                 // A charset specified in the connection string takes
                 // precedence over one specified in $options
-                !empty($connectParams['charset']) ? $charset = $this->configureCharset(
+                ! empty($connectParams['charset']) ? $charset = $this->configureCharset(
                     $connectParams
                 ) : $charset = $this->configureCharset($options);
                 $dsn = $dsnStr;
@@ -108,14 +108,13 @@ class Oci8 extends PDO
     /**
      * Configure proper charset.
      *
-     * @param array $options
-     *
+     * @param  array  $options
      * @return string
      */
     private function configureCharset(array $options): string
     {
         $defaultCharset = 'AL32UTF8';
-        if (!empty($options['charset'])) {
+        if (! empty($options['charset'])) {
             // Convert UTF8 charset to AL32UTF8
             return strtolower($options['charset']) == 'utf8' ? $defaultCharset : $options['charset'];
         }
@@ -126,11 +125,11 @@ class Oci8 extends PDO
     /**
      * Connect to database.
      *
-     * @param string $dsn
-     * @param string $username
-     * @param string $password
-     * @param array  $options
-     * @param string $charset
+     * @param  string  $dsn
+     * @param  string  $username
+     * @param  string  $password
+     * @param  array  $options
+     * @param  string  $charset
      *
      * @throws Oci8Exception
      */
@@ -144,7 +143,7 @@ class Oci8 extends PDO
             $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
         }
 
-        if (!$this->dbh) {
+        if (! $this->dbh) {
             $e = oci_error();
             throw new Oci8Exception($e['message'], $e['code']);
         }
@@ -159,7 +158,7 @@ class Oci8 extends PDO
     public static function getAvailableDrivers(): array
     {
         $drivers = PDO::getAvailableDrivers();
-        if (!in_array('oci', $drivers)) {
+        if (! in_array('oci', $drivers)) {
             $drivers[] = 'oci';
         }
 
@@ -231,7 +230,7 @@ class Oci8 extends PDO
      */
     public function rollBack(): bool
     {
-        if (!$this->inTransaction()) {
+        if (! $this->inTransaction()) {
             throw new Oci8Exception('There is no active transaction');
         }
 
@@ -247,9 +246,8 @@ class Oci8 extends PDO
     /**
      * Sets an attribute on the database handle.
      *
-     * @param int   $attribute
-     * @param mixed $value
-     *
+     * @param  int  $attribute
+     * @param  mixed  $value
      * @return bool TRUE on success or FALSE on failure.
      */
     public function setAttribute(int $attribute, mixed $value): bool
@@ -262,8 +260,7 @@ class Oci8 extends PDO
     /**
      * Executes an SQL statement and returns the number of affected rows.
      *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
+     * @param  string  $statement  The SQL statement to prepare and execute.
      * @return int The number of rows that were modified or deleted by the SQL
      *             statement you issued.
      */
@@ -278,12 +275,11 @@ class Oci8 extends PDO
     /**
      * Prepares a statement for execution and returns a statement object.
      *
-     * @param string     $statement This must be a valid SQL statement for the
-     *                              target database server.
-     * @param array|null $options   [optional] This array holds one or more key=>value
-     *                              pairs to set attribute values for the PDOStatement object that this
-     *                              method returns.
-     *
+     * @param  string  $statement  This must be a valid SQL statement for the
+     *                             target database server.
+     * @param  array|null  $options  [optional] This array holds one or more key=>value
+     *                               pairs to set attribute values for the PDOStatement object that this
+     *                               method returns.
      * @return Statement
      *
      * @throws Oci8Exception
@@ -300,7 +296,7 @@ class Oci8 extends PDO
             // Replace ? with a pseudo named parameter
             $parameter = 0;
             $statement = preg_replace_callback('/(?:\'[^\']*\')(*SKIP)(*F)|\?/', function () use (&$parameter) {
-                return ':p' . $parameter++;
+                return ':p'.$parameter++;
             }, $statement);
         }
 
@@ -314,12 +310,12 @@ class Oci8 extends PDO
         // Prepare the statement
         $sth = @oci_parse($this->dbh, $statement);
 
-        if (!$sth) {
+        if (! $sth) {
             $e = oci_error($this->dbh);
             throw new Oci8Exception($e['message']);
         }
 
-        if (!is_array($options)) {
+        if (! is_array($options)) {
             $options = [];
         }
 
@@ -329,13 +325,12 @@ class Oci8 extends PDO
     /**
      * Check if statement can use pseudo named parameter.
      *
-     * @param string $statement
-     *
+     * @param  string  $statement
      * @return bool
      */
     private function isNamedParameterable(string $statement): bool
     {
-        return !preg_match('/^alter+ +table/', strtolower(trim($statement))) and !preg_match(
+        return ! preg_match('/^alter+ +table/', strtolower(trim($statement))) and ! preg_match(
                 '/^create+ +table/',
                 strtolower(trim($statement))
             );
@@ -350,33 +345,32 @@ class Oci8 extends PDO
      * Oracle does not support the last inserted ID functionality like MySQL.
      * If the above sequence does not exist, the method will return 0;.
      *
-     * @param null $sequence Sequence name
-     *
+     * @param  null  $sequence  Sequence name
      * @return false|string Last sequence number or 0 if sequence does not exist
      */
     public function lastInsertId($sequence = null): false|string
     {
-        if (!isset($this->table)) {
+        if (! isset($this->table)) {
             return 0;
         }
 
         if (is_null($sequence)) {
-            $sequence = $this->table . '_id_seq';
+            $sequence = $this->table.'_id_seq';
         }
 
-        if (!$this->checkSequence($sequence)) {
+        if (! $this->checkSequence($sequence)) {
             return 0;
         }
 
         $stmt = $this->query("SELECT $sequence.CURRVAL FROM DUAL", PDO::FETCH_COLUMN);
+
         return $stmt->fetch();
     }
 
     /**
      * Special non PDO function to check if sequence exists.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return bool
      */
     public function checkSequence($name): bool
@@ -399,18 +393,17 @@ class Oci8 extends PDO
      *
      * @link https://php.net/manual/en/pdo.query.php
      *
-     * @param string $statement         <p>
-     *                                  The SQL statement to prepare and execute.
-     *                                  </p>
-     *                                  <p>
-     *                                  Data inside the query should be properly escaped.
-     *                                  </p>
-     * @param int    $mode              The fetch mode must be one of the PDO::FETCH_* constants.
-     * @param mixed  $fetch_mode_args   <p>
+     * @param  string  $statement  <p>
+     *                             The SQL statement to prepare and execute.
+     *                             </p>
+     *                             <p>
+     *                             Data inside the query should be properly escaped.
+     *                             </p>
+     * @param  int  $mode  The fetch mode must be one of the PDO::FETCH_* constants.
+     * @param  mixed  $fetch_mode_args  <p>
      *                                  Arguments of custom class constructor when the <i>mode</i>
      *                                  parameter is set to <b>PDO::FETCH_CLASS</b>.
      *                                  </p>
-     *
      * @return Statement <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
      *                   on failure.
      *
@@ -473,10 +466,9 @@ class Oci8 extends PDO
     /**
      * Retrieve a database connection attribute.
      *
-     * @param int $attribute
-     *
+     * @param  int  $attribute
      * @return mixed A successful call returns the value of the requested PDO attribute.
-     * An unsuccessful call returns null.
+     *               An unsuccessful call returns null.
      */
     public function getAttribute(int $attribute): mixed
     {
@@ -487,6 +479,7 @@ class Oci8 extends PDO
         if (isset($this->options[$attribute])) {
             return $this->options[$attribute];
         }
+
         return [];
     }
 
@@ -505,8 +498,7 @@ class Oci8 extends PDO
      * Special non PDO function used to start descriptor in the database
      * Remember to call oci_free_statement() on your cursor.
      *
-     * @param int $type One of OCI_DTYPE_FILE, OCI_DTYPE_LOB or OCI_DTYPE_ROWID.
-     *
+     * @param  int  $type  One of OCI_DTYPE_FILE, OCI_DTYPE_LOB or OCI_DTYPE_ROWID.
      * @return bool|\OCILob New LOB or FILE descriptor on success, FALSE on error.
      */
     public function getNewDescriptor($type = OCI_D_LOB): bool|OCILob
@@ -517,8 +509,7 @@ class Oci8 extends PDO
     /**
      * Special non PDO function used to close an open cursor in the database.
      *
-     * @param mixed $cursor A valid OCI statement identifier.
-     *
+     * @param  mixed  $cursor  A valid OCI statement identifier.
      * @return bool Returns TRUE on success or FALSE on failure.
      */
     public function closeCursor($cursor): bool
@@ -536,12 +527,11 @@ class Oci8 extends PDO
      * faster to execute than interpolated queries, as both the server and
      * client side can cache a compiled form of the query.
      *
-     * @param string $string    The string to be quoted.
-     * @param int    $paramType Provides a data type hint for drivers that have
+     * @param  string  $string  The string to be quoted.
+     * @param  int  $paramType  Provides a data type hint for drivers that have
      *                          alternate quoting styles
-     *
      * @return string|false Returns a quoted string that is theoretically safe to pass
-     *                into an SQL statement.
+     *                      into an SQL statement.
      *
      * @todo Implement support for $paramType.
      */
@@ -551,19 +541,18 @@ class Oci8 extends PDO
             return $string;
         }
 
-        return "'" . str_replace("'", "''", $string) . "'";
+        return "'".str_replace("'", "''", $string)."'";
     }
 
     /**
      * Sets a timeout limiting the maximum time a database round-trip.
      *
-     * @param int $time_out
-     *
+     * @param  int  $time_out
      * @return bool
      */
     public function setCallTimeout(int $time_out)
     {
-        if (!$this->dbh) {
+        if (! $this->dbh) {
             return false;
         }
 
@@ -589,10 +578,9 @@ class Oci8 extends PDO
      * Special non PDO function
      * Allocates new collection object.
      *
-     * @param string $typeName  Should be a valid named type (uppercase).
-     * @param string $schema    Should point to the scheme, where the named type was created.
+     * @param  string  $typeName  Should be a valid named type (uppercase).
+     * @param  string  $schema  Should point to the scheme, where the named type was created.
      *                          The name of the current user is the default value.
-     *
      * @return OCICollection
      */
     public function getNewCollection(string $typeName, string $schema): OCICollection
