@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.2.1 - 2022-01-31
+
+- Add missing property types and return types for PHP 8.1 #95
+
 ## v3.2.0 - 2022-01-31
 
 - Fix #96, add method to get db resource.
