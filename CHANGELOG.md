@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.2.2 - 2022-05-21
+
+- Fix #106: return object collection instead of oci8 statement resource #107
+
 ## v3.2.1 - 2022-01-31
 
 - Add missing property types and return types for PHP 8.1 #95
