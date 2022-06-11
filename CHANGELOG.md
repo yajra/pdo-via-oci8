@@ -2,6 +2,12 @@
 
 ## [UNRELEASED]
 
+## v3.2.3 - 2022-06-11
+
+- Fix Warning reset(): Calling reset() on an object is deprecated #104
+- Fix yajra/laravel-oci8#692 
+- Fix #108
+
 ## v3.2.2 - 2022-05-21
 
 - Fix #106: return object collection instead of oci8 statement resource #107
