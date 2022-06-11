@@ -687,8 +687,10 @@ class Statement extends PDOStatement
 
         $this->results = [];
         while ($row = $this->fetch()) {
-            if ((is_array($row) || is_object($row)) && is_resource(reset($row))) {
-                $stmt = new self(reset($row), $this->connection, $this->options);
+            $mangledObj = get_mangled_object_vars($row);
+
+            if ((is_array($row) || is_object($row)) && is_resource(reset($mangledObj))) {
+                $stmt = new self(reset($mangledObj), $this->connection, $this->options);
                 $stmt->execute();
                 $stmt->setFetchMode($mode, $args);
                 while ($rs = $stmt->fetch()) {
