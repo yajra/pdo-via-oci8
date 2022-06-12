@@ -66,13 +66,13 @@ class Oci8 extends PDO
      * @link https://www.php.net/manual/en/pdo.construct.php
      *
      * @param  string  $dsn
-     * @param  string  $username
-     * @param  string  $password
-     * @param  array  $options
+     * @param  string|null  $username
+     * @param  string|null  $password
+     * @param  array|null  $options
      *
      * @throws Oci8Exception
      */
-    public function __construct(string $dsn, string $username, string $password, array $options = [])
+    public function __construct(string $dsn, ?string $username, ?string $password, ?array $options = [])
     {
         $dsn = trim($dsn);
         if (str_starts_with($dsn, 'oci:')) {
@@ -275,8 +275,8 @@ class Oci8 extends PDO
     /**
      * Prepares a statement for execution and returns a statement object.
      *
-     * @param  string  $statement  This must be a valid SQL statement for the
-     *                             target database server.
+     * @param  string  $query  This must be a valid SQL statement for the
+     *                         target database server.
      * @param  array|null  $options  [optional] This array holds one or more key=>value
      *                               pairs to set attribute values for the PDOStatement object that this
      *                               method returns.
@@ -284,7 +284,7 @@ class Oci8 extends PDO
      *
      * @throws Oci8Exception
      */
-    public function prepare(string $statement, ?array $options = null): PDOStatement
+    public function prepare(string $query, ?array $options = null): PDOStatement
     {
         // Get instance options
         if ($options == null) {
@@ -292,23 +292,23 @@ class Oci8 extends PDO
         }
 
         // Skip replacing ? with a pseudo named parameter on alter/create table command
-        if ($this->isNamedParameterable($statement)) {
+        if ($this->isNamedParameterable($query)) {
             // Replace ? with a pseudo named parameter
             $parameter = 0;
-            $statement = preg_replace_callback('/(?:\'[^\']*\')(*SKIP)(*F)|\?/', function () use (&$parameter) {
+            $query = preg_replace_callback('/(?:\'[^\']*\')(*SKIP)(*F)|\?/', function () use (&$parameter) {
                 return ':p'.$parameter++;
-            }, $statement);
+            }, $query);
         }
 
         // check if statement is insert function
-        if (str_contains(strtolower($statement), 'insert into')) {
-            preg_match('/insert into\s+([^\s\(]*)?/', strtolower($statement), $matches);
+        if (str_contains(strtolower($query), 'insert into')) {
+            preg_match('/insert into\s+([^\s\(]*)?/', strtolower($query), $matches);
             // store insert into table name
             $this->table = $matches[1];
         }
 
         // Prepare the statement
-        $sth = @oci_parse($this->dbh, $statement);
+        $sth = @oci_parse($this->dbh, $query);
 
         if (! $sth) {
             $e = oci_error($this->dbh);
@@ -345,24 +345,26 @@ class Oci8 extends PDO
      * Oracle does not support the last inserted ID functionality like MySQL.
      * If the above sequence does not exist, the method will return 0;.
      *
-     * @param  null  $sequence  Sequence name
+     * @param  string|null  $name  Sequence name
      * @return false|string Last sequence number or 0 if sequence does not exist
+     *
+     * @throws \ReflectionException
      */
-    public function lastInsertId($sequence = null): false|string
+    public function lastInsertId(string $name = null): false|string
     {
         if (! isset($this->table)) {
             return 0;
         }
 
-        if (is_null($sequence)) {
-            $sequence = $this->table.'_id_seq';
+        if (is_null($name)) {
+            $name = $this->table.'_id_seq';
         }
 
-        if (! $this->checkSequence($sequence)) {
+        if (! $this->checkSequence($name)) {
             return 0;
         }
 
-        $stmt = $this->query("SELECT $sequence.CURRVAL FROM DUAL", PDO::FETCH_COLUMN);
+        $stmt = $this->query("SELECT $name.CURRVAL FROM DUAL", PDO::FETCH_COLUMN);
 
         return $stmt->fetch();
     }
@@ -373,7 +375,7 @@ class Oci8 extends PDO
      * @param  string  $name
      * @return bool
      */
-    public function checkSequence($name): bool
+    public function checkSequence(string $name): bool
     {
         try {
             $stmt = $this->query(
@@ -487,7 +489,7 @@ class Oci8 extends PDO
      * Special non PDO function used to start cursors in the database
      * Remember to call oci_free_statement() on your cursor.
      *
-     * @return mixed New statement handle, or FALSE on error.
+     * @return resource|false New statement handle, or FALSE on error.
      */
     public function getNewCursor(): mixed
     {
@@ -501,7 +503,7 @@ class Oci8 extends PDO
      * @param  int  $type  One of OCI_DTYPE_FILE, OCI_DTYPE_LOB or OCI_DTYPE_ROWID.
      * @return bool|\OCILob New LOB or FILE descriptor on success, FALSE on error.
      */
-    public function getNewDescriptor($type = OCI_D_LOB): bool|OCILob
+    public function getNewDescriptor(int $type = OCI_D_LOB): bool|OCILob
     {
         return oci_new_descriptor($this->dbh, $type);
     }
@@ -509,7 +511,7 @@ class Oci8 extends PDO
     /**
      * Special non PDO function used to close an open cursor in the database.
      *
-     * @param  mixed  $cursor  A valid OCI statement identifier.
+     * @param  resource  $cursor  A valid OCI statement identifier.
      * @return bool Returns TRUE on success or FALSE on failure.
      */
     public function closeCursor($cursor): bool
@@ -528,14 +530,14 @@ class Oci8 extends PDO
      * client side can cache a compiled form of the query.
      *
      * @param  string  $string  The string to be quoted.
-     * @param  int  $paramType  Provides a data type hint for drivers that have
-     *                          alternate quoting styles
+     * @param  int  $type  Provides a data type hint for drivers that have
+     *                     alternate quoting styles
      * @return string|false Returns a quoted string that is theoretically safe to pass
      *                      into an SQL statement.
      *
      * @todo Implement support for $paramType.
      */
-    public function quote(string $string, int $paramType = PDO::PARAM_STR): string|false
+    public function quote(string $string, int $type = PDO::PARAM_STR): string|false
     {
         if (is_numeric($string)) {
             return $string;
@@ -550,7 +552,7 @@ class Oci8 extends PDO
      * @param  int  $time_out
      * @return bool
      */
-    public function setCallTimeout(int $time_out)
+    public function setCallTimeout(int $time_out): bool
     {
         if (! $this->dbh) {
             return false;
@@ -565,7 +567,7 @@ class Oci8 extends PDO
      * @param $identifier
      * @return bool
      */
-    public function setClientIdentifier($identifier)
+    public function setClientIdentifier($identifier): bool
     {
         if (! $this->dbh) {
             return false;
