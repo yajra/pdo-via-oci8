@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.2.4 - 2022-06-12
+
+- Fix #109 PHP8.1 support #110
+- Sync type hints, return type and var names.
+
 ## v3.2.3 - 2022-06-11
 
 - Fix Warning reset(): Calling reset() on an object is deprecated #104
