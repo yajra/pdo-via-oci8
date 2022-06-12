@@ -74,8 +74,6 @@ class Oci8 extends PDO
      */
     public function __construct(string $dsn, ?string $username, ?string $password, ?array $options = [])
     {
-        parent::__construct($dsn, $username, $password, $options);
-
         $dsn = trim($dsn);
         if (str_starts_with($dsn, 'oci:')) {
             $connectStr = preg_replace('/^oci:/', '', $dsn);
