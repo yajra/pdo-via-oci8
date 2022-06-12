@@ -278,7 +278,7 @@ class Oci8 extends PDO
      * Prepares a statement for execution and returns a statement object.
      *
      * @param  string  $query  This must be a valid SQL statement for the
-     *                             target database server.
+     *                         target database server.
      * @param  array|null  $options  [optional] This array holds one or more key=>value
      *                               pairs to set attribute values for the PDOStatement object that this
      *                               method returns.
@@ -349,6 +349,7 @@ class Oci8 extends PDO
      *
      * @param  string|null  $name  Sequence name
      * @return false|string Last sequence number or 0 if sequence does not exist
+     *
      * @throws \ReflectionException
      */
     public function lastInsertId(string $name = null): false|string
@@ -532,7 +533,7 @@ class Oci8 extends PDO
      *
      * @param  string  $string  The string to be quoted.
      * @param  int  $type  Provides a data type hint for drivers that have
-     *                          alternate quoting styles
+     *                     alternate quoting styles
      * @return string|false Returns a quoted string that is theoretically safe to pass
      *                      into an SQL statement.
      *
