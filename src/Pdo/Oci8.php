@@ -66,14 +66,16 @@ class Oci8 extends PDO
      * @link https://www.php.net/manual/en/pdo.construct.php
      *
      * @param  string  $dsn
-     * @param  string  $username
-     * @param  string  $password
-     * @param  array  $options
+     * @param  string|null  $username
+     * @param  string|null  $password
+     * @param  array|null  $options
      *
      * @throws Oci8Exception
      */
-    public function __construct(string $dsn, string $username, string $password, array $options = [])
+    public function __construct(string $dsn, ?string $username, ?string $password, ?array $options = [])
     {
+        parent::__construct($dsn, $username, $password, $options);
+
         $dsn = trim($dsn);
         if (str_starts_with($dsn, 'oci:')) {
             $connectStr = preg_replace('/^oci:/', '', $dsn);
@@ -488,7 +490,7 @@ class Oci8 extends PDO
      * Special non PDO function used to start cursors in the database
      * Remember to call oci_free_statement() on your cursor.
      *
-     * @return mixed New statement handle, or FALSE on error.
+     * @return resource|false New statement handle, or FALSE on error.
      */
     public function getNewCursor(): mixed
     {
