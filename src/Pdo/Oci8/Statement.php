@@ -615,21 +615,24 @@ class Statement extends PDOStatement
 
         $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
 
-        $this->results = [];
-        while ($row = $this->fetch()) {
-            if ((is_array($row) || is_object($row)) && is_resource(reset($row))) {
-                $stmt = new self(reset($row), $this->connection, $this->options);
-                $stmt->execute();
-                $stmt->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
-                while ($rs = $stmt->fetch()) {
-                    $this->results[] = $rs;
+        $rs = [];
+
+        oci_fetch_all($this->sth, $rs, 0, -1, $this->fetchMode);
+
+        $results = [];
+        foreach ($rs as $key => $values) {
+            $key = $this->getAttribute(PDO::ATTR_CASE) == PDO::CASE_LOWER ? strtolower($key) : $key;
+            for ($i = 0; $i < count($values); $i++) {
+                $value = $values[$i];
+                if ($this->returnLobs && is_object($value)) {
+                    $results[$i][$key] = $this->loadLob($value);
+                } else {
+                    $results[$i][$key] = $value;
                 }
-            } else {
-                $this->results[] = $row;
             }
         }
 
-        return $this->results;
+        return $results;
     }
 
     /**
