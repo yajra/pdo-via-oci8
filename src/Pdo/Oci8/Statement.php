@@ -609,22 +609,41 @@ class Statement extends PDOStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = [])
     {
-        oci_fetch_all($this->sth, $rs, 0, -1, OCI_FETCHSTATEMENT_BY_ROW);
-
         $results = [];
 
-        foreach ($rs as &$row) {
-            if ($this->getAttribute(PDO::ATTR_CASE) == PDO::CASE_LOWER) {
-                $row = array_change_key_case($row);
-            }
+        if (is_null($fetchMode)) {
+            oci_fetch_all($this->sth, $rs, 0, -1, OCI_FETCHSTATEMENT_BY_ROW);
 
-            foreach ($row as $key => $value) {
-                if ($this->returnLobs && is_object($value)) {
-                    $row[$key] = $this->loadLob($value);
+            foreach ($rs as &$row) {
+                if ($this->getAttribute(PDO::ATTR_CASE) == PDO::CASE_LOWER) {
+                    $row = array_change_key_case($row);
                 }
+
+                foreach ($row as $key => $value) {
+                    if ($this->returnLobs && is_object($value)) {
+                        $row[$key] = $this->loadLob($value);
+                    }
+                }
+
+                $results[] = $row;
             }
 
-            $results[] = $row;
+            return $results;
+        }
+
+        $this->setFetchMode($this->fetchMode, $fetchArgument, $ctorArgs);
+
+        while ($row = $this->fetch()) {
+            if ((is_array($row) || is_object($row)) && is_resource(reset($row))) {
+                $stmt = new self(reset($row), $this->connection, $this->options);
+                $stmt->execute();
+                $stmt->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
+                while ($rs = $stmt->fetch()) {
+                    $results[] = $rs;
+                }
+            } else {
+                $results[] = $row;
+            }
         }
 
         return $results;
