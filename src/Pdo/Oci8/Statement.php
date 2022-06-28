@@ -609,27 +609,22 @@ class Statement extends PDOStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = [])
     {
-        if (is_null($fetchMode)) {
-            $fetchMode = $this->fetchMode;
-        }
-
-        $this->setFetchMode($fetchMode, $fetchArgument, $ctorArgs);
-
-        $rs = [];
-
-        oci_fetch_all($this->sth, $rs, 0, -1, $this->fetchMode);
+        oci_fetch_all($this->sth, $rs, 0, -1, OCI_FETCHSTATEMENT_BY_ROW);
 
         $results = [];
-        foreach ($rs as $key => $values) {
-            $key = $this->getAttribute(PDO::ATTR_CASE) == PDO::CASE_LOWER ? strtolower($key) : $key;
-            for ($i = 0; $i < count($values); $i++) {
-                $value = $values[$i];
+
+        foreach ($rs as &$row) {
+            if ($this->getAttribute(PDO::ATTR_CASE) == PDO::CASE_LOWER) {
+                $row = array_change_key_case($row);
+            }
+
+            foreach ($row as $key => $value) {
                 if ($this->returnLobs && is_object($value)) {
-                    $results[$i][$key] = $this->loadLob($value);
-                } else {
-                    $results[$i][$key] = $value;
+                    $row[$key] = $this->loadLob($value);
                 }
             }
+
+            $results[] = $row;
         }
 
         return $results;
