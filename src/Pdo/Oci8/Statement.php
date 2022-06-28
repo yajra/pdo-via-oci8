@@ -79,13 +79,6 @@ class Statement extends PDOStatement
     private $fetchIntoObject = null;
 
     /**
-     * PDO result set.
-     *
-     * @var array
-     */
-    private $results = [];
-
-    /**
      * Lists of binding values.
      *
      * @var array
