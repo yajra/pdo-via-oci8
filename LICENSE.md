@@ -1,6 +1,6 @@
 (The MIT License)
 
-Copyright (c) 2013-2021 Arjay Angeles <aqangeles@gmail.com>,
+Copyright (c) 2013-2022 Arjay Angeles <aqangeles@gmail.com>,
 Oracle Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining
