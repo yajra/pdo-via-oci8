@@ -10,7 +10,7 @@
 
 
 The [yajra/pdo-via-oci8](https://github.com/yajra/pdo-via-oci8) package is a simple userspace driver for PDO that uses the tried and
-tested [OCI8](http://php.net/oci8) functions instead of using the still experimental and not all that functionnal
+tested [OCI8](http://php.net/oci8) functions instead of using the still experimental and not all that functional.
 [PDO_OCI](http://www.php.net/manual/en/ref.pdo-oci.php) library.
 
 **Please report any bugs you may find.**
@@ -55,7 +55,7 @@ And then go to the `test` dir and run `PHPUnit` like:
 ```
 phpunit --colors .
 ```
-Examle to get it up and running on docker DB container-registry.oracle.com/database/enterprise:12.2.0.1
+Example to get it up and running on docker DB container-registry.oracle.com/database/enterprise:12.2.0.1
 
     create pluggable database testpdb admin user oracle identified by system file_name_convert = ('/pdbseed/', '/testpdb01/');
     alter pluggable database testpdb open;
