@@ -137,14 +137,21 @@ class Oci8 extends PDO
     {
         $sessionMode = array_key_exists('session_mode', $options) ? $options['session_mode'] : OCI_DEFAULT;
 
-        if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
-            $this->dbh = @oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
-        } else {
-            $this->dbh = @oci_connect($username, $password, $dsn, $charset, $sessionMode);
+        try {
+            if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
+                $this->dbh = oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
+            } else {
+                $this->dbh = oci_connect($username, $password, $dsn, $charset, $sessionMode);
+            }
+
+            if (! $this->dbh) {
+                $e = oci_error();
+            }
+        } catch (\Throwable $t) {
+            $e = ['code' => $t->getCode(), 'message' => $t->getMessage()];
         }
 
-        if (! $this->dbh) {
-            $e = oci_error();
+        if (isset($e)) {
             throw new Oci8Exception($e['message'], $e['code']);
         }
     }
