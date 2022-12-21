@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.2.5 - 2022-12-21
+
+- fix: Don't suppress exceptions when connecting #121
+- fix https://github.com/yajra/laravel-oci8/issues/662
+
 ## v3.2.4 - 2022-06-12
 
 - Fix #109 PHP8.1 support #110
