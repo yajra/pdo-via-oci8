@@ -641,6 +641,7 @@ class Statement extends PDOStatement
         if (is_numeric($value)) {
             return $val = $value + 0;
         }
+
         return $value;
     }
 
