@@ -590,15 +590,17 @@ class Statement extends PDOStatement
                         }
                     } else {
                         $ociFieldIndex = is_int($field) ? $field : array_search($field, array_keys($rs));
-                        if ($stringifyFetch){
+                        if ($stringifyFetch) {
                             $object->$field = $value;
-                        }else{
+                        } else {
                             if (oci_field_type($this->sth, $ociFieldIndex + 1) == 'NUMBER') {
                                 $object->$field = $this->castToNumeric($value);
-                            }else{
+                            } else {
                                 $object->$field = $value;
                             }
-                        }                    }
+                        }
+                    }
+
                 }
 
                 if ($fetchMode === PDO::FETCH_CLASS && method_exists($object, '__construct')) {
@@ -631,12 +633,13 @@ class Statement extends PDOStatement
 
     /**
      * number value return as string from oracle
+     *
      * @param $value
      * @return float|int|string
      */
     private function castToNumeric($value)
     {
-        if(is_numeric($value)) {
+        if (is_numeric($value)) {
             return $val = $value + 0;
         }
         return $value;
