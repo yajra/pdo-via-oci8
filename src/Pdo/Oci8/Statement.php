@@ -600,7 +600,6 @@ class Statement extends PDOStatement
                             }
                         }
                     }
-
                 }
 
                 if ($fetchMode === PDO::FETCH_CLASS && method_exists($object, '__construct')) {
@@ -613,7 +612,6 @@ class Statement extends PDOStatement
         return false;
     }
 
-
     /**
      * Retrieve stringify boolean in attribute .
      *
@@ -625,14 +623,15 @@ class Statement extends PDOStatement
             return true;
         } elseif ($this->getAttribute(PDO::ATTR_STRINGIFY_FETCHES)) {
             return true;
-        } elseif (!$this->getAttribute(PDO::ATTR_STRINGIFY_FETCHES)) {
+        } elseif (! $this->getAttribute(PDO::ATTR_STRINGIFY_FETCHES)) {
             return false;
         }
+
         return true;
     }
 
     /**
-     * number value return as string from oracle
+     * number value return as string from oracle.
      *
      * @param $value
      * @return float|int|string
