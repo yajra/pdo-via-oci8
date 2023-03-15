@@ -338,9 +338,9 @@ class Oci8 extends PDO
     private function isNamedParameterable(string $statement): bool
     {
         return ! preg_match('/^alter+ +table/', strtolower(trim($statement))) and ! preg_match(
-                '/^create+ +table/',
-                strtolower(trim($statement))
-            );
+            '/^create+ +table/',
+            strtolower(trim($statement))
+        );
     }
 
     /**
