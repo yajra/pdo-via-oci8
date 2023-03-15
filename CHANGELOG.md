@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.3.1 - 2023-03-15
+
+- fix: getAttribute returning array instead of null #124
+- fix #123
+
 ## v3.3.0 - 2023-02-20
 
 - feat: stringify support in pdo via oci 8 #122
