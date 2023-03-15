@@ -489,7 +489,7 @@ class Oci8 extends PDO
             return $this->options[$attribute];
         }
 
-        return [];
+        return null;
     }
 
     /**
