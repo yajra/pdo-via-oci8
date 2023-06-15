@@ -348,6 +348,10 @@ class Statement extends PDOStatement
                 $this->blobObjects[$parameter] = &$variable;
                 break;
 
+            case SQLT_BOL:
+                $ociType = SQLT_BOL;
+                break;
+
             default:
                 $ociType = SQLT_CHR;
                 break;
