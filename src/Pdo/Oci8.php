@@ -571,7 +571,7 @@ class Oci8 extends PDO
     /**
      * Set the client identifier.
      *
-     * @param $identifier
+     * @param  $identifier
      * @return bool
      */
     public function setClientIdentifier($identifier): bool

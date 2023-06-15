@@ -637,7 +637,7 @@ class Statement extends PDOStatement
     /**
      * number value return as string from oracle.
      *
-     * @param $value
+     * @param  $value
      * @return float|int|string
      */
     private function castToNumeric($value)
