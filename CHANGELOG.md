@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.4.0 - 2023-06-15
+
+- feat: Added SQLT_BOL to bind type #128
+- fix: #127
+
 ## v3.3.1 - 2023-03-15
 
 - fix: getAttribute returning array instead of null #124
