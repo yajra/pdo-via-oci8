@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.4.1 - 2023-11-30
+
+- fix: OCICollection class name reference to match PHP 8 naming convention #134
+- fix: #133
+
 ## v3.4.0 - 2023-06-15
 
 - feat: Added SQLT_BOL to bind type #128
