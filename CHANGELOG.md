@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.4.2 - 2024-01-05
+
+- fix: #135
+- fix: oci_connect() warning errors. (Revert code lines as v2.0) #136
+
 ## v3.4.1 - 2023-11-30
 
 - fix: OCICollection class name reference to match PHP 8 naming convention #134
