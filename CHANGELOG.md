@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.4.3 - 2024-04-19
+
+- fix: do not report password expiration error #138
+- fix: yajra/laravel-oci8#839
+
 ## v3.4.2 - 2024-01-05
 
 - fix: #135
