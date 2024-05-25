@@ -585,7 +585,7 @@ class Oci8 extends PDO
      *
      * @param  string  $typeName  Should be a valid named type (uppercase).
      * @param  string|null  $schema  Should point to the scheme, where the named type was created.
-     *                          The name of the current user is the default value.
+     *                               The name of the current user is the default value.
      * @return false|OCICollection
      */
     public function getNewCollection(string $typeName, ?string $schema = null): false|OCICollection
