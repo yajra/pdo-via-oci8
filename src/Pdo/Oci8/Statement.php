@@ -324,7 +324,7 @@ class Statement extends PDOStatement
                     $schema = $options['schema'] ?? null;
                     $type_name = $options['type_name'] ?? '';
 
-                    if (! $schema || ! $type_name) {
+                    if (! $type_name) {
                         throw new Oci8Exception('Type name is required for custom types');
                     }
 
