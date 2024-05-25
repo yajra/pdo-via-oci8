@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.4.4 - 2024-05-25
+
+- fix: oci_new_collection implementation #139
+
 ## v3.4.3 - 2024-04-19
 
 - fix: do not report password expiration error #138
