@@ -320,18 +320,14 @@ class Statement extends PDOStatement
             case SQLT_NTY:
                 $ociType = SQLT_NTY;
 
-                $schema = $options['schema'] ?? '';
-                $type_name = $options['type_name'] ?? '';
+                if (strtoupper(get_class($variable)) != 'OCICOLLECTION') {
+                    $schema = $options['schema'] ?? null;
+                    $type_name = $options['type_name'] ?? '';
 
-                if (strtoupper(get_class($variable)) == 'OCICOLLECTION') {
-                    $collection_temp = $this->connection->getNewCollection($type_name, $schema);
-                    $collection_temp->assign($variable);
+                    if (! $type_name) {
+                        throw new Oci8Exception('Type name is required for custom types');
+                    }
 
-                    $variable = $this->connection->getNewCollection($type_name, $schema);
-                    $variable->assign($collection_temp);
-
-                    $collection_temp->free();
-                } else {
                     // set params required to use custom type.
                     $variable = $this->connection->getNewCollection($type_name, $schema);
                 }
