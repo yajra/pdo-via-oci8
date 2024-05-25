@@ -141,6 +141,7 @@ class ConnectionTest extends TestCase
      * Test if fails if requiring the last inserted id without a sequence.
      *
      * @return null
+     *
      * @throws \ReflectionException
      */
     public function testLastIdWithoutSequence()
@@ -152,6 +153,7 @@ class ConnectionTest extends TestCase
      * Test if returns the last inserted id with a sequence.
      *
      * @return null
+     *
      * @throws \ReflectionException
      */
     public function testLastIdWithSequence()
