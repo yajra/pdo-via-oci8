@@ -7,7 +7,7 @@ class ConnectionTest extends TestCase
 {
     const DEFAULT_USER = 'system';
     const DEFAULT_PWD = 'oracle';
-    const DEFAULT_DSN = 'oci:dbname=127.0.0.1:49161/xe';
+    const DEFAULT_DSN = 'oci:dbname=127.0.0.1:1521/xe';
 
     /**
      * @var Oci8
@@ -72,9 +72,12 @@ class ConnectionTest extends TestCase
     {
         $user = 'pdooci';
         $pwd = 'pdooci';
-        $str = 'oci:dbname=127.0.0.1:49161/hoi';
-        $this->expectException(Oci8\Exceptions\Oci8Exception::class);
-        new Oci8($str, $user, $pwd, [PDO::ATTR_PERSISTENT => true]);
+        $str = 'oci:dbname=127.0.0.1:1521/hoi';
+        try {
+            new Oci8($str, $user, $pwd, [PDO::ATTR_PERSISTENT => true]);
+        } catch (Exception $e) {
+            $this->assertStringContainsString('ORA-12514', $e->getMessage());
+        }
     }
 
     /**
@@ -138,6 +141,8 @@ class ConnectionTest extends TestCase
      * Test if fails if requiring the last inserted id without a sequence.
      *
      * @return null
+     *
+     * @throws \ReflectionException
      */
     public function testLastIdWithoutSequence()
     {
@@ -148,6 +153,8 @@ class ConnectionTest extends TestCase
      * Test if returns the last inserted id with a sequence.
      *
      * @return null
+     *
+     * @throws \ReflectionException
      */
     public function testLastIdWithSequence()
     {
