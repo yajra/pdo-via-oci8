@@ -1,5 +1,6 @@
 # PDO-VIA-OCI8 Changelog
-
+- fix: ORA-00923: FROM keyword not found where expected Position #882
+- 
 ## [UNRELEASED]
 
 ## v3.4.4 - 2024-05-25
