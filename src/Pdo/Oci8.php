@@ -146,7 +146,7 @@ class Oci8 extends PDO
         if (! $this->dbh) {
             $e = oci_error();
 
-            if (! str_contains($e['message'], 'the password will expire within')) {
+            if ( (! str_contains($e['message'], 'the password will expire within')) || (! str_contains($e['message'],'天之后口令')) ) {
                 throw new Oci8Exception($e['message'], $e['code']);
             }
         }
