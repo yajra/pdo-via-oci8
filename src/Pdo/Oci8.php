@@ -150,7 +150,7 @@ class Oci8 extends PDO
 
             $flag = true;
 
-            foreach ($ignoreMessageList in $str)
+            foreach ($ignoreMessageList as $str)
             {
                 if (str_contains($e['message'], $str)) {
                     $flag = false;
