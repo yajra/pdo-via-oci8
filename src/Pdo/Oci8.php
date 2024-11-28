@@ -148,15 +148,15 @@ class Oci8 extends PDO
 
             $ignoreMessageList = array_key_exists('ignore_error_messages', $options) ? $options['ignore_error_messages'] : ['the password will expire within'];
 
-            $flag = true;
+            $throwError = true;
 
             foreach ($ignoreMessageList as $str) {
                 if (str_contains($e['message'], $str)) {
-                    $flag = false;
+                    $throwError = false;
                 }
             }
 
-            if ($flag) {
+            if ($throwError) {
                 throw new Oci8Exception($e['message'], $e['code']);
             }
         }
