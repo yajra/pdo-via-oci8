@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.5.0 - 2024-11-28
+
+- feat: Add options to fix ignore "expire within" error #148
+
 ## v3.4.4 - 2024-05-25
 
 - fix: oci_new_collection implementation #139
