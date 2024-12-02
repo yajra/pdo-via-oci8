@@ -136,11 +136,16 @@ class Oci8 extends PDO
     private function connect(string $dsn, string $username, string $password, array $options, string $charset)
     {
         $sessionMode = array_key_exists('session_mode', $options) ? $options['session_mode'] : OCI_DEFAULT;
+        $cached = array_key_exists('cached', $options) ? $options['cached'] : true;
 
         if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
             $this->dbh = oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
         } else {
-            $this->dbh = oci_connect($username, $password, $dsn, $charset, $sessionMode);
+            if ($cached) {
+                $this->dbh = oci_connect($username, $password, $dsn, $charset, $sessionMode);
+            } else {
+                $this->dbh = oci_new_connect($username, $password, $dsn, $charset, $sessionMode);
+            }
         }
 
         if (! $this->dbh) {
