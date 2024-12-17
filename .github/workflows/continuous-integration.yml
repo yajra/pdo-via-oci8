@@ -54,6 +54,14 @@ jobs:
         run: ./oci8-php82.sh
         if: matrix.php == 8.2
 
+      - name: Setup OCI8
+        run: ./oci8-php83.sh
+        if: matrix.php == 8.3
+
+      - name: Setup OCI8
+        run: ./oci8-php84.sh
+        if: matrix.php == 8.4
+
       - name: Install dependencies
         uses: nick-invision/retry@v1
         with:
