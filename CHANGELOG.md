@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.6.0 - 2024-12-17
+
+- feat: add support for PHP8.4 #151
+
 ## v3.5.0 - 2024-11-28
 
 - feat: Add options to fix ignore "expire within" error #148
