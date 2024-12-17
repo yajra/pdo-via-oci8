@@ -100,7 +100,7 @@ class Oci8 extends PDO
         } else {
             $charset = $this->configureCharset($options);
         }
-        $this->connect($dsn, $username, $password, $options, $charset);
+        $this->connectOracle($dsn, $username, $password, $options, $charset);
         // Save the options
         $this->options = $options;
     }
@@ -133,7 +133,7 @@ class Oci8 extends PDO
      *
      * @throws Oci8Exception
      */
-    private function connect(string $dsn, string $username, string $password, array $options, string $charset)
+    private function connectOracle(string $dsn, string $username, string $password, array $options, string $charset)
     {
         $sessionMode = array_key_exists('session_mode', $options) ? $options['session_mode'] : OCI_DEFAULT;
 
