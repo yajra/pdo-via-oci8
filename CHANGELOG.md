@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## v3.7.0 - 2025-01-04
+
+- feat: Add Support oci_new_connect #150
+- fix: Use oci_new_connect instead oci_connect #137
+
 ## v3.6.0 - 2024-12-17
 
 - feat: add support for PHP8.4 #151
