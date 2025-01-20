@@ -149,6 +149,7 @@ class Statement extends PDOStatement
      * @param  ?string  ...$params  <p> Constructor arguments. </p>
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
+    #[\ReturnTypeWillChange]
     public function setFetchMode($mode, $className = null, ...$params): bool
     {
         $modeArg = $params;
@@ -270,7 +271,7 @@ class Statement extends PDOStatement
         int|string $parameter,
         mixed &$variable,
         int $dataType = PDO::PARAM_STR,
-        int $maxLength = null,
+        ?int $maxLength = null,
         mixed $options = null
     ): bool {
         // strip INOUT type for oci
@@ -387,7 +388,7 @@ class Statement extends PDOStatement
         int|string $parameter,
         array &$variable,
         int $maxTableLength,
-        int $maxItemLength = null,
+        ?int $maxItemLength = null,
         int $type = SQLT_CHR
     ): bool {
         $this->bindings[] = $variable;
@@ -755,7 +756,7 @@ class Statement extends PDOStatement
      *                                   there are bound parameters in the SQL statement being executed.
      * @return bool TRUE on success or FALSE on failure
      */
-    public function execute(array $inputParams = null): bool
+    public function execute(?array $inputParams = null): bool
     {
         $mode = OCI_COMMIT_ON_SUCCESS;
         if ($this->connection->inTransaction() || count($this->blobObjects) > 0) {
@@ -830,7 +831,7 @@ class Statement extends PDOStatement
      *
      * @throws \ReflectionException
      */
-    public function fetchObject(string $className = null, ?array $ctorArgs = []): false|object
+    public function fetchObject(?string $className = null, ?array $ctorArgs = []): false|object
     {
         $this->setFetchMode(PDO::FETCH_CLASS, $className, $ctorArgs);
 

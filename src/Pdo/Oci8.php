@@ -368,7 +368,7 @@ class Oci8 extends PDO
      *
      * @throws \ReflectionException
      */
-    public function lastInsertId(string $name = null): false|string
+    public function lastInsertId(?string $name = null): false|string
     {
         if (! isset($this->table)) {
             return 0;
