@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.7.1 - 2025-01-20
+
+- fix: Silence PHP8.4's deprecation warnings.
+
 ## v3.7.0 - 2025-01-04
 
 - feat: Add Support oci_new_connect #150
