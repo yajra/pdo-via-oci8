@@ -32,8 +32,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached
-          tools: composer:v2, pecl
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached, oci8
+          tools: composer:v2
           coverage: none
 
       - name: Setup Memcached
@@ -41,26 +41,6 @@ jobs:
 
       - name: Setup problem matchers
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
-
-      - name: Setup OCI8
-        run: ./oci8-php80.sh
-        if: matrix.php == 8
-
-      - name: Setup OCI8
-        run: ./oci8-php81.sh
-        if: matrix.php == 8.1
-
-      - name: Setup OCI8
-        run: ./oci8-php82.sh
-        if: matrix.php == 8.2
-
-      - name: Setup OCI8
-        run: ./oci8-php83.sh
-        if: matrix.php == 8.3
-
-      - name: Setup OCI8
-        run: ./oci8-php84.sh
-        if: matrix.php == 8.4
 
       - name: Install dependencies
         uses: nick-invision/retry@v1
