@@ -149,6 +149,7 @@ class Statement extends PDOStatement
      * @param  ?string  ...$params  <p> Constructor arguments. </p>
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
+    #[\ReturnTypeWillChange]
     public function setFetchMode($mode, $className = null, ...$params): bool
     {
         $modeArg = $params;
