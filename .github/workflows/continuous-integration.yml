@@ -65,15 +65,8 @@ jobs:
       - name: Setup Memcached
         uses: niden/actions-memcached@v7
 
-      - name: Setup problem matchers
-        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+      - name: Install Project Dependencies
+        run: composer install -q --no-interaction --no-progress
 
-      - name: Install dependencies
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
-
-      - name: Execute tests
+      - name: Run Tests
         run: vendor/bin/phpunit
