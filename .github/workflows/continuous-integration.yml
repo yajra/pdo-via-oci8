@@ -25,12 +25,19 @@ jobs:
     name: PHP ${{ matrix.php }} - STABILITY ${{ matrix.stability }}
 
     env:
-        key: ${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ matrix.php }}-v1
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached, oci8
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Get PHP extension cache hash
+        id: get-cache-hash
+        with:
+            PHP_EXTENSIONS: ${{ env.extensions }}
+        run: echo hash=$(echo "$PHP_EXTENSIONS" | md5sum | awk '{print $1}') >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Setup cache environment
         id: extcache
@@ -38,7 +45,7 @@ jobs:
         with:
             php-version: ${{ matrix.php }}
             extensions: ${{ env.extensions }}
-            key: ${{ env.key }}
+            key: php-extensions-${{ steps.get-cache-hash.outputs.hash }}
 
       - name: Cache extensions
         uses: actions/cache@v4
