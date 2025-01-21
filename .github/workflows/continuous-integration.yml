@@ -3,10 +3,10 @@ name: "Continuous Integration"
 on:
   push:
     branches:
-      - master
-      - 3.0
-      - 2.0
-      - 1.0
+      - 'master'
+      - '3.0'
+      - '2.0'
+      - '1.0'
   pull_request:
   schedule:
     - cron: '0 0 * * *'
