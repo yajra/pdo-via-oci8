@@ -30,13 +30,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Get PHP extension cache hash
-        id: get-cache-hash
-        with:
-            PHP_EXTENSIONS: ${{ env.extensions }}
-        run: echo hash=$(echo "$PHP_EXTENSIONS" | md5sum | awk '{print $1}') >> $GITHUB_OUTPUT
+        uses: actions/checkout@v4
 
       - name: Setup cache environment
         id: extcache
@@ -44,7 +38,7 @@ jobs:
         with:
             php-version: ${{ matrix.php }}
             extensions: ${{ env.extensions }}
-            key: php-extensions-${{ steps.get-cache-hash.outputs.hash }}
+            key: ${{ env.key }}
 
       - name: Cache extensions
         uses: actions/cache@v4
