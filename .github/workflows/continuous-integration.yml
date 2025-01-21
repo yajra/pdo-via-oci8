@@ -37,7 +37,6 @@ jobs:
         with:
             PHP_EXTENSIONS: ${{ env.extensions }}
         run: echo hash=$(echo "$PHP_EXTENSIONS" | md5sum | awk '{print $1}') >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Setup cache environment
         id: extcache
