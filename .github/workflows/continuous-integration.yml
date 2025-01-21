@@ -24,15 +24,34 @@ jobs:
 
     name: PHP ${{ matrix.php }} - STABILITY ${{ matrix.stability }}
 
+    env:
+        key: ${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached, oci8
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup cache environment
+        id: extcache
+        uses: shivammathur/cache-extensions@v1
+        with:
+            php-version: ${{ matrix.php }}
+            extensions: ${{ env.extensions }}
+            key: ${{ env.key }}
+
+      - name: Cache extensions
+        uses: actions/cache@v4
+        with:
+            path: ${{ steps.extcache.outputs.dir }}
+            key: ${{ steps.extcache.outputs.key }}
+            restore-keys: ${{ steps.extcache.outputs.key }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached, oci8
+          extensions: ${{ env.extensions }}
           tools: composer:v2
           coverage: none
 
