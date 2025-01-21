@@ -25,7 +25,7 @@ jobs:
     name: PHP ${{ matrix.php }} - STABILITY ${{ matrix.stability }}
 
     env:
-        key: ${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached, oci8
 
     steps:
