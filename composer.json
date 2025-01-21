@@ -26,8 +26,5 @@
           "dev-master": "3.x-dev"
         }
     },
-    "scripts": {
-        "docker": "docker run -d -p 49160:22 -p 1521:1521 deepdiver/docker-oracle-xe-11g"
-    },
     "minimum-stability": "stable"
 }

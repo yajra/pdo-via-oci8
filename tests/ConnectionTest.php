@@ -7,17 +7,12 @@ class ConnectionTest extends TestCase
 {
     const DEFAULT_USER = 'system';
     const DEFAULT_PWD = 'oracle';
-    const DEFAULT_DSN = 'oci:dbname=127.0.0.1:1521/xe';
+    const DEFAULT_DSN = 'oci:dbname=127.0.0.1:1521/free';
 
-    /**
-     * @var Oci8
-     */
-    protected $con = null;
+    protected ?Oci8 $con = null;
 
     /**
      * Set up a new object.
-     *
-     * @return null
      */
     public function setUp(): void
     {
@@ -29,20 +24,16 @@ class ConnectionTest extends TestCase
 
     /**
      * Test if it is a valid object.
-     *
-     * @return null
      */
-    public function testObject()
+    public function testObject(): void
     {
         $this->assertNotNull($this->con);
     }
 
     /**
      * Test if can connect using persistent connections.
-     *
-     * @return null
      */
-    public function testPersistentConnection()
+    public function testPersistentConnection(): void
     {
         $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
         $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
@@ -53,10 +44,8 @@ class ConnectionTest extends TestCase
 
     /**
      * Test if can connect, using parameters.
-     *
-     * @return null
      */
-    public function testConnectionWithParameters()
+    public function testConnectionWithParameters(): void
     {
         $user = getenv('OCI_USER') ?: self::DEFAULT_USER;
         $pwd = getenv('OCI_PWD') ?: self::DEFAULT_PWD;
@@ -68,7 +57,7 @@ class ConnectionTest extends TestCase
     /**
      * Test if throws an exception when failing to open connection.
      */
-    public function testInvalidConnection()
+    public function testInvalidConnection(): void
     {
         $user = 'pdooci';
         $pwd = 'pdooci';
@@ -82,10 +71,8 @@ class ConnectionTest extends TestCase
 
     /**
      * Set and get an attribute.
-     *
-     * @return null
      */
-    public function testAttributes()
+    public function testAttributes(): void
     {
         $this->con->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
         $this->assertTrue($this->con->getAttribute(PDO::ATTR_AUTOCOMMIT));
@@ -93,10 +80,8 @@ class ConnectionTest extends TestCase
 
     /**
      * Test the error code.
-     *
-     * @return null
      */
-    public function testErrorCode()
+    public function testErrorCode(): void
     {
         $this->expectException(PDOException::class);
         $this->expectExceptionCode(942);
@@ -105,20 +90,16 @@ class ConnectionTest extends TestCase
 
     /**
      * Test if OCI is present on the available drivers.
-     *
-     * @return null
      */
-    public function testDrivers()
+    public function testDrivers(): void
     {
         $this->assertTrue(in_array('oci', $this->con->getAvailableDrivers()));
     }
 
     /**
      * Test if is on a transaction.
-     *
-     * @return null
      */
-    public function testInTransaction()
+    public function testInTransaction(): void
     {
         $this->con->beginTransaction();
         $this->assertTrue($this->con->inTransaction());
@@ -128,10 +109,8 @@ class ConnectionTest extends TestCase
 
     /**
      * Test quotes.
-     *
-     * @return null
      */
-    public function testQuote()
+    public function testQuote(): void
     {
         $this->assertEquals("'Nice'", $this->con->quote('Nice'));
         $this->assertEquals("'Naughty '' string'", $this->con->quote('Naughty \' string'));
@@ -140,11 +119,9 @@ class ConnectionTest extends TestCase
     /**
      * Test if fails if requiring the last inserted id without a sequence.
      *
-     * @return null
-     *
      * @throws \ReflectionException
      */
-    public function testLastIdWithoutSequence()
+    public function testLastIdWithoutSequence(): void
     {
         $this->assertEquals(0, $this->con->lastInsertId());
     }
@@ -152,17 +129,15 @@ class ConnectionTest extends TestCase
     /**
      * Test if returns the last inserted id with a sequence.
      *
-     * @return null
-     *
      * @throws \ReflectionException
      */
-    public function testLastIdWithSequence()
+    public function testLastIdWithSequence(): void
     {
         $id = $this->con->lastInsertId('person_sequence');
         $this->assertTrue(is_numeric($id));
     }
 
-    public function testCaseDefaultValue()
+    public function testCaseDefaultValue(): void
     {
         $case = $this->con->getAttribute(PDO::ATTR_CASE);
         $this->assertEquals(PDO::CASE_NATURAL, $case);
@@ -171,17 +146,15 @@ class ConnectionTest extends TestCase
     /**
      * Test setting case.
      *
-     * @param  int  $case
-     *
      * @dataProvider caseProvider
      */
-    public function testSettingCase($case)
+    public function testSettingCase(int $case): void
     {
         $this->con->setAttribute(PDO::ATTR_CASE, $case);
         $this->assertEquals($case, $this->con->getAttribute(PDO::ATTR_CASE));
     }
 
-    public function caseProvider()
+    public function caseProvider(): array
     {
         return [
             [PDO::CASE_LOWER],
@@ -189,26 +162,26 @@ class ConnectionTest extends TestCase
         ];
     }
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $statement = $this->con->query('SELECT table_name FROM user_tables', null, null, null);
         $this->assertInstanceOf(PDOStatement::class, $statement);
     }
 
-    public function testClose()
+    public function testClose(): void
     {
         $this->con->close();
         $this->assertEquals(['00000', null, null], $this->con->errorInfo());
     }
 
-    public function testBindParamSingle()
+    public function testBindParamSingle(): void
     {
         $stmt = $this->con->prepare('INSERT INTO person (name) VALUES (?)');
         $var = 'Joop';
         $this->assertTrue($stmt->bindParam(1, $var, PDO::PARAM_STR));
     }
 
-    public function testBindParamMultiple()
+    public function testBindParamMultiple(): void
     {
         $stmt = $this->con->prepare('INSERT INTO person, email (name) VALUES (:person, :email)');
         $var = 'Joop';
@@ -217,7 +190,7 @@ class ConnectionTest extends TestCase
         $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
     }
 
-    public function testSetConnectionIdentifier()
+    public function testSetConnectionIdentifier(): void
     {
         $expectedIdentifier = 'PDO_OCI8_CON';
 
