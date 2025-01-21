@@ -117,7 +117,7 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * Test if fails if requiring the last inserted id without a sequence.
+     * Test if fails is requiring the last inserted id without a sequence.
      *
      * @throws \ReflectionException
      */
