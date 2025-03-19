@@ -33,7 +33,7 @@ jobs:
 
     env:
         key: ${{ matrix.php }}-v1
-        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, gd, memcached, oci8
+        extensions: oci8
 
     steps:
       - name: Checkout code
@@ -61,9 +61,6 @@ jobs:
           extensions: ${{ env.extensions }}
           tools: composer:v2
           coverage: none
-
-      - name: Setup Memcached
-        uses: niden/actions-memcached@v7
 
       - name: Install Project Dependencies
         run: composer install -q --no-interaction --no-progress
