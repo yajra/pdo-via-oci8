@@ -382,7 +382,7 @@ class Oci8 extends PDO
             return 0;
         }
 
-        $stmt = $this->query("SELECT $name.CURRVAL FROM DUAL", PDO::FETCH_COLUMN);
+        $stmt = $this->query("SELECT '$name.CURRVAL' FROM DUAL", PDO::FETCH_COLUMN);
 
         return $stmt->fetch();
     }
