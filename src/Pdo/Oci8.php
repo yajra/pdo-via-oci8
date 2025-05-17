@@ -148,13 +148,15 @@ class Oci8 extends PDO
                 }
             }
         } catch (Exception $e) {
-            if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
-                $this->dbh = oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
-            } else {
-                if ($cached) {
-                    $this->dbh = oci_connect($username, $password, $dsn, $charset, $sessionMode);
+            if (! oci_error()) {
+                if (array_key_exists(PDO::ATTR_PERSISTENT, $options) && $options[PDO::ATTR_PERSISTENT]) {
+                    $this->dbh = oci_pconnect($username, $password, $dsn, $charset, $sessionMode);
                 } else {
-                    throw $e;
+                    if ($cached) {
+                        $this->dbh = oci_connect($username, $password, $dsn, $charset, $sessionMode);
+                    } else {
+                        throw $e;
+                    }
                 }
             }
         }
