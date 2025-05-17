@@ -158,6 +158,8 @@ class Oci8 extends PDO
                         throw $e;
                     }
                 }
+            } else {
+                throw $e;
             }
         }
 
