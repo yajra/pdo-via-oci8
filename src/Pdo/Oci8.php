@@ -311,11 +311,7 @@ class Oci8 extends PDO
 
         // Skip replacing ? with a pseudo named parameter on alter/create table command
         if ($this->isNamedParameterable($query)) {
-            // Replace ? with a pseudo named parameter
-            $parameter = 0;
-            $query = preg_replace_callback('/(?:\'[^\']*\')(*SKIP)(*F)|\?/', function () use (&$parameter) {
-                return ':p'.$parameter++;
-            }, $query);
+            $query = $this->rewritePositionalPlaceholders($query);
         }
 
         // check if statement is insert function
@@ -338,6 +334,41 @@ class Oci8 extends PDO
         }
 
         return new Statement($sth, $this, $options);
+    }
+
+    /**
+     * Remplace positional placeholders (?) with pseudo-named :p0, :p1…
+     * No replace in strings (simple + q-quoted) and comments.
+     */
+    public function rewritePositionalPlaceholders(string $query): string
+    {
+        // Pattern of segments to ignore (skip) :
+        // - Oracle q-quoted literals: q'[ ... ]', q'{ ... }', q'( ... )', q'< ... >', q'X ... X'
+        // - Simple Oracle strings: ' ... ' with escape '' (doubles)
+        // - Comments: /* ... */ et -- ... end of line
+
+        $skip =
+            // q-quoted (brackets + generic delim)
+            "q'(?:\\[.*?\\]'|\\{.*?\\}'|\\(.*?\\)'|<.*?>'|(.) .*? \\1')"
+            // simple strings with '' escape
+            ."|'(?:''|[^'])*'"
+            // comments /* ... */
+            ."|/\\*.*?\\*/"
+            // comments -- ...
+            ."|--[^\\r\\n]*";
+
+        // Final regexp: skip (*SKIP)(*F) | replace true '?'
+        $pattern = "~(?:$skip)(*SKIP)(*F)|\\?~sx";
+
+        $parameter = 0;
+
+        return preg_replace_callback(
+            $pattern,
+            static function () use (&$parameter): string {
+                return ':p'.$parameter++;
+            },
+            $query,
+        );
     }
 
     /**
