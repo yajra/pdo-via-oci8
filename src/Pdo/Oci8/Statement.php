@@ -123,7 +123,7 @@ class Statement extends PDOStatement
     {
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new Oci8Exception(
-                'Resource expected of type oci8 statement; '.get_resource_type($sth).' received instead'
+                'Resource expected of type oci8 statement; ' . get_resource_type($sth) . ' received instead'
             );
         }
 
@@ -178,7 +178,7 @@ class Statement extends PDOStatement
                 $this->fetchIntoObject = null;
                 break;
             case PDO::FETCH_INTO:
-                if (! is_object($modeArg)) {
+                if (!is_object($modeArg)) {
                     throw new Oci8Exception(
                         '$modeArg must be instance of an object'
                     );
@@ -279,7 +279,7 @@ class Statement extends PDOStatement
 
         // Replace the first @oci8param to a pseudo named parameter
         if (is_numeric($parameter)) {
-            $parameter = ':p'.intval($parameter - 1);
+            $parameter = ':p' . intval($parameter - 1);
         }
 
         // Adapt the type
@@ -325,7 +325,7 @@ class Statement extends PDOStatement
                     $schema = $options['schema'] ?? null;
                     $type_name = $options['type_name'] ?? '';
 
-                    if (! $type_name) {
+                    if (!$type_name) {
                         throw new Oci8Exception('Type name is required for custom types');
                     }
 
@@ -624,7 +624,7 @@ class Statement extends PDOStatement
             return true;
         } elseif ($this->getAttribute(PDO::ATTR_STRINGIFY_FETCHES)) {
             return true;
-        } elseif (! $this->getAttribute(PDO::ATTR_STRINGIFY_FETCHES)) {
+        } elseif (!$this->getAttribute(PDO::ATTR_STRINGIFY_FETCHES)) {
             return false;
         }
 
@@ -776,12 +776,15 @@ class Statement extends PDOStatement
         // Save blob objects if set.
         if ($result && count($this->blobObjects) > 0) {
             foreach ($this->blobObjects as $param => $blob) {
-                /* @var OCILob $blob */
-                $blob->save($this->blobBindings[$param]);
+                if ($blob instanceof \OCILob) {
+                    /* @var OCILobk $blob */
+                    $blob->save($this->blobBindings[$param]);
+                }
+
             }
         }
 
-        if (! $this->connection->inTransaction() && count($this->blobObjects) > 0) {
+        if (!$this->connection->inTransaction() && count($this->blobObjects) > 0) {
             $this->connection->commit();
         }
 
@@ -789,11 +792,11 @@ class Statement extends PDOStatement
             $e = oci_error($this->sth);
 
             $message = '';
-            $message = $message.'Error Code    : '.$e['code'].PHP_EOL;
-            $message = $message.'Error Message : '.$e['message'].PHP_EOL;
-            $message = $message.'Position      : '.$e['offset'].PHP_EOL;
-            $message = $message.'Statement     : '.$e['sqltext'].PHP_EOL;
-            $message = $message.'Bindings      : ['.$this->displayBindings().']'.PHP_EOL;
+            $message = $message . 'Error Code    : ' . $e['code'] . PHP_EOL;
+            $message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
+            $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
+            $message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
+            $message = $message . 'Bindings      : [' . $this->displayBindings() . ']' . PHP_EOL;
 
             throw new Oci8Exception($message, $e['code']);
         }
