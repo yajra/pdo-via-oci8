@@ -777,10 +777,8 @@ class Statement extends PDOStatement
         if ($result && count($this->blobObjects) > 0) {
             foreach ($this->blobObjects as $param => $blob) {
                 if ($blob instanceof \OCILob) {
-                    /* @var OCILobk $blob */
                     $blob->save($this->blobBindings[$param]);
                 }
-
             }
         }
 
