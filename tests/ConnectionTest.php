@@ -193,6 +193,248 @@ class ConnectionTest extends TestCase
         $this->assertTrue($stmt->bindParam(':email', $email, PDO::PARAM_STR));
     }
 
+    public function testBindParamAcceptsPhpStreamForBlobInput(): void
+    {
+        $table = 'PDO_OCI8_STREAM_INPUT_TEST';
+        $contents = str_repeat("input\x00blob\xffcontent", 1024);
+        $offset = 7;
+        $expected = substr($contents, $offset);
+
+        $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content BLOB)");
+
+        try {
+            $id = 1;
+            $stmt = $this->con->prepare("INSERT INTO $table (id, content) VALUES (:id, :content)");
+
+            $this->assertTrue($stmt->bindParam(':id', $id, PDO::PARAM_INT));
+
+            $streamResource = fopen('php://memory', 'r+b');
+            $this->assertIsResource($streamResource);
+            fwrite($streamResource, $contents);
+            rewind($streamResource);
+            $this->assertSame(0, ftell($streamResource));
+            $this->assertSame(0, fseek($streamResource, $offset));
+
+            $stream = $streamResource;
+            $this->assertTrue($stmt->bindParam(':content', $stream, PDO::PARAM_LOB));
+            $this->assertTrue(feof($streamResource));
+            $this->assertTrue($stmt->execute());
+            $this->assertSame($expected, $this->con->query("SELECT content FROM $table WHERE id = 1")->fetchColumn());
+        } finally {
+            if (isset($streamResource) && is_resource($streamResource)) {
+                fclose($streamResource);
+            }
+
+            $this->con->exec("DROP TABLE $table");
+        }
+    }
+
+    public function testBindValueAcceptsLargePhpStreamForBlobWithLimitedMemory(): void
+    {
+        $table = 'PDO_OCI8_LARGE_BLOB_TEST';
+        $blobSize = 512 * 1024 * 1024;
+        $previousMemoryLimit = ini_get('memory_limit');
+        $tableCreated = false;
+
+        try {
+            $this->assertNotFalse(ini_set('memory_limit', '128M'));
+            $this->assertSame('128M', ini_get('memory_limit'));
+
+            $stream = tmpfile();
+            $this->assertIsResource($stream);
+            $this->assertTrue(ftruncate($stream, $blobSize));
+            $this->assertTrue(rewind($stream));
+
+            $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content BLOB)");
+            $tableCreated = true;
+
+            $stmt = $this->con->prepare("INSERT INTO $table (id, content) VALUES (1, :content)");
+
+            $this->assertTrue($stmt->bindValue(':content', $stream, PDO::PARAM_LOB));
+            $this->assertIsResource($stream);
+            $this->assertTrue(feof($stream));
+            $this->assertTrue($stmt->execute());
+            $this->assertSame(
+                $blobSize,
+                (int) $this->con->query("SELECT DBMS_LOB.GETLENGTH(content) FROM $table WHERE id = 1")->fetchColumn()
+            );
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+
+            try {
+                if ($tableCreated) {
+                    $this->con->exec("DROP TABLE $table");
+                }
+            } finally {
+                ini_set('memory_limit', (string) $previousMemoryLimit);
+            }
+        }
+    }
+
+    public function testBindValueRetainsBlobStreamAfterItIsClosed(): void
+    {
+        $table = 'PDO_OCI8_CLOSED_STREAM_TEST';
+        $contents = "stream-payload\x00\xff";
+
+        $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content BLOB)");
+
+        try {
+            $stream = fopen('php://memory', 'r+b');
+            $this->assertIsResource($stream);
+            fwrite($stream, $contents);
+            rewind($stream);
+
+            $stmt = $this->con->prepare("INSERT INTO $table (id, content) VALUES (1, :content)");
+
+            $this->assertTrue($stmt->bindValue(':content', $stream, PDO::PARAM_LOB));
+            fclose($stream);
+
+            $this->assertTrue($stmt->execute());
+            $this->assertSame($contents, $this->con->query("SELECT content FROM $table WHERE id = 1")->fetchColumn());
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+
+            $this->con->exec("DROP TABLE $table");
+        }
+    }
+
+    public function testBindValueCopiesBlobStreamIntoReturningLocator(): void
+    {
+        $table = 'PDO_OCI8_RETURNING_STREAM';
+        $contents = "stream-payload\x00\xff";
+
+        $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content BLOB)");
+
+        try {
+            $stream = fopen('php://memory', 'r+b');
+            $this->assertIsResource($stream);
+            fwrite($stream, $contents);
+            rewind($stream);
+
+            $stmt = $this->con->prepare(
+                "INSERT INTO $table (id, content) VALUES (1, EMPTY_BLOB()) RETURNING content INTO :content"
+            );
+
+            $this->assertTrue($stmt->bindValue(':content', $stream, PDO::PARAM_LOB));
+            $this->assertTrue($stmt->execute());
+            $this->assertSame($contents, $this->con->query("SELECT content FROM $table WHERE id = 1")->fetchColumn());
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+
+            $this->con->exec("DROP TABLE $table");
+        }
+    }
+
+    public function testBindValueCopiesBlobStreamIntoReturnLocator(): void
+    {
+        $table = 'PDO_OCI8_RETURN_STREAM';
+        $contents = "stream-payload\x00\xff";
+
+        $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content BLOB)");
+
+        try {
+            $stream = fopen('php://memory', 'r+b');
+            $this->assertIsResource($stream);
+            fwrite($stream, $contents);
+            rewind($stream);
+
+            $stmt = $this->con->prepare(
+                "INSERT INTO $table (id, content) VALUES (1, EMPTY_BLOB()) RETURN content INTO :content"
+            );
+
+            $this->assertTrue($stmt->bindValue(':content', $stream, PDO::PARAM_LOB));
+            $this->assertTrue($stmt->execute());
+            $this->assertSame($contents, $this->con->query("SELECT content FROM $table WHERE id = 1")->fetchColumn());
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+
+            $this->con->exec("DROP TABLE $table");
+        }
+    }
+
+    public function testBindValueCopiesBlobStreamIntoLocatorReturnedByPlSql(): void
+    {
+        $table = 'PDO_OCI8_PLSQL_STREAM';
+        $procedure = 'PDO_OCI8_CREATE_DOCUMENT';
+        $contents = "stream-payload\x00\xff";
+        $tableCreated = false;
+        $procedureCreated = false;
+
+        try {
+            $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content BLOB)");
+            $tableCreated = true;
+            $this->con->exec(<<<SQL
+                CREATE OR REPLACE PROCEDURE $procedure(p_content OUT BLOB) AS
+                BEGIN
+                    INSERT INTO $table (id, content) VALUES (1, EMPTY_BLOB())
+                    RETURNING content INTO p_content;
+                END;
+                SQL);
+            $procedureCreated = true;
+
+            $stream = fopen('php://memory', 'r+b');
+            $this->assertIsResource($stream);
+            fwrite($stream, $contents);
+            rewind($stream);
+
+            $stmt = $this->con->prepare("BEGIN $procedure(:content); END;");
+
+            $this->assertTrue($stmt->bindValue(':content', $stream, PDO::PARAM_LOB));
+            $this->assertTrue($stmt->execute());
+            $this->assertSame($contents, $this->con->query("SELECT content FROM $table WHERE id = 1")->fetchColumn());
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+
+            if ($procedureCreated) {
+                $this->con->exec("DROP PROCEDURE $procedure");
+            }
+
+            if ($tableCreated) {
+                $this->con->exec("DROP TABLE $table");
+            }
+        }
+    }
+
+    public function testRebindingReturningBlobStreamAsClobUsesReplacementValue(): void
+    {
+        $table = 'PDO_OCI8_REBOUND_CLOB';
+        $replacement = 'replacement clob content';
+
+        $this->con->exec("CREATE TABLE $table (id NUMBER PRIMARY KEY, content CLOB)");
+
+        try {
+            $stream = fopen('php://memory', 'r+b');
+            $this->assertIsResource($stream);
+            fwrite($stream, 'stale blob content');
+            rewind($stream);
+
+            $stmt = $this->con->prepare(
+                "INSERT INTO $table (id, content) VALUES (1, EMPTY_CLOB()) RETURNING content INTO :content"
+            );
+
+            $this->assertTrue($stmt->bindValue(':content', $stream, PDO::PARAM_LOB));
+            $this->assertTrue($stmt->bindValue(':content', $replacement, SQLT_CLOB));
+            $this->assertTrue($stmt->execute());
+            $this->assertSame($replacement, $this->con->query("SELECT content FROM $table WHERE id = 1")->fetchColumn());
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+
+            $this->con->exec("DROP TABLE $table");
+        }
+    }
+
     public function testSetConnectionIdentifier(): void
     {
         $expectedIdentifier = 'PDO_OCI8_CON';
