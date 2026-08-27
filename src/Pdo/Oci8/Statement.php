@@ -344,7 +344,7 @@ class Statement extends PDOStatement
                 $this->blobObjects[$parameter] = &$variable;
                 break;
 
-            case SQLT_BOL:
+            case (defined('SQLT_BOL') ? SQLT_BOL : -1):
                 $ociType = SQLT_BOL;
                 break;
 
