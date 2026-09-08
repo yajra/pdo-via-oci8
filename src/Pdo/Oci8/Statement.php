@@ -18,6 +18,11 @@ use Yajra\Pdo\Oci8\Exceptions\Oci8Exception;
  */
 class Statement extends PDOStatement
 {
+    private const LOB_STREAM_CHUNK_SIZE = 1024 * 1024;
+
+    /** @internal */
+    public const OPTION_MAY_REPLACE_LOB_LOCATOR = 'yajra.pdo-via-oci8.may-replace-lob-locator';
+
     /**
      * Statement handler.
      *
@@ -110,6 +115,18 @@ class Statement extends PDOStatement
     private array $blobBindings = [];
 
     /**
+     * Temporary copies of stream LOBs.
+     *
+     * @var array
+     */
+    private array $blobStreamBackups = [];
+
+    /**
+     * Whether this statement may replace a bound LOB locator, or null when unknown.
+     */
+    private ?bool $mayReplaceLobLocator;
+
+    /**
      * Constructor.
      *
      * @param  resource  $sth  Statement handle created with oci_parse()
@@ -128,6 +145,10 @@ class Statement extends PDOStatement
 
         $this->sth = $sth;
         $this->connection = $connection;
+        $this->mayReplaceLobLocator = array_key_exists(self::OPTION_MAY_REPLACE_LOB_LOCATOR, $options)
+            ? $options[self::OPTION_MAY_REPLACE_LOB_LOCATOR] === true
+            : null;
+        unset($options[self::OPTION_MAY_REPLACE_LOB_LOCATOR]);
         $this->options = $options;
 
         $fetchMode = $connection->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE);
@@ -281,6 +302,9 @@ class Statement extends PDOStatement
             $parameter = ':p'.intval($parameter - 1);
         }
 
+        // Discard a stream copy retained by an earlier binding for this placeholder.
+        unset($this->blobStreamBackups[$parameter]);
+
         // Adapt the type
         switch ($dataType) {
             case PDO::PARAM_BOOL:
@@ -302,10 +326,34 @@ class Statement extends PDOStatement
             case PDO::PARAM_LOB:
                 $ociType = OCI_B_BLOB;
 
-                $this->blobBindings[$parameter] = $variable;
+                unset($this->blobBindings[$parameter]);
+
+                $binding = $variable;
 
                 $variable = $this->connection->getNewDescriptor();
-                $variable->writeTemporary($this->blobBindings[$parameter], OCI_TEMP_BLOB);
+
+                if (is_resource($binding)) {
+                    if ($this->mayReplaceLobLocator !== false) {
+                        $backup = $this->connection->getNewDescriptor();
+                        $this->writeStreamToTemporaryLob($backup, $binding, OCI_TEMP_BLOB);
+
+                        if (! $variable->writeTemporary('', OCI_TEMP_BLOB)) {
+                            throw new Oci8Exception('Unable to create a temporary LOB.');
+                        }
+
+                        $this->copyLob($variable, $backup);
+                        $this->blobStreamBackups[$parameter] = $backup;
+                    } else {
+                        $this->writeStreamToTemporaryLob($variable, $binding, OCI_TEMP_BLOB);
+                    }
+                } elseif (! $variable->writeTemporary(
+                    $binding,
+                    OCI_TEMP_BLOB,
+                )) {
+                    throw new Oci8Exception('Unable to write temporary BLOB.');
+                } else {
+                    $this->blobBindings[$parameter] = $binding;
+                }
 
                 $this->blobObjects[$parameter] = &$variable;
                 break;
@@ -775,7 +823,9 @@ class Statement extends PDOStatement
         // Save blob objects if set.
         if ($result && count($this->blobObjects) > 0) {
             foreach ($this->blobObjects as $param => $blob) {
-                if ($blob instanceof \OCILob) {
+                if ($blob instanceof \OCILob && isset($this->blobStreamBackups[$param])) {
+                    $this->copyLob($blob, $this->blobStreamBackups[$param]);
+                } elseif ($blob instanceof \OCILob && array_key_exists($param, $this->blobBindings)) {
                     $blob->save($this->blobBindings[$param]);
                 }
             }
@@ -799,6 +849,49 @@ class Statement extends PDOStatement
         }
 
         return $result;
+    }
+
+    /** @param resource $stream */
+    private function writeStreamToTemporaryLob(\OCILob $lob, $stream, int $type): void
+    {
+        if (get_resource_type($stream) !== 'stream') {
+            throw new Oci8Exception('PDO::PARAM_LOB expects a stream resource.');
+        }
+
+        if (! $lob->writeTemporary('', $type)) {
+            throw new Oci8Exception('Unable to create a temporary LOB.');
+        }
+
+        while (! feof($stream)) {
+            $chunk = fread($stream, self::LOB_STREAM_CHUNK_SIZE);
+
+            if ($chunk === false || ($chunk === '' && ! feof($stream))) {
+                throw new Oci8Exception('Unable to read from the LOB stream.');
+            }
+
+            while ($chunk !== '') {
+                $written = $lob->write($chunk);
+
+                if (! is_int($written) || $written <= 0) {
+                    throw new Oci8Exception('Unable to write to the temporary LOB.');
+                }
+
+                $chunk = substr($chunk, $written);
+            }
+        }
+    }
+
+    private function copyLob(\OCILob $destination, \OCILob $source): void
+    {
+        $length = $source->size();
+
+        if ($length === false || ! $source->rewind() || ! $destination->rewind() || ! $destination->truncate()) {
+            throw new Oci8Exception('Unable to prepare the temporary LOB for copying.');
+        }
+
+        if ($length > 0 && ! oci_lob_copy($destination, $source, $length)) {
+            throw new Oci8Exception('Unable to copy the temporary LOB.');
+        }
     }
 
     /**
