@@ -3,6 +3,7 @@
 ## PDO via Oci8
 
 [![Continuous Integration](https://github.com/yajra/pdo-via-oci8/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/pdo-via-oci8/actions/workflows/continuous-integration.yml)
+[![Coverage](https://raw.githubusercontent.com/yajra/pdo-via-oci8/coverage-report/badges/coverage.svg)](https://github.com/yajra/pdo-via-oci8/actions/workflows/continuous-integration.yml)
 [![Latest Stable Version](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/v/stable)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8)
 [![Total Downloads](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/downloads)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8)
 [![Latest Unstable Version](https://poser.pugx.org/yajra/laravel-pdo-via-oci8/v/unstable)](https://packagist.org/packages/yajra/laravel-pdo-via-oci8)
