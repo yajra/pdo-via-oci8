@@ -333,6 +333,13 @@ class Oci8 extends PDO
             $options = [];
         }
 
+        $statementType = oci_statement_type($sth);
+        $isDmlReturning = in_array($statementType, ['INSERT', 'UPDATE', 'DELETE', 'MERGE'], true)
+            && preg_match('/\breturn(?:ing)?\b/i', $query) === 1;
+
+        $options[Statement::OPTION_MAY_REPLACE_LOB_LOCATOR] = $isDmlReturning
+            || in_array($statementType, ['BEGIN', 'CALL', 'DECLARE'], true);
+
         return new Statement($sth, $this, $options);
     }
 
