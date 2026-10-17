@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/yajra/pdo-via-oci8/compare/v3.7.3...v3.8.0) (2026-10-17)
+
+
+### Features
+
+* support streams in LOB bindings ([c63579a](https://github.com/yajra/pdo-via-oci8/commit/c63579ae3ede6e402581d6ac4eaa3d86fbc18395))
+
 ## [3.7.3](https://github.com/yajra/pdo-via-oci8/compare/v3.7.2...v3.7.3) (2025-12-17)
 
 
