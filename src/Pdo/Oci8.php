@@ -28,6 +28,9 @@ use Yajra\Pdo\Oci8\Statement;
  */
 class Oci8 extends PDO
 {
+    /** Return BLOB columns as PHP streams instead of strings (opt-in). */
+    public const ATTR_BLOB_AS_STREAM = 1000;
+
     /**
      * Database handler.
      *
@@ -474,7 +477,7 @@ class Oci8 extends PDO
         $stmt->execute();
 
         if ($mode) {
-            $stmt->setFetchMode($mode, $fetch_mode_args);
+            $stmt->setFetchMode($mode, ...$fetch_mode_args);
         }
 
         return $stmt;
