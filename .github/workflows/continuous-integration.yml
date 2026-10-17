@@ -104,6 +104,62 @@ jobs:
           docker logs --tail 200 "${{ job.services.oracle.id }}"
           exit 1
 
+      - name: Create Oracle test tablespace
+        run: |
+          if [ "${{ matrix.oracle }}" = "11g" ]; then
+            SQLPLUS_PATH="/u01/app/oracle/product/11.2.0/xe/bin/sqlplus -L"
+            ORACLE_ENV="export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe; export PATH=\$ORACLE_HOME/bin:\$PATH; export LD_LIBRARY_PATH=\$ORACLE_HOME/lib:\$LD_LIBRARY_PATH;"
+            LOGIN="system/oracle@XE"
+          elif [ "${{ matrix.oracle }}" = "21c" ]; then
+            SQLPLUS_PATH="sqlplus -L"
+            ORACLE_ENV=""
+            LOGIN="system/oracle@XEPDB1"
+          elif [ "${{ matrix.oracle }}" = "26ai" ]; then
+            SQLPLUS_PATH="sqlplus -L"
+            ORACLE_ENV=""
+            LOGIN="system/oracle@FREEPDB1"
+          else
+            echo "Using the managed DATA tablespace for Oracle ${{ matrix.oracle }}."
+            exit 0
+          fi
+
+          docker exec -i -u oracle "${{ job.services.oracle.id }}" bash -lc "$ORACLE_ENV $SQLPLUS_PATH -s $LOGIN" <<'SQL'
+          WHENEVER SQLERROR EXIT SQL.SQLCODE
+          SET SERVEROUTPUT ON
+
+          DECLARE
+              datafile_path VARCHAR2(4000);
+              db_create_file_dest VARCHAR2(4000);
+          BEGIN
+              SELECT value
+              INTO db_create_file_dest
+              FROM v$parameter
+              WHERE name = 'db_create_file_dest';
+
+              IF db_create_file_dest IS NOT NULL THEN
+                  EXECUTE IMMEDIATE
+                      'CREATE TABLESPACE PDO_OCI8_TEST DATAFILE SIZE 128M '
+                      || 'AUTOEXTEND ON NEXT 128M MAXSIZE 2G';
+              ELSE
+                  SELECT SUBSTR(file_name, 1, INSTR(file_name, '/', -1))
+                         || 'pdo_oci8_test.dbf'
+                  INTO datafile_path
+                  FROM dba_data_files
+                  WHERE tablespace_name = 'SYSTEM'
+                    AND ROWNUM = 1;
+
+                  EXECUTE IMMEDIATE
+                      'CREATE TABLESPACE PDO_OCI8_TEST DATAFILE '''
+                      || REPLACE(datafile_path, '''', '''''')
+                      || ''' SIZE 128M AUTOEXTEND ON NEXT 128M MAXSIZE 2G';
+              END IF;
+          END;
+          /
+
+          ALTER USER SYSTEM DEFAULT TABLESPACE PDO_OCI8_TEST;
+          EXIT
+          SQL
+
       - name: Run Tests
         env:
           OCI_USER: ${{ (matrix.oracle == '19c' || matrix.oracle == '23ai') && 'admin' || 'system' }}
