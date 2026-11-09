@@ -1031,6 +1031,7 @@ class Statement extends PDOStatement
      *     table
      *     len
      *     precision
+     *     scale
      *     pdo_type.
      *
      * @param  int  $column  The 0-indexed column in the result set.
@@ -1050,6 +1051,7 @@ class Statement extends PDOStatement
         $meta['table'] = null;
         $meta['len'] = oci_field_size($this->sth, $column);
         $meta['precision'] = oci_field_precision($this->sth, $column);
+        $meta['scale'] = oci_field_scale($this->sth, $column);
         $meta['pdo_type'] = null;
         $meta['is_null'] = oci_field_is_null($this->sth, $column);
 
