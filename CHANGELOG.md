@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/yajra/pdo-via-oci8/compare/v3.8.0...v3.9.0) (2026-11-13)
+
+
+### Features
+
+* add the column scale to getColumnMeta ([33c3bc6](https://github.com/yajra/pdo-via-oci8/commit/33c3bc6c987ff818aa22d402f85e3b6da15cb864))
+
 # [3.8.0](https://github.com/yajra/pdo-via-oci8/compare/v3.7.3...v3.8.0) (2026-10-17)
 
 
