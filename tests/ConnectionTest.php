@@ -172,6 +172,20 @@ class ConnectionTest extends TestCase
         $this->assertInstanceOf(PDOStatement::class, $statement);
     }
 
+    public function testColumnMetaReportsPrecisionAndScale(): void
+    {
+        $statement = $this->con->query('SELECT CAST(12.3 AS NUMBER(10, 2)) AS amount, CAST(7 AS NUMBER(5)) AS quantity FROM dual');
+
+        $amount = $statement->getColumnMeta(0);
+        $quantity = $statement->getColumnMeta(1);
+
+        $this->assertSame('NUMBER', $amount['native_type']);
+        $this->assertSame(10, $amount['precision']);
+        $this->assertSame(2, $amount['scale']);
+        $this->assertSame(5, $quantity['precision']);
+        $this->assertSame(0, $quantity['scale']);
+    }
+
     public function testClose(): void
     {
         $this->con->close();
