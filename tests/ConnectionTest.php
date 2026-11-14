@@ -2,6 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use Yajra\Pdo\Oci8;
+use Yajra\Pdo\Oci8\BlobStream;
 use Yajra\Pdo\Oci8\Statement;
 
 class ConnectionTest extends TestCase
@@ -32,6 +33,236 @@ class ConnectionTest extends TestCase
     public function testObject(): void
     {
         $this->assertNotNull($this->con);
+    }
+
+    /** @dataProvider blobStreamFetchProvider */
+    public function testOnlyBlobsAreFetchedAsStreams(int $mode, bool $fetchAll): void
+    {
+        $this->con->setAttribute(Oci8::ATTR_BLOB_AS_STREAM, true);
+        $stmt = $this->con->prepare(<<<'SQL'
+            SELECT TO_BLOB(HEXTORAW('610062FF')) AS content,
+                   TO_CLOB('clob text') AS clob_content,
+                   TO_NCLOB('national text') AS nclob_content,
+                   EMPTY_BLOB() AS empty_content,
+                   TO_BLOB(HEXTORAW(NULL)) AS null_content
+            FROM dual CONNECT BY LEVEL <= 2
+            SQL, [PDO::ATTR_CASE => PDO::CASE_LOWER]);
+        $stmt->execute();
+        $stmt->setFetchMode($mode);
+        $rows = $fetchAll ? $stmt->fetchAll($mode) : [$stmt->fetch()];
+        $this->assertCount($fetchAll ? 2 : 1, $rows);
+        $this->assertSame('BLOB', $stmt->getColumnMeta(4)['native_type']);
+        $stmt->closeCursor();
+        unset($stmt);
+
+        foreach ($rows as $row) {
+            $row = (array) $row;
+            $blob = $row[$mode === PDO::FETCH_NUM ? 0 : 'content'];
+            $empty = $row[$mode === PDO::FETCH_NUM ? 3 : 'empty_content'];
+            try {
+                $this->assertIsResource($blob);
+                $this->assertSame('stream', get_resource_type($blob));
+                $this->assertSame(0, ftell($blob));
+                $this->assertSame("a\x00b\xff", stream_get_contents($blob));
+                $this->assertTrue(rewind($blob));
+                $this->assertSame("a\x00b\xff", stream_get_contents($blob));
+                $this->assertSame('clob text', $row[$mode === PDO::FETCH_NUM ? 1 : 'clob_content']);
+                $this->assertSame('national text', $row[$mode === PDO::FETCH_NUM ? 2 : 'nclob_content']);
+                $this->assertIsResource($empty);
+                $this->assertSame('', stream_get_contents($empty));
+                $this->assertNull($row[$mode === PDO::FETCH_NUM ? 4 : 'null_content']);
+                if ($mode === PDO::FETCH_BOTH) {
+                    $this->assertSame($blob, $row[0]);
+                    $this->assertSame($empty, $row[3]);
+                }
+            } finally {
+                if (is_resource($blob)) {
+                    fclose($blob);
+                }
+                if (is_resource($empty)) {
+                    fclose($empty);
+                }
+            }
+        }
+    }
+
+    public static function blobStreamFetchProvider(): iterable
+    {
+        foreach ([PDO::FETCH_ASSOC, PDO::FETCH_NUM, PDO::FETCH_BOTH, PDO::FETCH_OBJ, PDO::FETCH_CLASS] as $mode) {
+            yield "fetch $mode" => [$mode, false];
+            yield "fetchAll $mode" => [$mode, true];
+        }
+    }
+
+    public function testBlobStreamOptionAndColumnFetches(): void
+    {
+        $sql = "SELECT 42 AS id, TO_BLOB(HEXTORAW('610062FF')) AS content FROM dual";
+        $this->assertSame("a\x00b\xff", $this->con->query($sql)->fetchColumn(1));
+
+        $this->con->setAttribute(Oci8::ATTR_BLOB_AS_STREAM, true);
+        $disabled = $this->con->prepare($sql, [Oci8::ATTR_BLOB_AS_STREAM => false]);
+        $disabled->execute();
+        $this->assertSame("a\x00b\xff", $disabled->fetchColumn(1));
+
+        $stmt = $this->con->prepare($sql);
+        $stmt->execute();
+        $stream = $stmt->fetchColumn(1);
+        try {
+            $this->assertIsResource($stream);
+            $this->assertSame("a\x00b\xff", stream_get_contents($stream));
+            $this->assertFalse($stmt->fetchColumn(1));
+        } finally {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }
+
+        $stmt->execute();
+        $streams = $stmt->fetchAll(PDO::FETCH_COLUMN, 1);
+        $this->assertCount(1, $streams);
+        try {
+            $this->assertIsResource($streams[0]);
+            $this->assertSame("a\x00b\xff", stream_get_contents($streams[0]));
+        } finally {
+            if (is_resource($streams[0])) {
+                fclose($streams[0]);
+            }
+        }
+
+        $stmt->setAttribute(Oci8::ATTR_BLOB_AS_STREAM, false);
+        $stmt->execute();
+        $this->assertSame("a\x00b\xff", $stmt->fetchColumn(1));
+        $this->assertNull($this->con->query('SELECT TO_BLOB(HEXTORAW(NULL)) FROM dual')->fetchColumn());
+        $this->assertSame(
+            [null, null],
+            $this->con->query('SELECT TO_BLOB(HEXTORAW(NULL)) FROM dual CONNECT BY LEVEL <= 2')->fetchAll(PDO::FETCH_COLUMN)
+        );
+    }
+
+    /**
+     * @dataProvider largeBlobStreamFetchProvider
+     *
+     * @runInSeparateProcess
+     *
+     * @preserveGlobalState disabled
+     */
+    public function testLargeBlobStreamFetchUsesBoundedMemory(string $method): void
+    {
+        $table = 'PDO_OCI8_STREAM_FETCH';
+        $blobSize = 128 * 1024 * 1024;
+        $chunkCount = 8192;
+        $previousMemoryLimit = ini_get('memory_limit');
+        $tableCreated = false;
+
+        try {
+            // Loading the entire 128 MiB BLOB must fail under this limit.
+            $this->assertNotFalse(ini_set('memory_limit', '64M'));
+            $this->assertSame('64M', ini_get('memory_limit'));
+            $this->con->exec("CREATE TABLE $table (content BLOB)");
+            $tableCreated = true;
+
+            // Generate binary contents in Oracle without materializing them in PHP.
+            $this->con->exec(<<<SQL
+                DECLARE
+                    content_lob BLOB;
+                    chunk RAW(16384) := UTL_RAW.COPIES(HEXTORAW('007F80FF'), 4096);
+                BEGIN
+                    INSERT INTO $table (content) VALUES (EMPTY_BLOB())
+                    RETURNING content INTO content_lob;
+                    FOR i IN 1..$chunkCount LOOP
+                        DBMS_LOB.WRITEAPPEND(content_lob, UTL_RAW.LENGTH(chunk), chunk);
+                    END LOOP;
+                END;
+                SQL);
+
+            $this->con->setAttribute(Oci8::ATTR_BLOB_AS_STREAM, true);
+            $peakBeforeFetch = memory_get_peak_usage();
+            $stmt = $this->con->query("SELECT content FROM $table");
+            if ($method === 'fetchColumn') {
+                $stream = $stmt->fetchColumn();
+            } elseif ($method === 'fetch') {
+                $stream = $stmt->fetch(PDO::FETCH_NUM)[0];
+            } else {
+                $rows = $stmt->fetchAll(PDO::FETCH_NUM);
+                $this->assertCount(1, $rows);
+                $stream = $rows[0][0];
+            }
+            $this->assertLessThan(
+                8 * 1024 * 1024,
+                memory_get_peak_usage() - $peakBeforeFetch,
+                'Fetching a 128 MiB BLOB must use less than 8 MiB of additional peak PHP memory.'
+            );
+            $stmt->closeCursor();
+            $this->assertIsResource($stream);
+            $this->assertSame('stream', get_resource_type($stream));
+            $this->assertSame(0, ftell($stream));
+            $this->assertSame($blobSize, fstat($stream)['size']);
+            $this->assertInstanceOf(BlobStream::class, stream_get_meta_data($stream)['wrapper_data']);
+
+            // Hash every byte after closing the cursor, using only a small buffer.
+            $chunk = str_repeat("\x00\x7f\x80\xff", 4096);
+            $expectedHash = hash_init('sha256');
+            for ($i = 0; $i < $chunkCount; $i++) {
+                hash_update($expectedHash, $chunk);
+            }
+            $actualHash = hash_init('sha256');
+            $this->assertSame($blobSize, hash_update_stream($actualHash, $stream));
+            $this->assertSame(hash_final($expectedHash), hash_final($actualHash));
+            $this->assertLessThan(8 * 1024 * 1024, memory_get_peak_usage() - $peakBeforeFetch);
+            $this->assertSame(0, fseek($stream, -32, SEEK_END));
+            $this->assertSame(substr($chunk, -32), fread($stream, 32));
+        } finally {
+            if (isset($stream) && is_resource($stream)) {
+                fclose($stream);
+            }
+            unset($stmt);
+            try {
+                if ($tableCreated) {
+                    $this->con->exec("DROP TABLE $table PURGE");
+                }
+            } finally {
+                ini_set('memory_limit', (string) $previousMemoryLimit);
+            }
+        }
+    }
+
+    public static function largeBlobStreamFetchProvider(): array
+    {
+        return [
+            'fetchColumn' => ['fetchColumn'],
+            'fetch' => ['fetch'],
+            'fetchAll' => ['fetchAll'],
+        ];
+    }
+
+    public function testOracleBlobStreamReadsOnlyWhenRequested(): void
+    {
+        $lob = $this->con->getNewDescriptor();
+        $this->assertInstanceOf(OCILob::class, $lob);
+        $payload = random_bytes(2 * 1024 * 1024 + 17);
+        $this->assertTrue($lob->writeTemporary($payload, OCI_TEMP_BLOB));
+
+        $stream = BlobStream::open($lob, $this->con);
+        try {
+            $this->assertSame(0, $lob->tell(), 'Opening the stream must not read the BLOB.');
+            $this->assertSame(strlen($payload), fstat($stream)['size']);
+            $this->assertSame(0, $lob->tell(), 'Reading metadata must not read the BLOB.');
+            $this->assertSame(substr($payload, 0, 16), fread($stream, 16));
+            $this->assertGreaterThan(0, $lob->tell());
+            $this->assertLessThan(strlen($payload), $lob->tell(), 'A short read must not load the entire BLOB.');
+            $this->assertSame(16, ftell($stream));
+            $bufferedPosition = $lob->tell();
+            $this->assertSame(substr($payload, 16, 8192), fread($stream, 8192));
+            $this->assertSame($bufferedPosition, $lob->tell(), 'Consecutive small reads must reuse the buffer.');
+            $this->assertSame(16 + 8192, ftell($stream));
+            $this->assertSame(0, fseek($stream, -16, SEEK_END));
+            $this->assertSame(substr($payload, -16), fread($stream, 16));
+            $this->assertTrue(feof($stream));
+            $this->assertTrue(rewind($stream));
+            $this->assertSame($payload, stream_get_contents($stream));
+        } finally {
+            fclose($stream);
+        }
     }
 
     /**
