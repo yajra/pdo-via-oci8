@@ -35,6 +35,42 @@ And then run `composer update`
 
 When using PHP 8, please use version 3: `"yajra/laravel-pdo-via-oci8": "3.*"`.
 
+## Fetching BLOBs as streams
+
+BLOBs are returned as strings by default. Enable `Oci8::ATTR_BLOB_AS_STREAM`
+to receive seekable PHP streams instead:
+
+```php
+use Yajra\Pdo\Oci8;
+
+$pdo = new Oci8($dsn, $username, $password, [
+    Oci8::ATTR_BLOB_AS_STREAM => true,
+]);
+
+$stream = $pdo->query('SELECT content FROM documents WHERE id = 1')->fetchColumn();
+if (is_resource($stream)) {
+    fpassthru($stream);
+    fclose($stream);
+}
+```
+
+The flag can also be set with `$pdo->setAttribute()` before preparing a statement,
+passed in `prepare()` options, or changed with `$statement->setAttribute()`.
+An explicit `false` on a statement overrides the connection setting.
+
+Only BLOB columns become streams; CLOB and NCLOB columns remain strings, and SQL
+NULL remains `null`. Empty BLOBs produce empty streams. Streams are read-only and
+read directly from the Oracle LOB on demand, without copying it into memory or a
+temporary file. They support `fread()`, `fseek()`, `rewind()`, and `fstat()`, and
+start at position zero. The stream retains the LOB and connection after the
+statement is closed; keep the Oracle session and transaction valid until reading
+is complete. Call `fclose()` to release the LOB locator when finished. In
+`PDO::FETCH_BOTH`, the numeric and named keys refer to the same stream.
+
+Memory usage depends on how much the caller reads at once. For large BLOBs, use
+`fread()` in a loop, `fpassthru()`, or `stream_copy_to_stream()`;
+`stream_get_contents()` without a length still allocates the full contents.
+
 ## Testing
 
 There is a test suite (using `PHPUnit` with a version bigger than 6.x) on the `test` directory. If you want to

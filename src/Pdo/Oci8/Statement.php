@@ -152,6 +152,7 @@ class Statement extends PDOStatement
         $this->connection = $connection;
         $this->mayReplaceLobLocator = $options[self::OPTION_MAY_REPLACE_LOB_LOCATOR] ?? true;
         unset($options[self::OPTION_MAY_REPLACE_LOB_LOCATOR]);
+        $options[Oci8::ATTR_BLOB_AS_STREAM] ??= $connection->getAttribute(Oci8::ATTR_BLOB_AS_STREAM) ?? false;
         $this->options = $options;
 
         $fetchMode = $connection->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE);
@@ -222,7 +223,7 @@ class Statement extends PDOStatement
                 break;
             case PDO::FETCH_COLUMN:
                 $this->fetchMode = $mode;
-                $this->fetchColNo = (int) $modeArg;
+                $this->fetchColNo = (int) $className;
                 $this->fetchClassName = '\stdClass';
                 $this->fetchCtorArgs = [];
                 $this->fetchIntoObject = null;
@@ -469,9 +470,9 @@ class Statement extends PDOStatement
      *
      * @param  int|null  $colNumber  0-indexed number of the column you wish to retrieve
      *                               from the row. If no value is supplied, it fetches the first column.
-     * @return string Returns a single column in the next row of a result set.
+     * @return mixed Returns a single column, or false when no rows remain.
      */
-    public function fetchColumn(?int $colNumber = null): string
+    public function fetchColumn(?int $colNumber = null): mixed
     {
         $this->setFetchMode(PDO::FETCH_COLUMN, $colNumber);
 
@@ -584,7 +585,7 @@ class Statement extends PDOStatement
                 if (is_array($rs) && array_key_exists($colNo, $rs)) {
                     $value = $rs[$colNo];
                     if (is_object($value)) {
-                        return $this->loadLob($value);
+                        return $this->loadLob($value, $colNo + 1);
                     }
 
                     return $value;
@@ -677,6 +678,29 @@ class Statement extends PDOStatement
      */
     private function fetchArray(int $mode): array|false
     {
+        if ($this->returnLobs && $this->getAttribute(Oci8::ATTR_BLOB_AS_STREAM)) {
+            // Convert each column once, then share its stream between FETCH_BOTH keys.
+            $values = oci_fetch_array($this->sth, OCI_NUM | OCI_RETURN_NULLS);
+            if ($values === false) {
+                return false;
+            }
+
+            $row = [];
+            foreach ($values as $index => $value) {
+                if ($value instanceof \OCILob) {
+                    $value = $this->loadLob($value, $index + 1);
+                }
+                if ($mode & OCI_ASSOC) {
+                    $row[oci_field_name($this->sth, $index + 1)] = $value;
+                }
+                if ($mode & OCI_NUM) {
+                    $row[$index] = $value;
+                }
+            }
+
+            return $row;
+        }
+
         if ($this->returnLobs) {
             $mode |= OCI_RETURN_LOBS;
         }
@@ -738,8 +762,13 @@ class Statement extends PDOStatement
      * @param  mixed  $lob
      * @return mixed
      */
-    private function loadLob(mixed $lob): mixed
+    private function loadLob(mixed $lob, ?int $column = null): mixed
     {
+        if ($column !== null && $this->getAttribute(Oci8::ATTR_BLOB_AS_STREAM)
+            && oci_field_type($this->sth, $column) === 'BLOB') {
+            return BlobStream::open($lob, $this->connection);
+        }
+
         try {
             return $lob->load();
         } catch (Exception $e) {
@@ -799,13 +828,14 @@ class Statement extends PDOStatement
             $mode = $this->fetchMode;
         }
 
-        $this->setFetchMode($mode, $args);
+        $this->setFetchMode($mode, $mode === PDO::FETCH_COLUMN ? $fetch_argument : $args);
 
         $this->results = [];
-        while ($row = $this->fetch()) {
+        while (($row = $this->fetch()) !== false) {
             $mangledObj = get_mangled_object_vars((object) $row);
 
-            if ((is_array($row) || is_object($row)) && is_resource(reset($mangledObj))) {
+            if ((is_array($row) || is_object($row)) && is_resource(reset($mangledObj))
+                && strtolower(get_resource_type(reset($mangledObj))) === 'oci8 statement') {
                 $stmt = new self(reset($mangledObj), $this->connection, $this->options);
                 $stmt->execute();
                 $stmt->setFetchMode($mode, $args);
